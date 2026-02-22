@@ -5,6 +5,15 @@ All notable changes to AgenticVision will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-02-22
+
+### Fixed
+- Hardened MCP stdio framing for clients using Content-Length transport.
+- Formatting and compatibility follow-ups for MCP server command handling.
+
+### Changed
+- Updated workspace orchestration and install profile documentation.
+
 ## [Unreleased] — v0.2.0 Remote Server Support
 
 ### Planned
