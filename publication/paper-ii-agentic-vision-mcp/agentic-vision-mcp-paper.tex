@@ -17,7 +17,9 @@
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage{microtype}
+\usepackage{amssymb}
 \usepackage{orcidlink}
+\providecommand{\texttimes}{$\times$}
 \pgfplotsset{compat=1.18}
 
 % Color palette (professional blues, teals, oranges)
@@ -57,8 +59,8 @@
 \renewcommand{\headrulewidth}{0.4pt}
 
 \title{\textbf{AgenticVision-MCP: Persistent Visual Memory for\\AI Agents via the Model Context Protocol}}
-\author{Omoshola Owolabi\,\orcidlink{0009-0006-4089-0732}\\Independent Researcher -- AI/ML\\\texttt{owolabi.omoshola@outlook.com}}
-\date{February 19, 2026}
+\author{Omoshola Owolabi\,\orcidlink{0009-0006-4089-0732}\\Researcher -- AI/ML\\Agentra Labs\\\texttt{omoshola.owolabi@agentralabs.tech}}
+\date{February 22, 2026}
 
 \begin{document}
 \maketitle
@@ -216,16 +218,16 @@ The \texttt{embedding} field stores a 512-dimensional CLIP ViT-B/32 vector, L2-n
 \centering
 \begin{tikzpicture}[
   node distance=0.6cm,
-  step/.style={draw, rounded corners=2pt, minimum width=2.8cm, minimum height=0.55cm, font=\scriptsize, align=center, fill=primary!8, draw=primary!50},
+  stepbox/.style={draw, rounded corners=2pt, minimum width=2.8cm, minimum height=0.55cm, font=\scriptsize, align=center, fill=primary!8, draw=primary!50},
   arr/.style={-{Stealth[length=3pt]}, thick, primary!70},
 ]
 
-\node[step] (input) {Image Input\\(file, base64, clipboard)};
-\node[step, below=of input] (decode) {Decode \& Validate\\(PNG, JPEG, WebP, GIF)};
-\node[step, below=of decode] (thumb) {Thumbnail Generation\\(Lanczos3, max 512px, Q85)};
-\node[step, below=of thumb] (embed) {CLIP Embedding\\(224$\times$224, ViT-B/32, 512-d)};
-\node[step, below=of embed] (meta) {Metadata Assembly\\(dims, labels, description)};
-\node[step, below=of meta, fill=secondary!10, draw=secondary!50] (store) {Store in \texttt{.avis}\\(header + JSON payload)};
+\node[stepbox] (input) {Image Input\\(file, base64, clipboard)};
+\node[stepbox, below=of input] (decode) {Decode \& Validate\\(PNG, JPEG, WebP, GIF)};
+\node[stepbox, below=of decode] (thumb) {Thumbnail Generation\\(Lanczos3, max 512px, Q85)};
+\node[stepbox, below=of thumb] (embed) {CLIP Embedding\\(224$\times$224, ViT-B/32, 512-d)};
+\node[stepbox, below=of embed] (meta) {Metadata Assembly\\(dims, labels, description)};
+\node[stepbox, below=of meta, fill=secondary!10, draw=secondary!50] (store) {Store in \texttt{.avis}\\(header + JSON payload)};
 
 \draw[arr] (input) -- (decode);
 \draw[arr] (decode) -- (thumb);

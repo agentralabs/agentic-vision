@@ -334,7 +334,7 @@ Configure Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_c
 
 ## Roadmap: v0.2.0 — Remote Server Support
 
-The next release adds HTTP/SSE transport for remote deployments. Track progress in [#2](https://github.com/agentralabs/agentic-vision/issues/2).
+The next release is planned to add HTTP/SSE transport for remote deployments. Track progress in [#2](https://github.com/agentralabs/agentic-vision/issues/2).
 
 | Feature | Status |
 |:---|:---|
@@ -348,18 +348,11 @@ The next release adds HTTP/SSE transport for remote deployments. Track progress 
 | Docker image + compose | Planned |
 | Remote deployment docs | Planned |
 
-```bash
-# Remote single-user
-agentic-vision-mcp serve-http \
-  --port 8081 \
-  --token "secret123"
+Planned CLI shape (not available in current release):
 
-# Remote multi-tenant
-agentic-vision-mcp serve-http \
-  --multi-tenant \
-  --data-dir /data/users/ \
-  --port 8081 \
-  --token "secret123"
+```text
+agentic-vision-mcp serve-http --port 8081 --token "<token>"
+agentic-vision-mcp serve-http --multi-tenant --data-dir /data/users --port 8081 --token "<token>"
 ```
 
 ---
