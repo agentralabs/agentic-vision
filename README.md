@@ -165,6 +165,17 @@ curl -fsSL https://agentralabs.tech/install/vision/server | bash
 | GitHub installer (server profile) | `curl -fsSL https://agentralabs.tech/install/vision/server \| bash` | Installs binaries only; server-safe behavior |
 | crates.io + Cargo deps (official) | `cargo install agentic-vision-mcp` + `cargo add agentic-vision` | Installs MCP server binary and adds the core library crate to your project |
 
+### Server auth and artifact sync
+
+For cloud/server runtime:
+
+```bash
+export AGENTIC_TOKEN="$(openssl rand -hex 32)"
+```
+
+All MCP clients must send `Authorization: Bearer <same-token>`.
+If `.avis/.amem/.acb` files are on another machine, sync them to the server first.
+
 <p align="center">
   <img src="assets/architecture-agentra.svg" alt="AgenticVision architecture in Agentra Labs design system" width="980">
 </p>

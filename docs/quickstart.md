@@ -19,6 +19,14 @@ curl -fsSL https://agentralabs.tech/install/vision/terminal | bash
 curl -fsSL https://agentralabs.tech/install/vision/server | bash
 ```
 
+For server mode:
+
+```bash
+export AGENTIC_TOKEN="$(openssl rand -hex 32)"
+```
+
+Cloud/server runtime cannot read laptop files directly. Sync `.avis/.amem/.acb` artifacts to server storage first.
+
 Or install MCP + library manually:
 ```bash
 cargo install agentic-vision-mcp
