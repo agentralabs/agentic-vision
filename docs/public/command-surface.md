@@ -22,6 +22,19 @@ agentic-vision-mcp repl
 - `--model <clip_model.onnx>`
 - `--log-level trace|debug|info|warn|error`
 
+## Key tools exposed by MCP
+
+- `vision_capture` (now returns `quality_score`)
+- `vision_query` (supports `description_contains`, `min_quality`, `sort_by`)
+- `vision_health` (quality + staleness + linkage summary)
+- `vision_similar`
+- `vision_compare`
+- `vision_diff`
+- `vision_ocr`
+- `vision_link`
+- `session_start`
+- `session_end`
+
 ## Universal MCP entry
 
 ```json

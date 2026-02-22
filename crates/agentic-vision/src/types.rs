@@ -2,6 +2,10 @@
 
 use serde::{Deserialize, Serialize};
 
+fn default_quality_score() -> f32 {
+    0.0
+}
+
 /// A captured visual observation stored in visual memory.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VisualObservation {
@@ -34,6 +38,9 @@ pub struct ObservationMeta {
     pub original_height: u32,
     pub labels: Vec<String>,
     pub description: Option<String>,
+    /// Signal quality score in [0.0, 1.0] (resolution, metadata richness, model quality).
+    #[serde(default = "default_quality_score")]
+    pub quality_score: f32,
 }
 
 /// Pixel-level diff between two captures.

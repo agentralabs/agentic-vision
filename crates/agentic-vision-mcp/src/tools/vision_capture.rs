@@ -151,6 +151,7 @@ pub async fn execute(
             "width": result.width,
             "height": result.height
         },
-        "embedding_dims": result.embedding_dims
+        "embedding_dims": result.embedding_dims,
+        "quality_score": result.quality_score
     })))
 }

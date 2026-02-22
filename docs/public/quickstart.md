@@ -29,6 +29,7 @@ Expected tool list includes:
 - `vision_diff`
 - `vision_ocr`
 - `vision_link`
+- `vision_health`
 
 ## 4. Start MCP server
 
@@ -37,3 +38,18 @@ $HOME/.local/bin/agentic-vision-mcp serve
 ```
 
 Use `Ctrl+C` to stop after startup verification.
+
+## 5. Query quality-aware results
+
+Use MCP `vision_query` args:
+
+```json
+{
+  "description_contains": "error",
+  "min_quality": 0.5,
+  "sort_by": "quality",
+  "max_results": 10
+}
+```
+
+Run `vision_health` periodically to monitor stale captures, unlabeled captures, and unlinked memory references.

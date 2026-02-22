@@ -177,6 +177,19 @@ impl VisionSessionManager {
             .embed(&img)
             .map_err(|e| McpError::VisionError(format!("Embedding failed: {e}")))?;
 
+        let sanitized_labels: Vec<String> = labels
+            .into_iter()
+            .map(|v| sanitize_metadata_text(&v))
+            .collect();
+        let sanitized_description = description.map(|d| sanitize_metadata_text(&d));
+        let quality_score = compute_quality_score(
+            orig_w,
+            orig_h,
+            sanitized_labels.len(),
+            sanitized_description.is_some(),
+            self.engine.has_model(),
+        );
+
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
@@ -194,8 +207,9 @@ impl VisionSessionManager {
                 height: thumb_h,
                 original_width: orig_w,
                 original_height: orig_h,
-                labels,
-                description,
+                labels: sanitized_labels,
+                description: sanitized_description,
+                quality_score,
             },
             memory_link: None,
         };
@@ -210,6 +224,7 @@ impl VisionSessionManager {
             width: orig_w,
             height: orig_h,
             embedding_dims: EMBEDDING_DIM,
+            quality_score,
         })
     }
 
@@ -336,4 +351,62 @@ pub struct CaptureResult {
     pub width: u32,
     pub height: u32,
     pub embedding_dims: u32,
+    pub quality_score: f32,
+}
+
+fn sanitize_metadata_text(raw: &str) -> String {
+    raw.split_whitespace()
+        .map(|token| {
+            if looks_like_email(token) {
+                "[redacted-email]".to_string()
+            } else if looks_like_secret(token) {
+                "[redacted-secret]".to_string()
+            } else if looks_like_local_path(token) {
+                "[redacted-path]".to_string()
+            } else {
+                token.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn looks_like_email(token: &str) -> bool {
+    token.contains('@') && token.contains('.')
+}
+
+fn looks_like_secret(token: &str) -> bool {
+    let t = token.trim_matches(|c: char| ",.;:()[]{}<>\"'".contains(c));
+    if t.starts_with("sk-") && t.len() >= 12 {
+        return true;
+    }
+    if t.len() >= 32 && t.chars().all(|c| c.is_ascii_hexdigit()) {
+        return true;
+    }
+    t.to_ascii_lowercase().contains("token=") && t.len() >= 16
+}
+
+fn looks_like_local_path(token: &str) -> bool {
+    token.starts_with("/Users/")
+        || token.starts_with("/home/")
+        || token.starts_with("C:\\")
+        || token.starts_with("D:\\")
+}
+
+fn compute_quality_score(
+    width: u32,
+    height: u32,
+    label_count: usize,
+    has_description: bool,
+    model_available: bool,
+) -> f32 {
+    let px = width as f32 * height as f32;
+    let resolution_score = (px / (1280.0 * 720.0)).clamp(0.0, 1.0);
+    let label_score = (label_count as f32 / 6.0).clamp(0.0, 1.0);
+    let description_score = if has_description { 1.0 } else { 0.0 };
+    let model_score = if model_available { 1.0 } else { 0.35 };
+
+    // Weighted blend focused on actionable retrieval quality.
+    (0.35 * resolution_score + 0.20 * label_score + 0.20 * description_score + 0.25 * model_score)
+        .clamp(0.0, 1.0)
 }

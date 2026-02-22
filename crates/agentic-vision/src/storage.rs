@@ -185,6 +185,7 @@ mod tests {
                 original_height: 1080,
                 labels: vec!["test".to_string()],
                 description: Some("Test observation".to_string()),
+                quality_score: 0.85,
             },
             memory_link: None,
         }

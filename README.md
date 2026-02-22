@@ -27,7 +27,7 @@ Text-based memory exists. Visual memory doesn't — until now.
 cargo install agentic-vision-mcp
 ```
 
-One binary. 10 MCP tools. Persistent `.avis` files. Works with Claude Desktop, VS Code, Cursor, Windsurf, and any MCP-compatible client.
+One binary. 11 MCP tools. Persistent `.avis` files. Works with Claude Desktop, VS Code, Cursor, Windsurf, and any MCP-compatible client.
 
 <p align="center">
   <img src="assets/github-terminal-pane.svg" alt="AgenticVision terminal pane" width="980">
@@ -68,7 +68,7 @@ Rust core. CLIP ViT-B/32 via ONNX Runtime. Binary `.avis` format. Real numbers f
 
 **Binary format, not a database.** The `.avis` file is a single portable binary — 64-byte header, JSON payload, JPEG thumbnails. Copy it, share it, back it up. No server, no database, no dependencies.
 
-**Works with every MCP client.** AgenticVision-MCP exposes 10 tools, 6 resources, and 4 prompts via the Model Context Protocol. Any LLM that speaks MCP gains visual memory automatically.
+**Works with every MCP client.** AgenticVision-MCP exposes 11 tools, 6 resources, and 4 prompts via the Model Context Protocol. Any LLM that speaks MCP gains visual memory automatically.
 
 **Links to AgenticMemory.** The `vision_link` tool connects visual captures to [AgenticMemory](https://github.com/agentralabs/agentic-memory) cognitive graph nodes — bridging what an agent *sees* with what it *knows*.
 
@@ -84,7 +84,7 @@ Rust core. CLIP ViT-B/32 via ONNX Runtime. Binary `.avis` format. Real numbers f
 
 1. **Capture** — `vision_capture` accepts images from files, base64, screenshots, or the system clipboard. Each image is resized, embedded via CLIP ViT-B/32 into a 512-dimensional vector, compressed to JPEG thumbnail, and stored in the `.avis` binary file. Screenshots support optional region capture; clipboard reads the current image from the OS clipboard.
 
-2. **Query** — `vision_query` retrieves captures by time range, description, or recency. `vision_similar` finds visually similar captures by cosine similarity. Results include capture metadata, thumbnails, and similarity scores.
+2. **Query** — `vision_query` retrieves captures by time range, description, recency, and quality constraints (`min_quality`, `sort_by`). Results include capture metadata, quality scores, thumbnails, and similarity scores.
 
 3. **Compare** — `vision_compare` places two captures side-by-side for LLM analysis. `vision_diff` performs pixel-level differencing with 8×8 grid region detection to identify exactly what changed.
 
@@ -97,17 +97,18 @@ Rust core. CLIP ViT-B/32 via ONNX Runtime. Binary `.avis` format. Real numbers f
 
 <br>
 
-**10 Tools:**
+**11 Tools:**
 
 | Tool | Description |
 |:---|:---|
-| `vision_capture` | Capture and embed an image (file, base64, screenshot, clipboard) |
+| `vision_capture` | Capture and embed an image (file, base64, screenshot, clipboard), with metadata redaction and quality scoring |
 | `vision_compare` | Side-by-side comparison of two captures |
 | `vision_query` | Query captures by time, description, recency |
 | `vision_ocr` | Extract text from a captured image |
 | `vision_similar` | Find visually similar captures (cosine similarity) |
 | `vision_track` | Track visual changes to a target over time |
 | `vision_diff` | Pixel-level diff between two captures |
+| `vision_health` | Quality + staleness + memory-link coverage summary |
 | `vision_link` | Link a capture to an AgenticMemory node |
 | `session_start` | Begin a named observation session |
 | `session_end` | End the current session |

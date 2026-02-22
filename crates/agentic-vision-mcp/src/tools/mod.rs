@@ -6,6 +6,7 @@ pub mod session_start;
 pub mod vision_capture;
 pub mod vision_compare;
 pub mod vision_diff;
+pub mod vision_health;
 pub mod vision_link;
 pub mod vision_ocr;
 pub mod vision_query;

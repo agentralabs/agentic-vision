@@ -19,12 +19,22 @@ struct QueryParams {
     before: Option<u64>,
     #[serde(default)]
     labels: Vec<String>,
+    #[serde(default)]
+    description_contains: Option<String>,
+    #[serde(default)]
+    min_quality: Option<f32>,
+    #[serde(default = "default_sort_by")]
+    sort_by: String,
     #[serde(default = "default_max_results")]
     max_results: usize,
 }
 
 fn default_max_results() -> usize {
     20
+}
+
+fn default_sort_by() -> String {
+    "recent".to_string()
 }
 
 pub fn definition() -> ToolDefinition {
@@ -38,6 +48,9 @@ pub fn definition() -> ToolDefinition {
                 "after": { "type": "integer", "description": "Unix timestamp" },
                 "before": { "type": "integer", "description": "Unix timestamp" },
                 "labels": { "type": "array", "items": { "type": "string" } },
+                "description_contains": { "type": "string" },
+                "min_quality": { "type": "number", "description": "Minimum quality score [0.0, 1.0]" },
+                "sort_by": { "type": "string", "enum": ["recent", "quality"], "default": "recent" },
                 "max_results": { "type": "integer", "default": 20 }
             }
         }),
@@ -54,7 +67,12 @@ pub async fn execute(
     let session = session.lock().await;
     let store = session.store();
 
-    let results: Vec<Value> = store
+    let desc_contains = params
+        .description_contains
+        .as_ref()
+        .map(|s| s.to_ascii_lowercase());
+
+    let mut filtered: Vec<_> = store
         .observations
         .iter()
         .filter(|o| {
@@ -76,8 +94,39 @@ pub async fn execute(
             {
                 return false;
             }
+            if let Some(ref phrase) = desc_contains {
+                let desc = o
+                    .metadata
+                    .description
+                    .as_ref()
+                    .map(|d| d.to_ascii_lowercase())
+                    .unwrap_or_default();
+                if !desc.contains(phrase) {
+                    return false;
+                }
+            }
+            if let Some(min_q) = params.min_quality {
+                if o.metadata.quality_score < min_q {
+                    return false;
+                }
+            }
             true
         })
+        .collect();
+
+    match params.sort_by.as_str() {
+        "quality" => filtered.sort_by(|a, b| {
+            b.metadata
+                .quality_score
+                .partial_cmp(&a.metadata.quality_score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+                .then_with(|| b.timestamp.cmp(&a.timestamp))
+        }),
+        _ => filtered.sort_by(|a, b| b.timestamp.cmp(&a.timestamp)),
+    }
+
+    let results: Vec<Value> = filtered
+        .into_iter()
         .take(params.max_results)
         .map(|o| {
             json!({
@@ -90,6 +139,7 @@ pub async fn execute(
                 },
                 "labels": o.metadata.labels,
                 "description": o.metadata.description,
+                "quality_score": o.metadata.quality_score,
                 "memory_link": o.memory_link,
             })
         })

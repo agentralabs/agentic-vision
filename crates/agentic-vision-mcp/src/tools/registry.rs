@@ -9,8 +9,8 @@ use crate::session::VisionSessionManager;
 use crate::types::{McpError, McpResult, ToolCallResult, ToolDefinition};
 
 use super::{
-    session_end, session_start, vision_capture, vision_compare, vision_diff, vision_link,
-    vision_ocr, vision_query, vision_similar, vision_track,
+    session_end, session_start, vision_capture, vision_compare, vision_diff, vision_health,
+    vision_link, vision_ocr, vision_query, vision_similar, vision_track,
 };
 
 pub struct ToolRegistry;
@@ -25,6 +25,7 @@ impl ToolRegistry {
             vision_similar::definition(),
             vision_track::definition(),
             vision_diff::definition(),
+            vision_health::definition(),
             vision_link::definition(),
             session_start::definition(),
             session_end::definition(),
@@ -46,6 +47,7 @@ impl ToolRegistry {
             "vision_similar" => vision_similar::execute(args, session).await,
             "vision_track" => vision_track::execute(args, session).await,
             "vision_diff" => vision_diff::execute(args, session).await,
+            "vision_health" => vision_health::execute(args, session).await,
             "vision_link" => vision_link::execute(args, session).await,
             "session_start" => session_start::execute(args, session).await,
             "session_end" => session_end::execute(args, session).await,
