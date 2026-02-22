@@ -17,6 +17,14 @@ This page records the vision-system upgrades implemented in this cycle.
    - Reports low-quality, stale, unlabeled, and memory-unlinked capture counts with status (`pass|warn|fail`).
 4. Capture response enrichment:
    - `vision_capture` now returns `quality_score` in tool output.
+5. Long-horizon storage budget policy:
+   - Added runtime policy in `VisionSessionManager`:
+     - `CORTEX_STORAGE_BUDGET_MODE=auto-rollup|warn|off`
+     - `CORTEX_STORAGE_BUDGET_BYTES`
+     - `CORTEX_STORAGE_BUDGET_HORIZON_YEARS`
+     - `CORTEX_STORAGE_BUDGET_TARGET_FRACTION`
+   - `auto-rollup` prunes oldest low-value captures from completed sessions under budget pressure.
+   - `avis://stats` now reports storage-budget status.
 
 ## Why this matters
 
@@ -43,4 +51,3 @@ Expected `info` tools include `vision_health`.
 - `crates/agentic-vision-mcp/src/tools/vision_health.rs`
 - `crates/agentic-vision-mcp/src/tools/mod.rs`
 - `crates/agentic-vision-mcp/src/tools/registry.rs`
-

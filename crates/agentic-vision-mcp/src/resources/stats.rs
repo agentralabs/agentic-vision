@@ -13,6 +13,7 @@ pub async fn read_stats(
 ) -> McpResult<ReadResourceResult> {
     let session = session.lock().await;
     let store = session.store();
+    let storage_budget = session.storage_budget_status();
 
     let content = json!({
         "total_captures": store.count(),
@@ -22,6 +23,7 @@ pub async fn read_stats(
         "created_at": store.created_at,
         "updated_at": store.updated_at,
         "file_path": session.file_path().display().to_string(),
+        "storage_budget": storage_budget,
     });
 
     Ok(ReadResourceResult {

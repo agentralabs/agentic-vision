@@ -14,6 +14,34 @@ use agentic_vision::{
 use crate::types::{McpError, McpResult};
 
 const DEFAULT_AUTO_SAVE_SECS: u64 = 30;
+const DEFAULT_STORAGE_BUDGET_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+const DEFAULT_STORAGE_BUDGET_HORIZON_YEARS: u32 = 20;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum StorageBudgetMode {
+    AutoRollup,
+    Warn,
+    Off,
+}
+
+impl StorageBudgetMode {
+    fn from_env(name: &str) -> Self {
+        let raw = read_env_string(name).unwrap_or_else(|| "auto-rollup".to_string());
+        match raw.trim().to_ascii_lowercase().as_str() {
+            "warn" => Self::Warn,
+            "off" | "disabled" | "none" => Self::Off,
+            _ => Self::AutoRollup,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::AutoRollup => "auto-rollup",
+            Self::Warn => "warn",
+            Self::Off => "off",
+        }
+    }
+}
 
 /// Manages the visual memory lifecycle, file I/O, and session state.
 pub struct VisionSessionManager {
@@ -24,6 +52,11 @@ pub struct VisionSessionManager {
     dirty: bool,
     last_save: Instant,
     auto_save_interval: Duration,
+    storage_budget_mode: StorageBudgetMode,
+    storage_budget_max_bytes: u64,
+    storage_budget_horizon_years: u32,
+    storage_budget_target_fraction: f32,
+    storage_budget_rollup_count: u64,
 }
 
 impl VisionSessionManager {
@@ -65,6 +98,17 @@ impl VisionSessionManager {
             }
         );
 
+        let storage_budget_mode = StorageBudgetMode::from_env("CORTEX_STORAGE_BUDGET_MODE");
+        let storage_budget_max_bytes =
+            read_env_u64("CORTEX_STORAGE_BUDGET_BYTES", DEFAULT_STORAGE_BUDGET_BYTES).max(1);
+        let storage_budget_horizon_years = read_env_u32(
+            "CORTEX_STORAGE_BUDGET_HORIZON_YEARS",
+            DEFAULT_STORAGE_BUDGET_HORIZON_YEARS,
+        )
+        .max(1);
+        let storage_budget_target_fraction =
+            read_env_f32("CORTEX_STORAGE_BUDGET_TARGET_FRACTION", 0.85).clamp(0.50, 0.99);
+
         Ok(Self {
             store,
             engine,
@@ -73,6 +117,11 @@ impl VisionSessionManager {
             dirty: false,
             last_save: Instant::now(),
             auto_save_interval: Duration::from_secs(DEFAULT_AUTO_SAVE_SECS),
+            storage_budget_mode,
+            storage_budget_max_bytes,
+            storage_budget_horizon_years,
+            storage_budget_target_fraction,
+            storage_budget_rollup_count: 0,
         })
     }
 
@@ -99,6 +148,7 @@ impl VisionSessionManager {
     pub fn end_session(&mut self) -> McpResult<u32> {
         let session_id = self.current_session;
         self.save()?;
+        self.maybe_enforce_storage_budget()?;
         tracing::info!("Ended session {session_id}");
         Ok(session_id)
     }
@@ -217,6 +267,7 @@ impl VisionSessionManager {
         let id = self.store.add(obs);
         self.dirty = true;
         self.maybe_auto_save()?;
+        self.maybe_enforce_storage_budget()?;
 
         Ok(CaptureResult {
             capture_id: id,
@@ -332,6 +383,161 @@ impl VisionSessionManager {
     pub fn file_path(&self) -> &PathBuf {
         &self.file_path
     }
+
+    pub fn storage_budget_status(&self) -> VisionStorageBudgetStatus {
+        let current_size = self.current_file_size_bytes();
+        let projected = self.projected_file_size_bytes(current_size);
+        let over_budget = current_size > self.storage_budget_max_bytes
+            || projected
+                .map(|v| v > self.storage_budget_max_bytes)
+                .unwrap_or(false);
+
+        VisionStorageBudgetStatus {
+            mode: self.storage_budget_mode.as_str().to_string(),
+            max_bytes: self.storage_budget_max_bytes,
+            horizon_years: self.storage_budget_horizon_years,
+            target_fraction: self.storage_budget_target_fraction,
+            current_size_bytes: current_size,
+            projected_size_bytes: projected,
+            over_budget,
+            rollup_count: self.storage_budget_rollup_count,
+        }
+    }
+
+    fn maybe_enforce_storage_budget(&mut self) -> McpResult<()> {
+        if self.storage_budget_mode == StorageBudgetMode::Off {
+            return Ok(());
+        }
+
+        if self.current_file_size_bytes() == 0 && self.dirty {
+            self.save()?;
+        }
+
+        let current_size = self.current_file_size_bytes();
+        if current_size == 0 {
+            return Ok(());
+        }
+        let projected = self.projected_file_size_bytes(current_size);
+        let over_current = current_size > self.storage_budget_max_bytes;
+        let over_projected = projected
+            .map(|v| v > self.storage_budget_max_bytes)
+            .unwrap_or(false);
+        if !over_current && !over_projected {
+            return Ok(());
+        }
+
+        if self.storage_budget_mode == StorageBudgetMode::Warn {
+            tracing::warn!(
+                "AVIS storage budget warning: current={} projected={:?} limit={}",
+                current_size,
+                projected,
+                self.storage_budget_max_bytes
+            );
+            return Ok(());
+        }
+
+        let target_bytes = ((self.storage_budget_max_bytes as f64
+            * self.storage_budget_target_fraction as f64)
+            .round() as u64)
+            .max(1);
+        let mut pruned = 0usize;
+
+        loop {
+            let current = self.current_file_size_bytes();
+            if current <= target_bytes {
+                break;
+            }
+            let Some(idx) = self.select_prune_candidate() else {
+                break;
+            };
+            self.store.observations.remove(idx);
+            self.store.updated_at = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs();
+            self.dirty = true;
+            self.save()?;
+            pruned = pruned.saturating_add(1);
+        }
+
+        if pruned > 0 {
+            self.storage_budget_rollup_count = self
+                .storage_budget_rollup_count
+                .saturating_add(pruned as u64);
+            tracing::info!(
+                "AVIS storage budget rollup: pruned={} current_size={} limit={}",
+                pruned,
+                self.current_file_size_bytes(),
+                self.storage_budget_max_bytes
+            );
+        } else {
+            tracing::warn!(
+                "AVIS storage budget exceeded but no prune candidate available (current={} projected={:?} limit={})",
+                current_size,
+                projected,
+                self.storage_budget_max_bytes
+            );
+        }
+
+        Ok(())
+    }
+
+    fn select_prune_candidate(&self) -> Option<usize> {
+        // Prefer non-linked captures from completed sessions (oldest first).
+        let mut best: Option<(usize, u64, f32)> = None;
+        for (idx, obs) in self.store.observations.iter().enumerate() {
+            if obs.session_id >= self.current_session || obs.memory_link.is_some() {
+                continue;
+            }
+            let score = obs.metadata.quality_score;
+            match best {
+                None => best = Some((idx, obs.timestamp, score)),
+                Some((_, ts, q)) => {
+                    if obs.timestamp < ts || (obs.timestamp == ts && score < q) {
+                        best = Some((idx, obs.timestamp, score));
+                    }
+                }
+            }
+        }
+        if let Some((idx, _, _)) = best {
+            return Some(idx);
+        }
+
+        // Fallback: oldest capture in completed sessions.
+        self.store
+            .observations
+            .iter()
+            .enumerate()
+            .filter(|(_, obs)| obs.session_id < self.current_session)
+            .min_by_key(|(_, obs)| obs.timestamp)
+            .map(|(idx, _)| idx)
+    }
+
+    fn current_file_size_bytes(&self) -> u64 {
+        std::fs::metadata(&self.file_path)
+            .map(|m| m.len())
+            .unwrap_or(0)
+    }
+
+    fn projected_file_size_bytes(&self, current_size: u64) -> Option<u64> {
+        if current_size == 0 || self.store.observations.len() < 2 {
+            return None;
+        }
+        let mut min_ts = u64::MAX;
+        let mut max_ts = 0u64;
+        for obs in &self.store.observations {
+            min_ts = min_ts.min(obs.timestamp);
+            max_ts = max_ts.max(obs.timestamp);
+        }
+        if min_ts == u64::MAX || max_ts <= min_ts {
+            return None;
+        }
+        let span_secs = (max_ts - min_ts).max(7 * 24 * 3600) as f64;
+        let per_sec = current_size as f64 / span_secs;
+        let horizon_secs = (self.storage_budget_horizon_years as f64) * 365.25 * 24.0 * 3600.0;
+        let projected = (per_sec * horizon_secs).round();
+        Some(projected.max(0.0).min(u64::MAX as f64) as u64)
+    }
 }
 
 impl Drop for VisionSessionManager {
@@ -352,6 +558,43 @@ pub struct CaptureResult {
     pub height: u32,
     pub embedding_dims: u32,
     pub quality_score: f32,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct VisionStorageBudgetStatus {
+    pub mode: String,
+    pub max_bytes: u64,
+    pub horizon_years: u32,
+    pub target_fraction: f32,
+    pub current_size_bytes: u64,
+    pub projected_size_bytes: Option<u64>,
+    pub over_budget: bool,
+    pub rollup_count: u64,
+}
+
+fn read_env_string(name: &str) -> Option<String> {
+    std::env::var(name).ok().map(|v| v.trim().to_string())
+}
+
+fn read_env_u64(name: &str, default_value: u64) -> u64 {
+    std::env::var(name)
+        .ok()
+        .and_then(|v| v.parse::<u64>().ok())
+        .unwrap_or(default_value)
+}
+
+fn read_env_u32(name: &str, default_value: u32) -> u32 {
+    std::env::var(name)
+        .ok()
+        .and_then(|v| v.parse::<u32>().ok())
+        .unwrap_or(default_value)
+}
+
+fn read_env_f32(name: &str, default_value: f32) -> f32 {
+    std::env::var(name)
+        .ok()
+        .and_then(|v| v.parse::<f32>().ok())
+        .unwrap_or(default_value)
 }
 
 fn sanitize_metadata_text(raw: &str) -> String {
@@ -409,4 +652,76 @@ fn compute_quality_score(
     // Weighted blend focused on actionable retrieval quality.
     (0.35 * resolution_score + 0.20 * label_score + 0.20 * description_score + 0.25 * model_score)
         .clamp(0.0, 1.0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_obs(session_id: u32, timestamp: u64, linked: bool) -> VisualObservation {
+        VisualObservation {
+            id: 0,
+            timestamp,
+            session_id,
+            source: CaptureSource::Clipboard,
+            embedding: vec![0.0; EMBEDDING_DIM as usize],
+            thumbnail: vec![1u8; 1024],
+            metadata: ObservationMeta {
+                width: 64,
+                height: 64,
+                original_width: 512,
+                original_height: 512,
+                labels: vec!["test".to_string()],
+                description: Some("observation".to_string()),
+                quality_score: 0.4,
+            },
+            memory_link: if linked { Some(42) } else { None },
+        }
+    }
+
+    #[test]
+    fn budget_projection_available_with_timeline() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let path = dir.path().join("vision-projection.avis");
+        let mut manager =
+            VisionSessionManager::open(path.to_str().expect("path"), None).expect("open");
+
+        manager.store.add(make_obs(1, 1_700_000_000, false));
+        manager
+            .store
+            .add(make_obs(1, 1_700_000_000 + 15 * 24 * 3600, false));
+        manager.dirty = true;
+        manager.save().expect("save");
+
+        let size = manager.current_file_size_bytes();
+        let projected = manager.projected_file_size_bytes(size);
+        assert!(size > 0);
+        assert!(projected.is_some());
+    }
+
+    #[test]
+    fn budget_auto_rollup_prunes_completed_sessions() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let path = dir.path().join("vision-rollup.avis");
+        let mut manager =
+            VisionSessionManager::open(path.to_str().expect("path"), None).expect("open");
+
+        manager.store.add(make_obs(1, 1_700_000_000, false));
+        manager.store.add(make_obs(1, 1_700_000_001, false));
+        manager.start_session(Some(2)).expect("session");
+        manager.dirty = true;
+        manager.save().expect("save");
+
+        let before = manager.store.count();
+        manager.storage_budget_mode = StorageBudgetMode::AutoRollup;
+        manager.storage_budget_max_bytes = 1;
+        manager.storage_budget_target_fraction = 0.5;
+
+        manager
+            .maybe_enforce_storage_budget()
+            .expect("enforce budget");
+
+        assert!(manager.store.count() < before);
+        assert!(manager.storage_budget_rollup_count >= 1);
+    }
 }

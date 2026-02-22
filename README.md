@@ -217,6 +217,7 @@ cargo add agentic-vision
 | Autonomic profile | Conservative local-first posture | `CORTEX_AUTONOMIC_PROFILE=desktop|cloud|aggressive` |
 | Cache + registry maintenance | Periodic expiry cleanup and registry GC | `CORTEX_MAINTENANCE_TICK_SECS`, `CORTEX_REGISTRY_GC_EVERY_TICKS`, `CORTEX_REGISTRY_GC_KEEP_DELTAS` |
 | Storage migration | Policy-gated with checkpointed auto-safe path | `CORTEX_STORAGE_MIGRATION_POLICY=auto-safe|strict|off` |
+| Storage budget policy | 20-year projection + capture rollup under pressure | `CORTEX_STORAGE_BUDGET_MODE=auto-rollup|warn|off`, `CORTEX_STORAGE_BUDGET_BYTES`, `CORTEX_STORAGE_BUDGET_HORIZON_YEARS`, `CORTEX_STORAGE_BUDGET_TARGET_FRACTION` |
 | Maintenance throttling | SLA-aware under sustained cache pressure | `CORTEX_SLA_MAX_CACHE_ENTRIES_BEFORE_GC_THROTTLE` |
 | Health ledger | Periodic operational snapshots (default: `~/.agentra/health-ledger`) | `CORTEX_HEALTH_LEDGER_DIR`, `AGENTRA_HEALTH_LEDGER_DIR`, `CORTEX_HEALTH_LEDGER_EMIT_SECS` |
 

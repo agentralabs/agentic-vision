@@ -22,6 +22,15 @@ agentic-vision-mcp repl
 - `--model <clip_model.onnx>`
 - `--log-level trace|debug|info|warn|error`
 
+## Runtime budget controls
+
+```bash
+export CORTEX_STORAGE_BUDGET_MODE=auto-rollup
+export CORTEX_STORAGE_BUDGET_BYTES=2147483648
+export CORTEX_STORAGE_BUDGET_HORIZON_YEARS=20
+export CORTEX_STORAGE_BUDGET_TARGET_FRACTION=0.85
+```
+
 ## Key tools exposed by MCP
 
 - `vision_capture` (now returns `quality_score`)

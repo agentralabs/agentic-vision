@@ -53,3 +53,14 @@ Use MCP `vision_query` args:
 ```
 
 Run `vision_health` periodically to monitor stale captures, unlabeled captures, and unlinked memory references.
+
+## 6. Enable automatic long-horizon budget enforcement
+
+```bash
+export CORTEX_STORAGE_BUDGET_MODE=auto-rollup
+export CORTEX_STORAGE_BUDGET_BYTES=2147483648
+export CORTEX_STORAGE_BUDGET_HORIZON_YEARS=20
+export CORTEX_STORAGE_BUDGET_TARGET_FRACTION=0.85
+```
+
+When enabled, runtime automatically prunes oldest low-value captures from completed sessions when budget pressure is detected.
