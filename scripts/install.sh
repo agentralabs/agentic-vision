@@ -314,6 +314,13 @@ pwd_contains_projects() {
         -print -quit 2>/dev/null | grep -q .
 }
 
+is_common_root_dir() {
+    [ "\$PWD" = "\$HOME" ] || \
+    [ "\$PWD" = "\$HOME/Documents" ] || \
+    [ "\$PWD" = "\$HOME/Desktop" ] || \
+    [ "\$PWD" = "/" ]
+}
+
 resolve_repo_root() {
     if [ -n "\${AGENTRA_WORKSPACE_ROOT:-}" ] && [ -d "\${AGENTRA_WORKSPACE_ROOT}" ]; then
         printf '%s' "\${AGENTRA_WORKSPACE_ROOT}"
@@ -323,19 +330,33 @@ resolve_repo_root() {
         printf '%s' "\${AGENTRA_PROJECT_ROOT}"
         return
     fi
-    if pwd_is_project || pwd_contains_projects; then
-        printf '%s' "\$PWD"
-        return
-    fi
     if command -v git >/dev/null 2>&1; then
         local root
         root="\$(git rev-parse --show-toplevel 2>/dev/null || true)"
         if [ -n "\$root" ] && [ -d "\$root" ]; then
-            if [ "\$root" = "\$HOME" ] || [ "\$root" = "\$HOME/Documents" ] || [ "\$root" = "\$HOME/Desktop" ]; then
+            if [ "\$root" != "\$HOME" ] && [ "\$root" != "\$HOME/Documents" ] && [ "\$root" != "\$HOME/Desktop" ] && [ "\$root" != "/" ]; then
+                printf '%s' "\$root"
+                return
+            fi
+        fi
+    fi
+    if pwd_is_project; then
+        printf '%s' "\$PWD"
+        return
+    fi
+    if ! is_common_root_dir && pwd_contains_projects; then
+        printf '%s' "\$PWD"
+        return
+    fi
+    if command -v git >/dev/null 2>&1; then
+        local root_fallback
+        root_fallback="\$(git rev-parse --show-toplevel 2>/dev/null || true)"
+        if [ -n "\$root_fallback" ] && [ -d "\$root_fallback" ]; then
+            if [ "\$root_fallback" = "\$HOME" ] || [ "\$root_fallback" = "\$HOME/Documents" ] || [ "\$root_fallback" = "\$HOME/Desktop" ] || [ "\$root_fallback" = "/" ]; then
                 printf '%s' "\$PWD"
                 return
             fi
-            printf '%s' "\$root"
+            printf '%s' "\$root_fallback"
             return
         fi
     fi
@@ -397,13 +418,6 @@ for arg in "\${args[@]}"; do
     esac
 done
 
-if [ "\$has_vision" -eq 0 ]; then
-    vision_path="\$(find_vision || true)"
-    if [ -n "\$vision_path" ]; then
-        args=(--vision "\$vision_path" "\${args[@]}")
-    fi
-fi
-
 if [ "\$has_command" -eq 0 ]; then
     serve_requested=1
     args+=("serve")
@@ -415,6 +429,13 @@ if [ "\$serve_requested" -eq 1 ]; then
             echo "Error: server mode requires AGENTIC_TOKEN or AGENTIC_TOKEN_FILE." >&2
             exit 2
         fi
+    fi
+fi
+
+if [ "\$has_vision" -eq 0 ]; then
+    vision_path="\$(find_vision || true)"
+    if [ -n "\$vision_path" ]; then
+        args=(--vision "\$vision_path" "\${args[@]}")
     fi
 fi
 
