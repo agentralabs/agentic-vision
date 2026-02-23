@@ -862,3 +862,131 @@ async fn test_bonus_compare_self() {
 
     println!("TEST BONUS — Compare Self: PASS");
 }
+
+/// Bonus: vision_query rejects invalid parameter ranges.
+#[tokio::test]
+async fn test_bonus_vision_query_param_validation() {
+    let dir = tempfile::tempdir().unwrap();
+    let session = arc_session(&dir);
+    let handler = ProtocolHandler::new(session);
+
+    send_unwrap(&handler, init_request()).await;
+
+    let invalid_cases = vec![
+        json!({
+            "name": "vision_query",
+            "arguments": { "min_quality": 1.5 }
+        }),
+        json!({
+            "name": "vision_query",
+            "arguments": { "after": 200, "before": 100 }
+        }),
+        json!({
+            "name": "vision_query",
+            "arguments": { "max_results": 0 }
+        }),
+        json!({
+            "name": "vision_query",
+            "arguments": { "sort_by": "oldest" }
+        }),
+    ];
+
+    for (i, body) in invalid_cases.into_iter().enumerate() {
+        let msg = mcp_request((200 + i) as i64, "tools/call", body);
+        let resp = send_unwrap(&handler, msg).await;
+        assert!(
+            resp.get("error").is_some(),
+            "Invalid vision_query case #{i} should fail: {resp}"
+        );
+        assert_eq!(resp["error"]["code"], -32602, "Should be INVALID_PARAMS");
+    }
+}
+
+/// Bonus: vision_similar rejects ambiguous and invalid similarity arguments.
+#[tokio::test]
+async fn test_bonus_vision_similar_param_validation() {
+    let dir = tempfile::tempdir().unwrap();
+    let session = arc_session(&dir);
+    let handler = ProtocolHandler::new(session);
+
+    send_unwrap(&handler, init_request()).await;
+
+    let invalid_cases = vec![
+        json!({
+            "name": "vision_similar",
+            "arguments": { "capture_id": 1, "embedding": [0.1, 0.2, 0.3] }
+        }),
+        json!({
+            "name": "vision_similar",
+            "arguments": { "embedding": [] }
+        }),
+        json!({
+            "name": "vision_similar",
+            "arguments": { "embedding": [0.1, 0.2], "top_k": 0 }
+        }),
+        json!({
+            "name": "vision_similar",
+            "arguments": { "embedding": [0.1, 0.2], "min_similarity": 1.1 }
+        }),
+    ];
+
+    for (i, body) in invalid_cases.into_iter().enumerate() {
+        let msg = mcp_request((300 + i) as i64, "tools/call", body);
+        let resp = send_unwrap(&handler, msg).await;
+        assert!(
+            resp.get("error").is_some(),
+            "Invalid vision_similar case #{i} should fail: {resp}"
+        );
+        assert_eq!(resp["error"]["code"], -32602, "Should be INVALID_PARAMS");
+    }
+}
+
+/// Bonus: vision_track rejects invalid tracking configuration.
+#[tokio::test]
+async fn test_bonus_vision_track_param_validation() {
+    let dir = tempfile::tempdir().unwrap();
+    let session = arc_session(&dir);
+    let handler = ProtocolHandler::new(session);
+
+    send_unwrap(&handler, init_request()).await;
+
+    let invalid_cases = vec![
+        json!({
+            "name": "vision_track",
+            "arguments": {
+                "region": { "x": 0, "y": 0, "w": 0, "h": 100 }
+            }
+        }),
+        json!({
+            "name": "vision_track",
+            "arguments": {
+                "region": { "x": 0, "y": 0, "w": 100, "h": 100 },
+                "interval_ms": 0
+            }
+        }),
+        json!({
+            "name": "vision_track",
+            "arguments": {
+                "region": { "x": 0, "y": 0, "w": 100, "h": 100 },
+                "on_change_threshold": -0.1
+            }
+        }),
+        json!({
+            "name": "vision_track",
+            "arguments": {
+                "region": { "x": 0, "y": 0, "w": 100, "h": 100 },
+                "max_captures": 0
+            }
+        }),
+    ];
+
+    for (i, body) in invalid_cases.into_iter().enumerate() {
+        let msg = mcp_request((400 + i) as i64, "tools/call", body);
+        let resp = send_unwrap(&handler, msg).await;
+        assert!(
+            resp.get("error").is_some(),
+            "Invalid vision_track case #{i} should fail: {resp}"
+        );
+        assert_eq!(resp["error"]["code"], -32602, "Should be INVALID_PARAMS");
+    }
+}

@@ -76,6 +76,30 @@ pub async fn execute(
     let params: TrackParams =
         serde_json::from_value(args).map_err(|e| McpError::InvalidParams(e.to_string()))?;
 
+    if params.interval_ms == 0 {
+        return Err(McpError::InvalidParams(
+            "'interval_ms' must be greater than 0".to_string(),
+        ));
+    }
+
+    if !(0.0..=1.0).contains(&params.on_change_threshold) {
+        return Err(McpError::InvalidParams(
+            "'on_change_threshold' must be within [0.0, 1.0]".to_string(),
+        ));
+    }
+
+    if params.max_captures == 0 {
+        return Err(McpError::InvalidParams(
+            "'max_captures' must be greater than 0".to_string(),
+        ));
+    }
+
+    if params.region.w == 0 || params.region.h == 0 {
+        return Err(McpError::InvalidParams(
+            "'region.w' and 'region.h' must be greater than 0".to_string(),
+        ));
+    }
+
     let _session = session.lock().await;
     let tracking_id = uuid::Uuid::new_v4().to_string();
 

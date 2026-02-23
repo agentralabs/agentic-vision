@@ -56,6 +56,32 @@ pub async fn execute(
     let params: SimilarParams =
         serde_json::from_value(args).map_err(|e| McpError::InvalidParams(e.to_string()))?;
 
+    if params.top_k == 0 {
+        return Err(McpError::InvalidParams(
+            "'top_k' must be greater than 0".to_string(),
+        ));
+    }
+
+    if !(0.0..=1.0).contains(&params.min_similarity) {
+        return Err(McpError::InvalidParams(
+            "'min_similarity' must be within [0.0, 1.0]".to_string(),
+        ));
+    }
+
+    if params.capture_id.is_some() && params.embedding.is_some() {
+        return Err(McpError::InvalidParams(
+            "Provide only one of 'capture_id' or 'embedding'".to_string(),
+        ));
+    }
+
+    if let Some(embedding) = &params.embedding {
+        if embedding.is_empty() {
+            return Err(McpError::InvalidParams(
+                "'embedding' must not be empty".to_string(),
+            ));
+        }
+    }
+
     let session = session.lock().await;
 
     let matches = if let Some(capture_id) = params.capture_id {

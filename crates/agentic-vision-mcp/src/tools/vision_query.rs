@@ -64,6 +64,34 @@ pub async fn execute(
     let params: QueryParams =
         serde_json::from_value(args).map_err(|e| McpError::InvalidParams(e.to_string()))?;
 
+    if let Some(min_q) = params.min_quality {
+        if !(0.0..=1.0).contains(&min_q) {
+            return Err(McpError::InvalidParams(
+                "'min_quality' must be within [0.0, 1.0]".to_string(),
+            ));
+        }
+    }
+
+    if let (Some(after), Some(before)) = (params.after, params.before) {
+        if after > before {
+            return Err(McpError::InvalidParams(
+                "'after' must be less than or equal to 'before'".to_string(),
+            ));
+        }
+    }
+
+    if params.max_results == 0 {
+        return Err(McpError::InvalidParams(
+            "'max_results' must be greater than 0".to_string(),
+        ));
+    }
+
+    if params.sort_by != "recent" && params.sort_by != "quality" {
+        return Err(McpError::InvalidParams(
+            "'sort_by' must be one of: recent, quality".to_string(),
+        ));
+    }
+
     let session = session.lock().await;
     let store = session.store();
 
@@ -122,7 +150,8 @@ pub async fn execute(
                 .unwrap_or(std::cmp::Ordering::Equal)
                 .then_with(|| b.timestamp.cmp(&a.timestamp))
         }),
-        _ => filtered.sort_by(|a, b| b.timestamp.cmp(&a.timestamp)),
+        "recent" => filtered.sort_by(|a, b| b.timestamp.cmp(&a.timestamp)),
+        _ => unreachable!("sort_by is validated above"),
     }
 
     let results: Vec<Value> = filtered
