@@ -36,6 +36,20 @@ Install complete: AgenticVision (<profile>)
 }
 ```
 
+## Workspace auto-detection behavior
+
+- Installer writes `agentic-vision-mcp-agentra` launcher as MCP entrypoint.
+- Launcher resolves vision artifact in this order:
+1. Explicit override: `AGENTRA_AVIS_PATH` / `AGENTRA_VISION_PATH`.
+2. Per-workspace default: `<workspace>/.agentra/<workspace-slug>.avis`.
+3. Existing local fallbacks (`vision.avis`, `.vision.avis`, home default).
+- If no file exists yet, launcher routes to per-workspace default path so first run creates and keeps project vision state isolated.
+- If your MCP client starts outside the project directory, set:
+
+```bash
+export AGENTRA_WORKSPACE_ROOT="/absolute/path/to/project"
+```
+
 ## Server auth + sync
 
 ```bash

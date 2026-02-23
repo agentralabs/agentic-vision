@@ -7,6 +7,8 @@ import tempfile
 import subprocess
 import json
 import os
+import tomllib
+from pathlib import Path
 
 
 def fresh_temp_path(suffix):
@@ -15,6 +17,25 @@ def fresh_temp_path(suffix):
         path = f.name
     # File is deleted on close with delete=True, path is now free
     return path
+
+
+def expected_vision_mcp_version():
+    """Resolve expected agentic-vision-mcp version from Cargo metadata."""
+    repo_root = Path(__file__).resolve().parents[2]
+    mcp_toml = repo_root / "crates" / "agentic-vision-mcp" / "Cargo.toml"
+    with mcp_toml.open("rb") as f:
+        mcp_cfg = tomllib.load(f)
+
+    package = mcp_cfg.get("package", {})
+    pkg_version = package.get("version")
+    if isinstance(pkg_version, str) and pkg_version:
+        return pkg_version
+
+    # Workspace-inherited version.
+    workspace_toml = repo_root / "Cargo.toml"
+    with workspace_toml.open("rb") as f:
+        ws_cfg = tomllib.load(f)
+    return ws_cfg["workspace"]["package"]["version"]
 
 
 def mcp_roundtrip(command, args, request):
@@ -78,7 +99,7 @@ def test_vision_client_basic():
     assert "result" in response, f"Expected 'result' in response, got: {response}"
     assert response["result"]["protocolVersion"] == "2024-11-05"
     assert response["result"]["serverInfo"]["name"] == "agentic-vision-mcp"
-    assert response["result"]["serverInfo"]["version"] == "0.1.0"
+    assert response["result"]["serverInfo"]["version"] == expected_vision_mcp_version()
 
     # Check capabilities
     caps = response["result"]["capabilities"]
