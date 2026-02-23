@@ -22,9 +22,9 @@ cargo publish -p agentic-vision --dry-run
 echo ""
 
 echo "5. Dry-run publish (paired crates: MCP server)..."
-# Core crate may not be indexed yet for brand-new versions, so use --no-verify
-# for MCP dry-run packaging validation at this stage.
-cargo publish -p agentic-vision-mcp --dry-run --no-verify
+# Core crate may not be indexed yet for brand-new versions, so package MCP
+# locally instead of publish --dry-run for preflight validation.
+cargo package -p agentic-vision-mcp
 echo ""
 
 echo "All checks passed!"
