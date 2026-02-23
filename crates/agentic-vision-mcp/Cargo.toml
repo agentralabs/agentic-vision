@@ -12,7 +12,7 @@ categories = ["development-tools", "multimedia::images"]
 exclude = [".DS_Store"]
 
 [dependencies]
-agentic-vision = { version = "0.1.5", path = "../agentic-vision" }
+agentic-vision = { version = "0.1.6", path = "../agentic-vision" }
 image = "0.25"
 
 serde = { version = "1.0", features = ["derive"] }

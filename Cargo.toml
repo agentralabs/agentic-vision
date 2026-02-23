@@ -4,7 +4,7 @@ members = ["crates/agentic-vision", "crates/agentic-vision-mcp"]
 exclude = ["runtime"]
 
 [workspace.package]
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/agentralabs/agentic-vision"

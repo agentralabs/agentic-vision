@@ -5,6 +5,13 @@ All notable changes to AgenticVision will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2026-02-23
+
+### Fixed
+- Added strict MCP argument validation for `vision_query`, `vision_similar`, and `vision_track`.
+- Prevented ambiguous/invalid request shapes from reaching runtime paths (invalid ranges, zero limits, empty embeddings, invalid regions).
+- Added regression edge-case coverage to enforce validation contract across client implementations.
+
 ## [0.1.5] - 2026-02-23
 
 ### Fixed
