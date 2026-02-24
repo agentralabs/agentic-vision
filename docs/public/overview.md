@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # AgenticVision Overview
 
 AgenticVision provides persistent visual memory for agents through a portable `.avis` artifact and an MCP server.

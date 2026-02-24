@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # Known Limitations
 
 - Server runtime cannot access laptop-local artifacts directly.

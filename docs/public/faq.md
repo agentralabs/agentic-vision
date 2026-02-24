@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # FAQ
 
 ## Is there a `cortex` CLI in this project?

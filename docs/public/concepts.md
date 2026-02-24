@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # Concepts
 
 ## Persistent visual memory

@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # Integration Guide
 
 ## MCP (recommended)

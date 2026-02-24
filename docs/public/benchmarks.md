@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # Benchmarks
 
 Measured on Apple Silicon with release builds.

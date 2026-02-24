@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # API Reference
 
 ## MCP Tools
