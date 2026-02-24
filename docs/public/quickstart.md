@@ -69,14 +69,10 @@ export CORTEX_STORAGE_BUDGET_TARGET_FRACTION=0.85
 
 When enabled, runtime automatically prunes oldest low-value captures from completed sessions when budget pressure is detected.
 
-## Primary problem regression
+## Validate capabilities
 
 ```bash
 ./scripts/test-primary-problems.sh
 ```
 
-See [Primary Problem Coverage](primary-problem-coverage.md) for the ID-to-capability map.
-
-## Initial problem coverage
-
-See [Initial Problem Coverage](initial-problem-coverage.md) for the foundational solved-problem references.
+See [Experience With vs Without](experience-with-vs-without.md) for the full capability map.

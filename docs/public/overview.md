@@ -21,10 +21,7 @@ Teams adopt AgenticVision because it closes both legacy and current visual-intel
 - New high-scale problems now solved: UI-state blindness during automation and non-text signal blindness in decision workflows.
 - Practical outcome for teams: decisions are grounded in what the system actually saw, not only text logs, with portable evidence that can be queried later.
 
-For full reference mapping, see:
-
-- [Initial Problem Coverage](initial-problem-coverage.md)
-- [Primary Problem Coverage](primary-problem-coverage.md)
+For a detailed before-and-after view, see [Experience With vs Without](experience-with-vs-without.md).
 
 ## Artifact
 
@@ -38,5 +35,9 @@ For full reference mapping, see:
 - [Command Surface](command-surface.md)
 - [Runtime and Sync](runtime-install-sync.md)
 - [Integration Guide](integration-guide.md)
-- [Initial Problem Coverage](initial-problem-coverage.md)
-- [Primary Problem Coverage](primary-problem-coverage.md)
+- [Experience With vs Without](experience-with-vs-without.md)
+
+## Works with
+
+- **AgenticMemory** — link visual captures to memory nodes with `vision_link` for cross-modal evidence trails.
+- **AgenticCodebase** — pair `.avis` screenshots with `.acb` code graphs to connect UI regressions to code changes.

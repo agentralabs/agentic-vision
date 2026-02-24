@@ -210,7 +210,7 @@ cargo add agentic-vision
 ```json
 {
   "mcpServers": {
-    "vision": {
+    "agentic-vision": {
       "command": "agentic-vision-mcp",
       "args": ["--vision", "~/.vision.avis", "serve"]
     }
@@ -276,6 +276,33 @@ for m in matches {
 
 ---
 
+## Common Workflows
+
+1. **Track UI regression** -- After a deploy, capture before/after screenshots and compare:
+   ```
+   vision_capture  (before deploy screenshot, label: "pre-deploy")
+   vision_capture  (after deploy screenshot,  label: "post-deploy")
+   vision_diff     id_a=<before_id> id_b=<after_id>    # Pixel-level region diff
+   ```
+
+2. **Build visual evidence trail** -- During debugging, attach screenshots to memory nodes:
+   ```
+   vision_capture  source=screenshot, labels=["bug-123", "dialog-state"]
+   vision_link     capture_id=<id> memory_node_id=<node> relationship="evidence_for"
+   ```
+
+3. **Find similar UI states** -- When diagnosing a recurring visual bug:
+   ```
+   vision_similar  capture_id=<current_issue_id> top_k=5 min_similarity=0.8
+   ```
+
+4. **Audit capture quality** -- Periodic maintenance to clean up stale or low-quality captures:
+   ```
+   vision_health   stale_after_hours=168 low_quality_threshold=0.45
+   ```
+
+---
+
 ## Validation
 
 | Suite | Tests | Notes |
@@ -337,7 +364,7 @@ Configure Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_c
 ```json
 {
   "mcpServers": {
-    "vision": {
+    "agentic-vision": {
       "command": "agentic-vision-mcp",
       "args": ["--vision", "~/.vision.avis", "serve"]
     }
@@ -382,6 +409,16 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). The fastest ways to help:
 2. **Add an MCP tool** — extend the visual memory surface
 3. **Write an example** — show a real use case
 4. **Improve docs** — every clarification helps someone
+
+---
+
+## Privacy and Security
+
+- All captures stay local in `.avis` files -- no telemetry, no cloud sync by default.
+- Metadata scrubbing removes EXIF and location data from captured images before storage.
+- Storage budget policy prevents unbounded disk growth with 20-year projection and capture rollup.
+- Server mode requires an explicit `AGENTIC_TOKEN` environment variable for bearer auth.
+- Quality scoring helps identify and prune low-value captures to keep the store lean.
 
 ---
 
