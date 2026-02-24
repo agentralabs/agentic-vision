@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="#quickstart">Quickstart</a> · <a href="#why-agenticvision">Why</a> · <a href="#benchmarks">Benchmarks</a> · <a href="#how-it-works">How It Works</a> · <a href="#install">Install</a> · <a href="INSTALL.md">Full Install Guide</a> · <a href="publication/paper-ii-agentic-vision-mcp/agentic-vision-mcp-paper.pdf">Paper</a>
+  <a href="#quickstart">Quickstart</a> · <a href="#problems-solved">Problems Solved</a> · <a href="#why-agenticvision">Why</a> · <a href="#benchmarks">Benchmarks</a> · <a href="#how-it-works">How It Works</a> · <a href="#install">Install</a> · <a href="INSTALL.md">Full Install Guide</a> · <a href="publication/paper-ii-agentic-vision-mcp/agentic-vision-mcp-paper.pdf">Paper</a>
 </p>
 
 ---
@@ -22,6 +22,21 @@ Your agent takes a screenshot, analyzes it, and forgets. Next session — blank 
 Text-based memory exists. Visual memory doesn't — until now.
 
 **AgenticVision** gives AI agents persistent visual memory. Capture images, embed them with CLIP ViT-B/32, store them in a compact binary format, and query them by similarity, time, or description. Every capture is a first-class MCP resource that any LLM can access.
+
+<a name="problems-solved"></a>
+
+## Problems Solved (Read This First)
+
+- **Problem:** agents cannot remember what they saw last session.  
+  **Solved:** `.avis` keeps persistent visual history across sessions and model changes.
+- **Problem:** visual regressions are noticed late or missed.  
+  **Solved:** built-in compare and diff workflows surface change quickly.
+- **Problem:** screenshots pile up with no searchable structure.  
+  **Solved:** each capture is embedded, timestamped, and queryable by similarity and metadata.
+- **Problem:** image context stays trapped in one tool.  
+  **Solved:** MCP tools/resources expose visual memory to any compatible client.
+- **Problem:** what an agent sees is disconnected from what it remembers.  
+  **Solved:** memory linking connects visual captures directly to cognitive graph nodes.
 
 ```bash
 cargo install agentic-vision-mcp
