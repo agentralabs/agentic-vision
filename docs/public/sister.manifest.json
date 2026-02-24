@@ -1,0 +1,20 @@
+{
+  "key": "vision",
+  "name": "AgenticVision",
+  "include_landing": true,
+  "page_ids": [
+    "overview",
+    "experience-with-vs-without",
+    "quickstart",
+    "installation",
+    "command-surface",
+    "runtime-install-sync",
+    "integration-guide",
+    "concepts",
+    "api-reference",
+    "benchmarks",
+    "faq",
+    "limitations"
+  ],
+  "slug_by_id": {}
+}
