@@ -30,7 +30,7 @@ Install complete: AgenticVision (<profile>)
   "mcpServers": {
     "agentic-vision": {
       "command": "$HOME/.local/bin/agentic-vision-mcp",
-      "args": ["serve"]
+      "args": ["--log-level", "error", "serve"]
     }
   }
 }
@@ -44,6 +44,7 @@ Install complete: AgenticVision (<profile>)
 2. Per-workspace default: `<workspace>/.agentra/<workspace-slug>.avis`.
 3. Existing local fallbacks (`vision.avis`, `.vision.avis`, home default).
 - If no file exists yet, launcher routes to per-workspace default path so first run creates and keeps project vision state isolated.
+- Launcher enforces `--log-level error` for stdio MCP startup unless explicitly overridden, preventing stderr noise from breaking strict MCP handshakes.
 - If your MCP client starts outside the project directory, set:
 
 ```bash

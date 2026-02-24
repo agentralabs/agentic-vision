@@ -32,9 +32,9 @@ DRY_RUN=false
 BAR_ONLY="${AGENTRA_INSTALL_BAR_ONLY:-1}"
 MCP_ENTRYPOINT=""
 HOST_OS=""
-SERVER_ARGS_JSON='["serve"]'
-SERVER_ARGS_TEXT='["serve"]'
-SERVER_CHECK_CMD_SUFFIX=" serve"
+SERVER_ARGS_JSON='["--log-level", "error", "serve"]'
+SERVER_ARGS_TEXT='["--log-level", "error", "serve"]'
+SERVER_CHECK_CMD_SUFFIX=" --log-level error serve"
 MCP_CONFIGURED_CLIENTS=()
 MCP_SCANNED_CONFIG_FILES=()
 
@@ -321,6 +321,14 @@ is_common_root_dir() {
     [ "\$PWD" = "/" ]
 }
 
+is_common_path() {
+    local path="\$1"
+    [ "\$path" = "\$HOME" ] || \
+    [ "\$path" = "\$HOME/Documents" ] || \
+    [ "\$path" = "\$HOME/Desktop" ] || \
+    [ "\$path" = "/" ]
+}
+
 resolve_repo_root() {
     if [ -n "\${AGENTRA_WORKSPACE_ROOT:-}" ] && [ -d "\${AGENTRA_WORKSPACE_ROOT}" ]; then
         printf '%s' "\${AGENTRA_WORKSPACE_ROOT}"
@@ -378,7 +386,7 @@ slugify() {
 find_vision() {
     local candidate
     local found=""
-    local repo_root repo_slug
+    local repo_root repo_slug preferred_dir home_dir fallback_dir
 
     repo_root="\$(resolve_repo_root)"
     repo_slug="\$(slugify "\$repo_root")"
@@ -387,8 +395,10 @@ find_vision() {
         "\${AGENTRA_AVIS_PATH:-}" \
         "\${AGENTRA_VISION_PATH:-}" \
         "\${repo_root}/.agentra/\${repo_slug}.avis" \
+        "\${repo_root}/.agentra/vision/\${repo_slug}.avis" \
         "\$PWD/vision.avis" \
         "\$PWD/.vision.avis" \
+        "\$HOME/.agentra/vision/\${repo_slug}.avis" \
         "\$HOME/.agentra/vision/default.avis"; do
         if [ -n "\$candidate" ] && [ -f "\$candidate" ]; then
             found="\$candidate"
@@ -400,18 +410,39 @@ find_vision() {
         printf '%s' "\$found"
         return
     fi
-    mkdir -p "\${repo_root}/.agentra" >/dev/null 2>&1 || true
-    printf '%s' "\${repo_root}/.agentra/\${repo_slug}.avis"
+
+    preferred_dir="\${repo_root}/.agentra"
+    home_dir="\$HOME/.agentra/vision"
+    fallback_dir="/tmp/agentra/vision"
+
+    if is_common_path "\$repo_root"; then
+        preferred_dir="\$home_dir"
+    fi
+
+    if ! mkdir -p "\$preferred_dir" >/dev/null 2>&1; then
+        preferred_dir="\$home_dir"
+        mkdir -p "\$preferred_dir" >/dev/null 2>&1 || true
+    fi
+
+    if [ -d "\$preferred_dir" ] && [ -w "\$preferred_dir" ]; then
+        printf '%s' "\${preferred_dir}/\${repo_slug}.avis"
+        return
+    fi
+
+    mkdir -p "\$fallback_dir" >/dev/null 2>&1 || true
+    printf '%s' "\${fallback_dir}/\${repo_slug}.avis"
 }
 
 args=("\$@")
 has_vision=0
+has_log_level=0
 has_command=0
 serve_requested=0
 
 for arg in "\${args[@]}"; do
     case "\$arg" in
         -h|--help|-V|--version) has_command=1 ;;
+        --log-level|--log-level=*) has_log_level=1 ;;
         -v|--vision|--vision=*) has_vision=1 ;;
         serve) has_command=1; serve_requested=1 ;;
         validate|info|completions|repl|help) has_command=1 ;;
@@ -421,6 +452,10 @@ done
 if [ "\$has_command" -eq 0 ]; then
     serve_requested=1
     args+=("serve")
+fi
+
+if [ "\$serve_requested" -eq 1 ] && [ "\$has_log_level" -eq 0 ]; then
+    args=(--log-level error "\${args[@]}")
 fi
 
 if [ "\$serve_requested" -eq 1 ]; then
