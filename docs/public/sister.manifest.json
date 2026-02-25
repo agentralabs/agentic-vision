@@ -14,7 +14,8 @@
     "api-reference",
     "benchmarks",
     "faq",
-    "limitations"
+    "limitations",
+    "playbooks-agent-integration"
   ],
   "slug_by_id": {}
 }
