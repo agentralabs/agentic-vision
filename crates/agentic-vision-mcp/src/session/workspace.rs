@@ -282,8 +282,14 @@ mod tests {
 
     #[test]
     fn test_context_role_roundtrip() {
-        assert_eq!(ContextRole::parse_str("primary"), Some(ContextRole::Primary));
-        assert_eq!(ContextRole::parse_str("ARCHIVE"), Some(ContextRole::Archive));
+        assert_eq!(
+            ContextRole::parse_str("primary"),
+            Some(ContextRole::Primary)
+        );
+        assert_eq!(
+            ContextRole::parse_str("ARCHIVE"),
+            Some(ContextRole::Archive)
+        );
         assert_eq!(ContextRole::parse_str("unknown"), None);
     }
 
