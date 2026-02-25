@@ -44,9 +44,11 @@ pub async fn execute(
     let params: QueryParams =
         serde_json::from_value(args).map_err(|e| McpError::InvalidParams(e.to_string()))?;
     let session = session.lock().await;
-    let results = session
-        .workspace_manager()
-        .query_all(&params.workspace_id, &params.query, params.max_per_context)?;
+    let results = session.workspace_manager().query_all(
+        &params.workspace_id,
+        &params.query,
+        params.max_per_context,
+    )?;
     let total: usize = results.iter().map(|r| r.matches.len()).sum();
     let items: Vec<Value> = results
         .iter()
@@ -57,5 +59,7 @@ pub async fn execute(
             json!({ "context_id": cr.context_id, "context_role": cr.context_role.label(), "match_count": cr.matches.len(), "matches": matches })
         })
         .collect();
-    Ok(ToolCallResult::json(&json!({ "workspace_id": params.workspace_id, "query": params.query, "total_matches": total, "results": items })))
+    Ok(ToolCallResult::json(
+        &json!({ "workspace_id": params.workspace_id, "query": params.query, "total_matches": total, "results": items }),
+    ))
 }

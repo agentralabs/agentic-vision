@@ -111,7 +111,11 @@ fn suggest_observations(
     let store = AvisReader::read_from_file(file)?;
     let mut scored: Vec<(f32, String)> = Vec::new();
     for obs in &store.observations {
-        let score = score_observation(query, &obs.metadata.labels, obs.metadata.description.as_deref());
+        let score = score_observation(
+            query,
+            &obs.metadata.labels,
+            obs.metadata.description.as_deref(),
+        );
         if score <= 0.0 {
             continue;
         }
@@ -425,7 +429,10 @@ fn main() {
                 println!("Evidence count: {}", evidence.len());
                 for row in evidence {
                     let id = row.get("id").and_then(|v| v.as_u64()).unwrap_or_default();
-                    let score = row.get("score").and_then(|v| v.as_f64()).unwrap_or_default();
+                    let score = row
+                        .get("score")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or_default();
                     let desc = row
                         .get("description")
                         .and_then(|v| v.as_str())
@@ -435,265 +442,275 @@ fn main() {
             }
             Ok(())
         })(),
-        Some(Commands::Evidence { file, query, limit }) => (|| -> agentic_vision::VisionResult<()> {
-            let store = AvisReader::read_from_file(&file)?;
-            let mut evidence = Vec::new();
-            for obs in &store.observations {
-                let score =
-                    score_observation(&query, &obs.metadata.labels, obs.metadata.description.as_deref());
-                if score > 0.0 {
-                    evidence.push(serde_json::json!({
-                        "id": obs.id,
-                        "score": score,
-                        "labels": obs.metadata.labels,
-                        "description": obs.metadata.description,
-                    }));
+        Some(Commands::Evidence { file, query, limit }) => {
+            (|| -> agentic_vision::VisionResult<()> {
+                let store = AvisReader::read_from_file(&file)?;
+                let mut evidence = Vec::new();
+                for obs in &store.observations {
+                    let score = score_observation(
+                        &query,
+                        &obs.metadata.labels,
+                        obs.metadata.description.as_deref(),
+                    );
+                    if score > 0.0 {
+                        evidence.push(serde_json::json!({
+                            "id": obs.id,
+                            "score": score,
+                            "labels": obs.metadata.labels,
+                            "description": obs.metadata.description,
+                        }));
+                    }
                 }
-            }
-            evidence.sort_by(|a, b| {
-                let sa = a.get("score").and_then(|v| v.as_f64()).unwrap_or(0.0);
-                let sb = b.get("score").and_then(|v| v.as_f64()).unwrap_or(0.0);
-                sb.partial_cmp(&sa).unwrap_or(std::cmp::Ordering::Equal)
-            });
-            evidence.truncate(limit);
+                evidence.sort_by(|a, b| {
+                    let sa = a.get("score").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                    let sb = b.get("score").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                    sb.partial_cmp(&sa).unwrap_or(std::cmp::Ordering::Equal)
+                });
+                evidence.truncate(limit);
 
-            if json {
-                println!(
-                    "{}",
-                    serde_json::to_string_pretty(&serde_json::json!({
-                        "query": query,
-                        "count": evidence.len(),
-                        "evidence": evidence
-                    }))
-                    .unwrap_or_default()
-                );
-            } else if evidence.is_empty() {
-                println!("No evidence found.");
-            } else {
-                println!("Evidence for {:?}:", query);
-                for row in evidence {
-                    let id = row.get("id").and_then(|v| v.as_u64()).unwrap_or_default();
-                    let score = row.get("score").and_then(|v| v.as_f64()).unwrap_or_default();
-                    let desc = row
-                        .get("description")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("<no description>");
-                    println!("  - [{}] score={:.3} {}", id, score, desc);
-                }
-            }
-            Ok(())
-        })(),
-        Some(Commands::Suggest { file, query, limit }) => (|| -> agentic_vision::VisionResult<()> {
-            let suggestions = suggest_observations(&file, &query, limit)?;
-            if json {
-                println!(
-                    "{}",
-                    serde_json::to_string_pretty(&serde_json::json!({
-                        "query": query,
-                        "suggestions": suggestions
-                    }))
-                    .unwrap_or_default()
-                );
-            } else if suggestions.is_empty() {
-                println!("No suggestions found.");
-            } else {
-                println!("Suggestions:");
-                for s in suggestions {
-                    println!("  - {}", s);
-                }
-            }
-            Ok(())
-        })(),
-        Some(Commands::Workspace { subcommand }) => (|| -> agentic_vision::VisionResult<()> {
-            match subcommand {
-            WorkspaceCommands::Create { name } => {
-                let mut state = load_state()?;
-                state.workspaces.entry(name.clone()).or_default();
-                save_state(&state)?;
                 if json {
                     println!(
                         "{}",
                         serde_json::to_string_pretty(&serde_json::json!({
-                            "workspace": name,
-                            "created": true
+                            "query": query,
+                            "count": evidence.len(),
+                            "evidence": evidence
                         }))
                         .unwrap_or_default()
                     );
+                } else if evidence.is_empty() {
+                    println!("No evidence found.");
                 } else {
-                    println!("Created workspace '{}'", name);
-                }
-                Ok(())
-            }
-            WorkspaceCommands::Add {
-                workspace,
-                file,
-                role,
-                label,
-            } => {
-                let mut state = load_state()?;
-                let contexts = state.workspaces.entry(workspace.clone()).or_default();
-                let file_path = file.to_string_lossy().to_string();
-                if !contexts.iter().any(|ctx| ctx.path == file_path) {
-                    contexts.push(WorkspaceContext {
-                        path: file_path.clone(),
-                        role: role.to_ascii_lowercase(),
-                        label,
-                    });
-                    save_state(&state)?;
-                }
-                if json {
-                    println!(
-                        "{}",
-                        serde_json::to_string_pretty(&serde_json::json!({
-                            "workspace": workspace,
-                            "path": file_path,
-                            "added": true
-                        }))
-                        .unwrap_or_default()
-                    );
-                } else {
-                    println!("Added {} to workspace '{}'", file.display(), workspace);
-                }
-                Ok(())
-            }
-            WorkspaceCommands::List { workspace } => {
-                let state = load_state()?;
-                let contexts = state.workspaces.get(&workspace).ok_or_else(|| {
-                    agentic_vision::VisionError::Io(std::io::Error::new(
-                        std::io::ErrorKind::NotFound,
-                        format!("workspace '{}' not found", workspace),
-                    ))
-                })?;
-                if json {
-                    println!(
-                        "{}",
-                        serde_json::to_string_pretty(&serde_json::json!({
-                            "workspace": workspace,
-                            "contexts": contexts
-                        }))
-                        .unwrap_or_default()
-                    );
-                } else {
-                    println!("Workspace '{}':", workspace);
-                    for ctx in contexts {
-                        println!(
-                            "  - {} (role={}, label={})",
-                            ctx.path,
-                            ctx.role,
-                            ctx.label.clone().unwrap_or_else(|| "-".to_string())
-                        );
+                    println!("Evidence for {:?}:", query);
+                    for row in evidence {
+                        let id = row.get("id").and_then(|v| v.as_u64()).unwrap_or_default();
+                        let score = row
+                            .get("score")
+                            .and_then(|v| v.as_f64())
+                            .unwrap_or_default();
+                        let desc = row
+                            .get("description")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("<no description>");
+                        println!("  - [{}] score={:.3} {}", id, score, desc);
                     }
                 }
                 Ok(())
-            }
-            WorkspaceCommands::Query {
-                workspace,
-                query,
-                limit,
-            } => {
-                let state = load_state()?;
-                let (manager, ws_id) = load_workspace_manager(&state, &workspace)?;
-                let results = manager.query_all(&ws_id, &query, limit).map_err(|e| {
-                    agentic_vision::VisionError::Io(std::io::Error::new(
-                        std::io::ErrorKind::InvalidInput,
-                        e.to_string(),
-                    ))
-                })?;
+            })()
+        }
+        Some(Commands::Suggest { file, query, limit }) => {
+            (|| -> agentic_vision::VisionResult<()> {
+                let suggestions = suggest_observations(&file, &query, limit)?;
                 if json {
-                    let rows: Vec<_> = results
-                        .iter()
-                        .map(|r| {
-                            serde_json::json!({
-                                "context_id": r.context_id,
-                                "role": r.context_role.label(),
-                                "matches": r.matches.iter().map(|m| serde_json::json!({
-                                    "observation_id": m.observation_id,
-                                    "score": m.score,
-                                    "labels": m.labels,
-                                    "description": m.description,
-                                })).collect::<Vec<_>>()
-                            })
-                        })
-                        .collect();
                     println!(
                         "{}",
                         serde_json::to_string_pretty(&serde_json::json!({
-                            "workspace": workspace,
                             "query": query,
-                            "results": rows
+                            "suggestions": suggestions
                         }))
                         .unwrap_or_default()
                     );
+                } else if suggestions.is_empty() {
+                    println!("No suggestions found.");
                 } else {
-                    println!("Workspace query '{}':", query);
-                    for r in results {
-                        println!("  Context {} ({})", r.context_id, r.context_role.label());
-                        for m in r.matches {
+                    println!("Suggestions:");
+                    for s in suggestions {
+                        println!("  - {}", s);
+                    }
+                }
+                Ok(())
+            })()
+        }
+        Some(Commands::Workspace { subcommand }) => (|| -> agentic_vision::VisionResult<()> {
+            match subcommand {
+                WorkspaceCommands::Create { name } => {
+                    let mut state = load_state()?;
+                    state.workspaces.entry(name.clone()).or_default();
+                    save_state(&state)?;
+                    if json {
+                        println!(
+                            "{}",
+                            serde_json::to_string_pretty(&serde_json::json!({
+                                "workspace": name,
+                                "created": true
+                            }))
+                            .unwrap_or_default()
+                        );
+                    } else {
+                        println!("Created workspace '{}'", name);
+                    }
+                    Ok(())
+                }
+                WorkspaceCommands::Add {
+                    workspace,
+                    file,
+                    role,
+                    label,
+                } => {
+                    let mut state = load_state()?;
+                    let contexts = state.workspaces.entry(workspace.clone()).or_default();
+                    let file_path = file.to_string_lossy().to_string();
+                    if !contexts.iter().any(|ctx| ctx.path == file_path) {
+                        contexts.push(WorkspaceContext {
+                            path: file_path.clone(),
+                            role: role.to_ascii_lowercase(),
+                            label,
+                        });
+                        save_state(&state)?;
+                    }
+                    if json {
+                        println!(
+                            "{}",
+                            serde_json::to_string_pretty(&serde_json::json!({
+                                "workspace": workspace,
+                                "path": file_path,
+                                "added": true
+                            }))
+                            .unwrap_or_default()
+                        );
+                    } else {
+                        println!("Added {} to workspace '{}'", file.display(), workspace);
+                    }
+                    Ok(())
+                }
+                WorkspaceCommands::List { workspace } => {
+                    let state = load_state()?;
+                    let contexts = state.workspaces.get(&workspace).ok_or_else(|| {
+                        agentic_vision::VisionError::Io(std::io::Error::new(
+                            std::io::ErrorKind::NotFound,
+                            format!("workspace '{}' not found", workspace),
+                        ))
+                    })?;
+                    if json {
+                        println!(
+                            "{}",
+                            serde_json::to_string_pretty(&serde_json::json!({
+                                "workspace": workspace,
+                                "contexts": contexts
+                            }))
+                            .unwrap_or_default()
+                        );
+                    } else {
+                        println!("Workspace '{}':", workspace);
+                        for ctx in contexts {
                             println!(
-                                "    - [{}] score={:.3} {:?}",
-                                m.observation_id, m.score, m.labels
+                                "  - {} (role={}, label={})",
+                                ctx.path,
+                                ctx.role,
+                                ctx.label.clone().unwrap_or_else(|| "-".to_string())
                             );
                         }
                     }
+                    Ok(())
                 }
-                Ok(())
-            }
-            WorkspaceCommands::Compare {
-                workspace,
-                item,
-                limit,
-            } => {
-                let state = load_state()?;
-                let (manager, ws_id) = load_workspace_manager(&state, &workspace)?;
-                let comparison = manager.compare(&ws_id, &item, limit).map_err(|e| {
-                    agentic_vision::VisionError::Io(std::io::Error::new(
-                        std::io::ErrorKind::InvalidInput,
-                        e.to_string(),
-                    ))
-                })?;
-                if json {
-                    println!(
-                        "{}",
-                        serde_json::to_string_pretty(&serde_json::json!({
-                            "workspace": workspace,
-                            "item": comparison.item,
-                            "found_in": comparison.found_in,
-                            "missing_from": comparison.missing_from
-                        }))
-                        .unwrap_or_default()
-                    );
-                } else {
-                    println!("Found in: {:?}", comparison.found_in);
-                    println!("Missing from: {:?}", comparison.missing_from);
+                WorkspaceCommands::Query {
+                    workspace,
+                    query,
+                    limit,
+                } => {
+                    let state = load_state()?;
+                    let (manager, ws_id) = load_workspace_manager(&state, &workspace)?;
+                    let results = manager.query_all(&ws_id, &query, limit).map_err(|e| {
+                        agentic_vision::VisionError::Io(std::io::Error::new(
+                            std::io::ErrorKind::InvalidInput,
+                            e.to_string(),
+                        ))
+                    })?;
+                    if json {
+                        let rows: Vec<_> = results
+                            .iter()
+                            .map(|r| {
+                                serde_json::json!({
+                                    "context_id": r.context_id,
+                                    "role": r.context_role.label(),
+                                    "matches": r.matches.iter().map(|m| serde_json::json!({
+                                        "observation_id": m.observation_id,
+                                        "score": m.score,
+                                        "labels": m.labels,
+                                        "description": m.description,
+                                    })).collect::<Vec<_>>()
+                                })
+                            })
+                            .collect();
+                        println!(
+                            "{}",
+                            serde_json::to_string_pretty(&serde_json::json!({
+                                "workspace": workspace,
+                                "query": query,
+                                "results": rows
+                            }))
+                            .unwrap_or_default()
+                        );
+                    } else {
+                        println!("Workspace query '{}':", query);
+                        for r in results {
+                            println!("  Context {} ({})", r.context_id, r.context_role.label());
+                            for m in r.matches {
+                                println!(
+                                    "    - [{}] score={:.3} {:?}",
+                                    m.observation_id, m.score, m.labels
+                                );
+                            }
+                        }
+                    }
+                    Ok(())
                 }
-                Ok(())
-            }
-            WorkspaceCommands::Xref { workspace, item } => {
-                let state = load_state()?;
-                let (manager, ws_id) = load_workspace_manager(&state, &workspace)?;
-                let xref = manager.cross_reference(&ws_id, &item).map_err(|e| {
-                    agentic_vision::VisionError::Io(std::io::Error::new(
-                        std::io::ErrorKind::InvalidInput,
-                        e.to_string(),
-                    ))
-                })?;
-                if json {
-                    println!(
-                        "{}",
-                        serde_json::to_string_pretty(&serde_json::json!({
-                            "workspace": workspace,
-                            "item": xref.item,
-                            "present_in": xref.present_in,
-                            "absent_from": xref.absent_from
-                        }))
-                        .unwrap_or_default()
-                    );
-                } else {
-                    println!("Present in: {:?}", xref.present_in);
-                    println!("Absent from: {:?}", xref.absent_from);
+                WorkspaceCommands::Compare {
+                    workspace,
+                    item,
+                    limit,
+                } => {
+                    let state = load_state()?;
+                    let (manager, ws_id) = load_workspace_manager(&state, &workspace)?;
+                    let comparison = manager.compare(&ws_id, &item, limit).map_err(|e| {
+                        agentic_vision::VisionError::Io(std::io::Error::new(
+                            std::io::ErrorKind::InvalidInput,
+                            e.to_string(),
+                        ))
+                    })?;
+                    if json {
+                        println!(
+                            "{}",
+                            serde_json::to_string_pretty(&serde_json::json!({
+                                "workspace": workspace,
+                                "item": comparison.item,
+                                "found_in": comparison.found_in,
+                                "missing_from": comparison.missing_from
+                            }))
+                            .unwrap_or_default()
+                        );
+                    } else {
+                        println!("Found in: {:?}", comparison.found_in);
+                        println!("Missing from: {:?}", comparison.missing_from);
+                    }
+                    Ok(())
                 }
-                Ok(())
-            }
+                WorkspaceCommands::Xref { workspace, item } => {
+                    let state = load_state()?;
+                    let (manager, ws_id) = load_workspace_manager(&state, &workspace)?;
+                    let xref = manager.cross_reference(&ws_id, &item).map_err(|e| {
+                        agentic_vision::VisionError::Io(std::io::Error::new(
+                            std::io::ErrorKind::InvalidInput,
+                            e.to_string(),
+                        ))
+                    })?;
+                    if json {
+                        println!(
+                            "{}",
+                            serde_json::to_string_pretty(&serde_json::json!({
+                                "workspace": workspace,
+                                "item": xref.item,
+                                "present_in": xref.present_in,
+                                "absent_from": xref.absent_from
+                            }))
+                            .unwrap_or_default()
+                        );
+                    } else {
+                        println!("Present in: {:?}", xref.present_in);
+                        println!("Absent from: {:?}", xref.absent_from);
+                    }
+                    Ok(())
+                }
             }
         })(),
     };

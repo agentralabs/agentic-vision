@@ -39,5 +39,7 @@ pub async fn execute(
         serde_json::from_value(args).map_err(|e| McpError::InvalidParams(e.to_string()))?;
     let mut session = session.lock().await;
     let id = session.workspace_manager_mut().create(&params.name);
-    Ok(ToolCallResult::json(&json!({ "workspace_id": id, "name": params.name, "status": "created" })))
+    Ok(ToolCallResult::json(
+        &json!({ "workspace_id": id, "name": params.name, "status": "created" }),
+    ))
 }

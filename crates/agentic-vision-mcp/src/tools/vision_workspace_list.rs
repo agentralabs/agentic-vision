@@ -48,5 +48,7 @@ pub async fn execute(
             })
         })
         .collect();
-    Ok(ToolCallResult::json(&json!({ "workspace_id": params.workspace_id, "count": items.len(), "contexts": items })))
+    Ok(ToolCallResult::json(
+        &json!({ "workspace_id": params.workspace_id, "count": items.len(), "contexts": items }),
+    ))
 }

@@ -43,10 +43,14 @@ fn init_request() -> Value {
 }
 
 fn tool_call(id: i64, name: &str, args: Value) -> Value {
-    mcp_request(id, "tools/call", json!({
-        "name": name,
-        "arguments": args
-    }))
+    mcp_request(
+        id,
+        "tools/call",
+        json!({
+            "name": name,
+            "arguments": args
+        }),
+    )
 }
 
 async fn send(handler: &ProtocolHandler, msg: Value) -> Option<Value> {
@@ -167,11 +171,21 @@ async fn test_grounding_verified_capture() {
     let handler = ProtocolHandler::new(session.clone());
     send_unwrap(&handler, init_request()).await;
 
-    capture_with_desc(&handler, 1, "Login page with blue submit button", vec!["login", "button"]).await;
+    capture_with_desc(
+        &handler,
+        1,
+        "Login page with blue submit button",
+        vec!["login", "button"],
+    )
+    .await;
 
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_ground", json!({ "claim": "login page has a blue button" })),
+        tool_call(
+            2,
+            "vision_ground",
+            json!({ "claim": "login page has a blue button" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -198,7 +212,11 @@ async fn test_grounding_verified_element() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_ground", json!({ "claim": "red alert banner on the admin dashboard" })),
+        tool_call(
+            2,
+            "vision_ground",
+            json!({ "claim": "red alert banner on the admin dashboard" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -224,7 +242,11 @@ async fn test_grounding_verified_url() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_ground", json!({ "claim": "example.com hero section" })),
+        tool_call(
+            2,
+            "vision_ground",
+            json!({ "claim": "example.com hero section" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -241,7 +263,11 @@ async fn test_grounding_ungrounded_no_captures() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(1, "vision_ground", json!({ "claim": "there is a blue button on the page" })),
+        tool_call(
+            1,
+            "vision_ground",
+            json!({ "claim": "there is a blue button on the page" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -256,11 +282,21 @@ async fn test_grounding_ungrounded_wrong_page() {
     let handler = ProtocolHandler::new(session.clone());
     send_unwrap(&handler, init_request()).await;
 
-    capture_with_desc(&handler, 1, "Checkout page with payment form", vec!["checkout"]).await;
+    capture_with_desc(
+        &handler,
+        1,
+        "Checkout page with payment form",
+        vec!["checkout"],
+    )
+    .await;
 
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_ground", json!({ "claim": "settings profile avatar upload" })),
+        tool_call(
+            2,
+            "vision_ground",
+            json!({ "claim": "settings profile avatar upload" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -330,7 +366,11 @@ async fn test_grounding_unicode_content() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_ground", json!({ "claim": "日本語テキストが表示" })),
+        tool_call(
+            2,
+            "vision_ground",
+            json!({ "claim": "日本語テキストが表示" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -380,7 +420,11 @@ async fn test_grounding_case_insensitive() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_ground", json!({ "claim": "navigation bar with dark mode toggle" })),
+        tool_call(
+            2,
+            "vision_ground",
+            json!({ "claim": "navigation bar with dark mode toggle" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -397,7 +441,13 @@ async fn test_grounding_multiple_captures() {
 
     capture_with_desc(&handler, 1, "Login form with username field", vec!["login"]).await;
     capture_with_desc(&handler, 2, "Login form with password field", vec!["login"]).await;
-    capture_with_desc(&handler, 3, "Login page overview with both fields", vec!["login", "form"]).await;
+    capture_with_desc(
+        &handler,
+        3,
+        "Login page overview with both fields",
+        vec!["login", "form"],
+    )
+    .await;
 
     let resp = send_unwrap(
         &handler,
@@ -430,7 +480,11 @@ async fn test_grounding_partial_match() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_ground", json!({ "claim": "profile page avatar" })),
+        tool_call(
+            2,
+            "vision_ground",
+            json!({ "claim": "profile page avatar" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -456,7 +510,11 @@ async fn test_workspace_create() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(1, "vision_workspace_create", json!({ "name": "test-workspace" })),
+        tool_call(
+            1,
+            "vision_workspace_create",
+            json!({ "name": "test-workspace" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -526,10 +584,14 @@ async fn test_workspace_add_context() {
     // Add context
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": avis_path
-        })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": avis_path
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -547,8 +609,16 @@ async fn test_workspace_add_multiple_contexts() {
 
     let avis_dir = tempfile::tempdir().unwrap();
     let path_a = create_avis_file(&avis_dir, "a.avis", &[("Site A homepage", &["homepage"])]);
-    let path_b = create_avis_file(&avis_dir, "b.avis", &[("Site B settings page", &["settings"])]);
-    let path_c = create_avis_file(&avis_dir, "c.avis", &[("Site C archive page", &["archive"])]);
+    let path_b = create_avis_file(
+        &avis_dir,
+        "b.avis",
+        &[("Site B settings page", &["settings"])],
+    );
+    let path_c = create_avis_file(
+        &avis_dir,
+        "c.avis",
+        &[("Site C archive page", &["archive"])],
+    );
 
     let resp = send_unwrap(
         &handler,
@@ -608,12 +678,20 @@ async fn test_workspace_list() {
 
     send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({ "workspace_id": ws_id, "path": path_a })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({ "workspace_id": ws_id, "path": path_a }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(3, "vision_workspace_add", json!({ "workspace_id": ws_id, "path": path_b })),
+        tool_call(
+            3,
+            "vision_workspace_add",
+            json!({ "workspace_id": ws_id, "path": path_b }),
+        ),
     )
     .await;
 
@@ -640,14 +718,21 @@ async fn test_workspace_query_single() {
         &avis_dir,
         "query.avis",
         &[
-            ("Login form with email and password fields", &["login", "form"]),
+            (
+                "Login form with email and password fields",
+                &["login", "form"],
+            ),
             ("Dashboard with charts and graphs", &["dashboard"]),
         ],
     );
 
     let resp = send_unwrap(
         &handler,
-        tool_call(1, "vision_workspace_create", json!({ "name": "query-single" })),
+        tool_call(
+            1,
+            "vision_workspace_create",
+            json!({ "name": "query-single" }),
+        ),
     )
     .await;
     let ws_id = extract_tool_json(&resp)["workspace_id"]
@@ -657,16 +742,24 @@ async fn test_workspace_query_single() {
 
     send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({ "workspace_id": ws_id, "path": path })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({ "workspace_id": ws_id, "path": path }),
+        ),
     )
     .await;
 
     let resp = send_unwrap(
         &handler,
-        tool_call(3, "vision_workspace_query", json!({
-            "workspace_id": ws_id,
-            "query": "login form"
-        })),
+        tool_call(
+            3,
+            "vision_workspace_query",
+            json!({
+                "workspace_id": ws_id,
+                "query": "login form"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -697,7 +790,11 @@ async fn test_workspace_query_across() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(1, "vision_workspace_create", json!({ "name": "cross-query" })),
+        tool_call(
+            1,
+            "vision_workspace_create",
+            json!({ "name": "cross-query" }),
+        ),
     )
     .await;
     let ws_id = extract_tool_json(&resp)["workspace_id"]
@@ -707,29 +804,41 @@ async fn test_workspace_query_across() {
 
     send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_a,
-            "label": "site-a"
-        })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_a,
+                "label": "site-a"
+            }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(3, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_b,
-            "label": "site-b"
-        })),
+        tool_call(
+            3,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_b,
+                "label": "site-b"
+            }),
+        ),
     )
     .await;
 
     let resp = send_unwrap(
         &handler,
-        tool_call(4, "vision_workspace_query", json!({
-            "workspace_id": ws_id,
-            "query": "navigation search"
-        })),
+        tool_call(
+            4,
+            "vision_workspace_query",
+            json!({
+                "workspace_id": ws_id,
+                "query": "navigation search"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -770,29 +879,41 @@ async fn test_workspace_compare_found_both() {
 
     send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_a,
-            "label": "site-a"
-        })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_a,
+                "label": "site-a"
+            }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(3, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_b,
-            "label": "site-b"
-        })),
+        tool_call(
+            3,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_b,
+                "label": "site-b"
+            }),
+        ),
     )
     .await;
 
     let resp = send_unwrap(
         &handler,
-        tool_call(4, "vision_workspace_compare", json!({
-            "workspace_id": ws_id,
-            "item": "footer"
-        })),
+        tool_call(
+            4,
+            "vision_workspace_compare",
+            json!({
+                "workspace_id": ws_id,
+                "item": "footer"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -833,36 +954,52 @@ async fn test_workspace_compare_found_one() {
 
     send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_a,
-            "label": "site-a"
-        })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_a,
+                "label": "site-a"
+            }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(3, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_b,
-            "label": "site-b"
-        })),
+        tool_call(
+            3,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_b,
+                "label": "site-b"
+            }),
+        ),
     )
     .await;
 
     let resp = send_unwrap(
         &handler,
-        tool_call(4, "vision_workspace_compare", json!({
-            "workspace_id": ws_id,
-            "item": "checkout payment"
-        })),
+        tool_call(
+            4,
+            "vision_workspace_compare",
+            json!({
+                "workspace_id": ws_id,
+                "item": "checkout payment"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
     let found_in = parsed["found_in"].as_array().unwrap();
     let missing_from = parsed["missing_from"].as_array().unwrap();
     assert_eq!(found_in.len(), 1, "Payment should be in site-a only");
-    assert_eq!(missing_from.len(), 1, "Payment should be missing from site-b");
+    assert_eq!(
+        missing_from.len(),
+        1,
+        "Payment should be missing from site-b"
+    );
 }
 
 /// 22. Cross-reference an item across contexts.
@@ -887,7 +1024,10 @@ async fn test_workspace_xref() {
     let path_c = create_avis_file(
         &avis_dir,
         "c.avis",
-        &[("Sidebar collapsed state with hamburger menu", &["sidebar", "menu"])],
+        &[(
+            "Sidebar collapsed state with hamburger menu",
+            &["sidebar", "menu"],
+        )],
     );
 
     let resp = send_unwrap(
@@ -902,45 +1042,69 @@ async fn test_workspace_xref() {
 
     send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_a,
-            "label": "page-a"
-        })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_a,
+                "label": "page-a"
+            }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(3, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_b,
-            "label": "page-b"
-        })),
+        tool_call(
+            3,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_b,
+                "label": "page-b"
+            }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(4, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_c,
-            "label": "page-c"
-        })),
+        tool_call(
+            4,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_c,
+                "label": "page-c"
+            }),
+        ),
     )
     .await;
 
     let resp = send_unwrap(
         &handler,
-        tool_call(5, "vision_workspace_xref", json!({
-            "workspace_id": ws_id,
-            "item": "sidebar"
-        })),
+        tool_call(
+            5,
+            "vision_workspace_xref",
+            json!({
+                "workspace_id": ws_id,
+                "item": "sidebar"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
     let present_in = parsed["present_in"].as_array().unwrap();
     let absent_from = parsed["absent_from"].as_array().unwrap();
-    assert!(present_in.len() >= 2, "Sidebar should be present in at least 2 contexts, got {}", present_in.len());
-    assert_eq!(present_in.len() + absent_from.len(), 3, "Total should be 3 contexts");
+    assert!(
+        present_in.len() >= 2,
+        "Sidebar should be present in at least 2 contexts, got {}",
+        present_in.len()
+    );
+    assert_eq!(
+        present_in.len() + absent_from.len(),
+        3,
+        "Total should be 3 contexts"
+    );
 }
 
 /// 23. Query an empty workspace (no contexts added).
@@ -963,10 +1127,14 @@ async fn test_workspace_empty_query() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_query", json!({
-            "workspace_id": ws_id,
-            "query": "anything"
-        })),
+        tool_call(
+            2,
+            "vision_workspace_query",
+            json!({
+                "workspace_id": ws_id,
+                "query": "anything"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -984,7 +1152,11 @@ async fn test_workspace_missing_id() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(1, "vision_workspace_list", json!({ "workspace_id": "vws_nonexistent" })),
+        tool_call(
+            1,
+            "vision_workspace_list",
+            json!({ "workspace_id": "vws_nonexistent" }),
+        ),
     )
     .await;
 
@@ -1011,7 +1183,11 @@ async fn test_workspace_add_invalid_path() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(1, "vision_workspace_create", json!({ "name": "bad-path-ws" })),
+        tool_call(
+            1,
+            "vision_workspace_create",
+            json!({ "name": "bad-path-ws" }),
+        ),
     )
     .await;
     let ws_id = extract_tool_json(&resp)["workspace_id"]
@@ -1021,10 +1197,14 @@ async fn test_workspace_add_invalid_path() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": "/tmp/nonexistent_file_abc123.avis"
-        })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": "/tmp/nonexistent_file_abc123.avis"
+            }),
+        ),
     )
     .await;
 
@@ -1055,18 +1235,32 @@ async fn test_ground_then_workspace() {
     // Ground a claim (should be ungrounded since no captures)
     let resp = send_unwrap(
         &handler,
-        tool_call(1, "vision_ground", json!({ "claim": "green button on page" })),
+        tool_call(
+            1,
+            "vision_ground",
+            json!({ "claim": "green button on page" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
     assert_eq!(parsed["status"].as_str().unwrap(), "ungrounded");
 
     // Capture and ground again
-    capture_with_desc(&handler, 2, "Page with green submit button", vec!["button", "green"]).await;
+    capture_with_desc(
+        &handler,
+        2,
+        "Page with green submit button",
+        vec!["button", "green"],
+    )
+    .await;
 
     let resp = send_unwrap(
         &handler,
-        tool_call(3, "vision_ground", json!({ "claim": "green button on page" })),
+        tool_call(
+            3,
+            "vision_ground",
+            json!({ "claim": "green button on page" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -1092,19 +1286,27 @@ async fn test_ground_then_workspace() {
 
     send_unwrap(
         &handler,
-        tool_call(5, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": avis_path
-        })),
+        tool_call(
+            5,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": avis_path
+            }),
+        ),
     )
     .await;
 
     let resp = send_unwrap(
         &handler,
-        tool_call(6, "vision_workspace_query", json!({
-            "workspace_id": ws_id,
-            "query": "green button"
-        })),
+        tool_call(
+            6,
+            "vision_workspace_query",
+            json!({
+                "workspace_id": ws_id,
+                "query": "green button"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -1133,7 +1335,10 @@ async fn test_workspace_site_comparison() {
         &avis_dir,
         "staging.avis",
         &[
-            ("Header with company logo and beta badge", &["header", "logo", "beta"]),
+            (
+                "Header with company logo and beta badge",
+                &["header", "logo", "beta"],
+            ),
             ("Footer with privacy policy link", &["footer", "privacy"]),
             ("Settings page with feature flags", &["settings", "flags"]),
         ],
@@ -1141,7 +1346,11 @@ async fn test_workspace_site_comparison() {
 
     let resp = send_unwrap(
         &handler,
-        tool_call(1, "vision_workspace_create", json!({ "name": "site-compare" })),
+        tool_call(
+            1,
+            "vision_workspace_create",
+            json!({ "name": "site-compare" }),
+        ),
     )
     .await;
     let ws_id = extract_tool_json(&resp)["workspace_id"]
@@ -1151,32 +1360,44 @@ async fn test_workspace_site_comparison() {
 
     send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_prod,
-            "role": "primary",
-            "label": "production"
-        })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_prod,
+                "role": "primary",
+                "label": "production"
+            }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(3, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_staging,
-            "role": "secondary",
-            "label": "staging"
-        })),
+        tool_call(
+            3,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_staging,
+                "role": "secondary",
+                "label": "staging"
+            }),
+        ),
     )
     .await;
 
     // Compare something both have
     let resp = send_unwrap(
         &handler,
-        tool_call(4, "vision_workspace_compare", json!({
-            "workspace_id": ws_id,
-            "item": "footer privacy"
-        })),
+        tool_call(
+            4,
+            "vision_workspace_compare",
+            json!({
+                "workspace_id": ws_id,
+                "item": "footer privacy"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -1185,10 +1406,14 @@ async fn test_workspace_site_comparison() {
     // Compare something only prod has
     let resp = send_unwrap(
         &handler,
-        tool_call(5, "vision_workspace_compare", json!({
-            "workspace_id": ws_id,
-            "item": "login sso"
-        })),
+        tool_call(
+            5,
+            "vision_workspace_compare",
+            json!({
+                "workspace_id": ws_id,
+                "item": "login sso"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -1205,24 +1430,57 @@ async fn test_grounding_with_many_captures() {
     send_unwrap(&handler, init_request()).await;
 
     let pages = [
-        ("Homepage hero section with call to action", vec!["homepage", "hero", "cta"]),
+        (
+            "Homepage hero section with call to action",
+            vec!["homepage", "hero", "cta"],
+        ),
         ("About us page with team photos", vec!["about", "team"]),
         ("Contact form with email field", vec!["contact", "form"]),
         ("Blog listing with article cards", vec!["blog", "articles"]),
-        ("Product page with price and description", vec!["product", "price"]),
+        (
+            "Product page with price and description",
+            vec!["product", "price"],
+        ),
         ("Cart page with item list", vec!["cart", "items"]),
-        ("Checkout flow step one shipping", vec!["checkout", "shipping"]),
-        ("Checkout flow step two payment", vec!["checkout", "payment"]),
-        ("Order confirmation with receipt", vec!["order", "confirmation"]),
-        ("User settings with notification preferences", vec!["settings", "notifications"]),
-        ("Dashboard analytics overview charts", vec!["dashboard", "analytics"]),
-        ("Search results page with filters", vec!["search", "filters"]),
+        (
+            "Checkout flow step one shipping",
+            vec!["checkout", "shipping"],
+        ),
+        (
+            "Checkout flow step two payment",
+            vec!["checkout", "payment"],
+        ),
+        (
+            "Order confirmation with receipt",
+            vec!["order", "confirmation"],
+        ),
+        (
+            "User settings with notification preferences",
+            vec!["settings", "notifications"],
+        ),
+        (
+            "Dashboard analytics overview charts",
+            vec!["dashboard", "analytics"],
+        ),
+        (
+            "Search results page with filters",
+            vec!["search", "filters"],
+        ),
         ("Mobile nav drawer open state", vec!["mobile", "nav"]),
         ("Dark mode toggle in header", vec!["darkmode", "header"]),
         ("Error 500 internal server error page", vec!["error", "500"]),
-        ("Loading spinner full page overlay", vec!["loading", "spinner"]),
-        ("Modal popup for confirmation dialog", vec!["modal", "dialog"]),
-        ("Toast notification success message", vec!["toast", "success"]),
+        (
+            "Loading spinner full page overlay",
+            vec!["loading", "spinner"],
+        ),
+        (
+            "Modal popup for confirmation dialog",
+            vec!["modal", "dialog"],
+        ),
+        (
+            "Toast notification success message",
+            vec!["toast", "success"],
+        ),
         ("Breadcrumb navigation trail", vec!["breadcrumb", "nav"]),
         ("Pagination controls at page bottom", vec!["pagination"]),
         ("File upload drag and drop zone", vec!["upload", "dragdrop"]),
@@ -1235,7 +1493,11 @@ async fn test_grounding_with_many_captures() {
     // Ground a claim that exists
     let resp = send_unwrap(
         &handler,
-        tool_call(100, "vision_ground", json!({ "claim": "checkout payment flow" })),
+        tool_call(
+            100,
+            "vision_ground",
+            json!({ "claim": "checkout payment flow" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -1244,7 +1506,11 @@ async fn test_grounding_with_many_captures() {
     // Ground a claim that does not exist
     let resp = send_unwrap(
         &handler,
-        tool_call(101, "vision_ground", json!({ "claim": "calendar appointment scheduling widget" })),
+        tool_call(
+            101,
+            "vision_ground",
+            json!({ "claim": "calendar appointment scheduling widget" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -1253,7 +1519,11 @@ async fn test_grounding_with_many_captures() {
     // Ground a claim that partially matches
     let resp = send_unwrap(
         &handler,
-        tool_call(102, "vision_ground", json!({ "claim": "dashboard overview" })),
+        tool_call(
+            102,
+            "vision_ground",
+            json!({ "claim": "dashboard overview" }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -1269,8 +1539,16 @@ async fn test_workspace_role_labels() {
     send_unwrap(&handler, init_request()).await;
 
     let avis_dir = tempfile::tempdir().unwrap();
-    let path_a = create_avis_file(&avis_dir, "primary.avis", &[("Primary site data", &["primary"])]);
-    let path_b = create_avis_file(&avis_dir, "archive.avis", &[("Old archived data", &["archive"])]);
+    let path_a = create_avis_file(
+        &avis_dir,
+        "primary.avis",
+        &[("Primary site data", &["primary"])],
+    );
+    let path_b = create_avis_file(
+        &avis_dir,
+        "archive.avis",
+        &[("Old archived data", &["archive"])],
+    );
 
     let resp = send_unwrap(
         &handler,
@@ -1284,22 +1562,30 @@ async fn test_workspace_role_labels() {
 
     send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_a,
-            "role": "primary",
-            "label": "Production Site"
-        })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_a,
+                "role": "primary",
+                "label": "Production Site"
+            }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(3, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_b,
-            "role": "archive",
-            "label": "Legacy Archive"
-        })),
+        tool_call(
+            3,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_b,
+                "role": "archive",
+                "label": "Legacy Archive"
+            }),
+        ),
     )
     .await;
 
@@ -1335,7 +1621,11 @@ async fn test_full_workflow() {
     // --- Step 1: Create workspace ---
     let resp = send_unwrap(
         &handler,
-        tool_call(1, "vision_workspace_create", json!({ "name": "full-workflow" })),
+        tool_call(
+            1,
+            "vision_workspace_create",
+            json!({ "name": "full-workflow" }),
+        ),
     )
     .await;
     let ws_id = extract_tool_json(&resp)["workspace_id"]
@@ -1349,8 +1639,14 @@ async fn test_full_workflow() {
         &avis_dir,
         "app.avis",
         &[
-            ("Main app dashboard with sidebar navigation", &["dashboard", "sidebar", "nav"]),
-            ("User profile page with avatar upload", &["profile", "avatar"]),
+            (
+                "Main app dashboard with sidebar navigation",
+                &["dashboard", "sidebar", "nav"],
+            ),
+            (
+                "User profile page with avatar upload",
+                &["profile", "avatar"],
+            ),
             ("Settings page with theme selector", &["settings", "theme"]),
         ],
     );
@@ -1358,7 +1654,10 @@ async fn test_full_workflow() {
         &avis_dir,
         "marketing.avis",
         &[
-            ("Landing page with hero and CTA button", &["landing", "hero", "cta"]),
+            (
+                "Landing page with hero and CTA button",
+                &["landing", "hero", "cta"],
+            ),
             ("Pricing page with three tiers", &["pricing", "tiers"]),
         ],
     );
@@ -1366,39 +1665,54 @@ async fn test_full_workflow() {
         &avis_dir,
         "docs.avis",
         &[
-            ("API documentation with sidebar navigation", &["docs", "api", "sidebar", "nav"]),
+            (
+                "API documentation with sidebar navigation",
+                &["docs", "api", "sidebar", "nav"],
+            ),
             ("Getting started guide page", &["docs", "guide"]),
         ],
     );
 
     send_unwrap(
         &handler,
-        tool_call(2, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_app,
-            "role": "primary",
-            "label": "Application"
-        })),
+        tool_call(
+            2,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_app,
+                "role": "primary",
+                "label": "Application"
+            }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(3, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_marketing,
-            "role": "secondary",
-            "label": "Marketing"
-        })),
+        tool_call(
+            3,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_marketing,
+                "role": "secondary",
+                "label": "Marketing"
+            }),
+        ),
     )
     .await;
     send_unwrap(
         &handler,
-        tool_call(4, "vision_workspace_add", json!({
-            "workspace_id": ws_id,
-            "path": path_docs,
-            "role": "reference",
-            "label": "Documentation"
-        })),
+        tool_call(
+            4,
+            "vision_workspace_add",
+            json!({
+                "workspace_id": ws_id,
+                "path": path_docs,
+                "role": "reference",
+                "label": "Documentation"
+            }),
+        ),
     )
     .await;
 
@@ -1414,10 +1728,14 @@ async fn test_full_workflow() {
     // --- Step 4: Query across all contexts ---
     let resp = send_unwrap(
         &handler,
-        tool_call(6, "vision_workspace_query", json!({
-            "workspace_id": ws_id,
-            "query": "sidebar navigation"
-        })),
+        tool_call(
+            6,
+            "vision_workspace_query",
+            json!({
+                "workspace_id": ws_id,
+                "query": "sidebar navigation"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -1429,10 +1747,14 @@ async fn test_full_workflow() {
     // --- Step 5: Compare ---
     let resp = send_unwrap(
         &handler,
-        tool_call(7, "vision_workspace_compare", json!({
-            "workspace_id": ws_id,
-            "item": "sidebar navigation"
-        })),
+        tool_call(
+            7,
+            "vision_workspace_compare",
+            json!({
+                "workspace_id": ws_id,
+                "item": "sidebar navigation"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);
@@ -1447,10 +1769,14 @@ async fn test_full_workflow() {
     // --- Step 6: Cross-reference ---
     let resp = send_unwrap(
         &handler,
-        tool_call(8, "vision_workspace_xref", json!({
-            "workspace_id": ws_id,
-            "item": "sidebar navigation"
-        })),
+        tool_call(
+            8,
+            "vision_workspace_xref",
+            json!({
+                "workspace_id": ws_id,
+                "item": "sidebar navigation"
+            }),
+        ),
     )
     .await;
     let parsed = extract_tool_json(&resp);

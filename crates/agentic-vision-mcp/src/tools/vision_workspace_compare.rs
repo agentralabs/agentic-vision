@@ -44,14 +44,18 @@ pub async fn execute(
     let params: CompareParams =
         serde_json::from_value(args).map_err(|e| McpError::InvalidParams(e.to_string()))?;
     let session = session.lock().await;
-    let cmp = session
-        .workspace_manager()
-        .compare(&params.workspace_id, &params.item, params.max_per_context)?;
+    let cmp = session.workspace_manager().compare(
+        &params.workspace_id,
+        &params.item,
+        params.max_per_context,
+    )?;
     let details: Vec<Value> = cmp.matches_per_context.iter().map(|(label, matches)| {
         let items: Vec<Value> = matches.iter().map(|m| {
             json!({ "observation_id": m.observation_id, "description": m.description, "labels": m.labels, "score": m.score })
         }).collect();
         json!({ "context": label, "matches": items })
     }).collect();
-    Ok(ToolCallResult::json(&json!({ "item": cmp.item, "found_in": cmp.found_in, "missing_from": cmp.missing_from, "details": details })))
+    Ok(ToolCallResult::json(
+        &json!({ "item": cmp.item, "found_in": cmp.found_in, "missing_from": cmp.missing_from, "details": details }),
+    ))
 }

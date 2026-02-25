@@ -46,12 +46,16 @@ pub async fn execute(
 ) -> McpResult<ToolCallResult> {
     let params: AddParams =
         serde_json::from_value(args).map_err(|e| McpError::InvalidParams(e.to_string()))?;
-    let role = ContextRole::from_str(&params.role).ok_or_else(|| {
-        McpError::InvalidParams(format!("Invalid role: {}", params.role))
-    })?;
+    let role = ContextRole::from_str(&params.role)
+        .ok_or_else(|| McpError::InvalidParams(format!("Invalid role: {}", params.role)))?;
     let mut session = session.lock().await;
-    let ctx_id = session
-        .workspace_manager_mut()
-        .add_context(&params.workspace_id, &params.path, role, params.label)?;
-    Ok(ToolCallResult::json(&json!({ "context_id": ctx_id, "workspace_id": params.workspace_id, "role": role.label(), "status": "added" })))
+    let ctx_id = session.workspace_manager_mut().add_context(
+        &params.workspace_id,
+        &params.path,
+        role,
+        params.label,
+    )?;
+    Ok(ToolCallResult::json(
+        &json!({ "context_id": ctx_id, "workspace_id": params.workspace_id, "role": role.label(), "status": "added" }),
+    ))
 }

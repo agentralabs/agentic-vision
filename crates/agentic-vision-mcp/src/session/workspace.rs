@@ -130,10 +130,9 @@ impl VisionWorkspaceManager {
         role: ContextRole,
         label: Option<String>,
     ) -> McpResult<String> {
-        let workspace = self
-            .workspaces
-            .get_mut(workspace_id)
-            .ok_or_else(|| McpError::InvalidParams(format!("Workspace not found: {workspace_id}")))?;
+        let workspace = self.workspaces.get_mut(workspace_id).ok_or_else(|| {
+            McpError::InvalidParams(format!("Workspace not found: {workspace_id}"))
+        })?;
 
         let file_path = Path::new(path);
         if !file_path.exists() {
@@ -162,10 +161,9 @@ impl VisionWorkspaceManager {
     }
 
     pub fn list(&self, workspace_id: &str) -> McpResult<&[VisionContext]> {
-        let workspace = self
-            .workspaces
-            .get(workspace_id)
-            .ok_or_else(|| McpError::InvalidParams(format!("Workspace not found: {workspace_id}")))?;
+        let workspace = self.workspaces.get(workspace_id).ok_or_else(|| {
+            McpError::InvalidParams(format!("Workspace not found: {workspace_id}"))
+        })?;
         Ok(&workspace.contexts)
     }
 
@@ -179,10 +177,9 @@ impl VisionWorkspaceManager {
         query: &str,
         max_per_context: usize,
     ) -> McpResult<Vec<CrossContextResult>> {
-        let workspace = self
-            .workspaces
-            .get(workspace_id)
-            .ok_or_else(|| McpError::InvalidParams(format!("Workspace not found: {workspace_id}")))?;
+        let workspace = self.workspaces.get(workspace_id).ok_or_else(|| {
+            McpError::InvalidParams(format!("Workspace not found: {workspace_id}"))
+        })?;
 
         let query_lower = query.to_lowercase();
         let query_words: Vec<&str> = query_lower.split_whitespace().collect();
@@ -218,7 +215,11 @@ impl VisionWorkspaceManager {
                 }
             }
 
-            matches.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+            matches.sort_by(|a, b| {
+                b.score
+                    .partial_cmp(&a.score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
             matches.truncate(max_per_context);
 
             results.push(CrossContextResult {
@@ -304,6 +305,8 @@ mod tests {
     fn test_workspace_file_not_found() {
         let mut mgr = VisionWorkspaceManager::new();
         let id = mgr.create("test");
-        assert!(mgr.add_context(&id, "/nonexistent.avis", ContextRole::Primary, None).is_err());
+        assert!(mgr
+            .add_context(&id, "/nonexistent.avis", ContextRole::Primary, None)
+            .is_err());
     }
 }
