@@ -1,12 +1,12 @@
 [package]
 name = "agentic-vision-wasm"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 license = "MIT"
 description = "WASM bindings for agentic-vision — cosine similarity, visual memory types, and .avis file I/O"
 repository = "https://github.com/agentralabs/agentic-vision"
 homepage = "https://agentralabs.tech"
-authors = ["Omoshola Owolabi"]
+authors = ["Agentra Labs <contact@agentralabs.tech>"]
 publish = false
 
 [lib]
