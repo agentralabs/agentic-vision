@@ -191,7 +191,7 @@ async fn test_grounding_verified_capture() {
     let parsed = extract_tool_json(&resp);
     assert_eq!(parsed["status"].as_str().unwrap(), "verified");
     assert!(parsed["confidence"].as_f64().unwrap() > 0.0);
-    assert!(parsed["evidence"].as_array().unwrap().len() >= 1);
+    assert!(!parsed["evidence"].as_array().unwrap().is_empty());
 }
 
 /// 2. Capture with elements metadata, ground a claim about an element.
@@ -221,7 +221,7 @@ async fn test_grounding_verified_element() {
     .await;
     let parsed = extract_tool_json(&resp);
     assert_eq!(parsed["status"].as_str().unwrap(), "verified");
-    assert!(parsed["evidence"].as_array().unwrap().len() >= 1);
+    assert!(!parsed["evidence"].as_array().unwrap().is_empty());
 }
 
 /// 3. Capture with a URL in description, ground claim mentioning URL.
@@ -1762,7 +1762,7 @@ async fn test_full_workflow() {
     let missing_from = parsed["missing_from"].as_array().unwrap();
     assert!(found_in.len() >= 2, "Sidebar nav found in app + docs");
     assert!(
-        missing_from.len() >= 1,
+        !missing_from.is_empty(),
         "Sidebar nav missing from marketing"
     );
 
@@ -1783,7 +1783,7 @@ async fn test_full_workflow() {
     let present_in = parsed["present_in"].as_array().unwrap();
     let absent_from = parsed["absent_from"].as_array().unwrap();
     assert!(present_in.len() >= 2);
-    assert!(absent_from.len() >= 1);
+    assert!(!absent_from.is_empty());
     assert!(parsed["coverage"].as_str().is_some());
 
     // --- Step 7: Also verify grounding in the same session ---
