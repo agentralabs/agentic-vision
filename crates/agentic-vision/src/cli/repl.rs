@@ -18,7 +18,10 @@ pub fn run() -> VisionResult<()> {
 
     let helper = AvisHelper::new();
     let mut rl = Editor::new().map_err(|e| {
-        crate::types::VisionError::Io(std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))
+        crate::types::VisionError::Io(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            e.to_string(),
+        ))
     })?;
     rl.set_helper(Some(helper));
     bind_keys(&mut rl);
@@ -30,7 +33,10 @@ pub fn run() -> VisionResult<()> {
 
     loop {
         let prompt = if let Some(ref p) = state.file_path {
-            format!("avis({})> ", p.file_name().unwrap_or_default().to_string_lossy())
+            format!(
+                "avis({})> ",
+                p.file_name().unwrap_or_default().to_string_lossy()
+            )
         } else {
             "avis> ".to_string()
         };
@@ -38,7 +44,9 @@ pub fn run() -> VisionResult<()> {
         match rl.readline(&prompt) {
             Ok(line) => {
                 let line = line.trim().to_string();
-                if line.is_empty() { continue; }
+                if line.is_empty() {
+                    continue;
+                }
                 rl.add_history_entry(&line).ok();
                 if let Err(e) = state.dispatch(&line) {
                     eprintln!("Error: {}", e);

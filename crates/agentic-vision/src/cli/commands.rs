@@ -29,7 +29,10 @@ pub fn cmd_info(path: &Path, json: bool) -> VisionResult<()> {
             "updated_at": store.updated_at,
             "file_bytes": file_size,
         });
-        println!("{}", serde_json::to_string_pretty(&info).unwrap_or_default());
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&info).unwrap_or_default()
+        );
     } else {
         println!("File:          {}", path.display());
         println!("Observations:  {}", store.count());
@@ -120,7 +123,10 @@ pub fn cmd_query(
 
     if json {
         let items: Vec<_> = results.iter().map(|o| obs_summary(o)).collect();
-        println!("{}", serde_json::to_string_pretty(&items).unwrap_or_default());
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&items).unwrap_or_default()
+        );
     } else {
         if results.is_empty() {
             println!("No observations found.");
@@ -129,8 +135,13 @@ pub fn cmd_query(
         for o in &results {
             println!(
                 "  [{:>4}]  session={}  {}x{}  labels={:?}  q={:.2}  {}",
-                o.id, o.session_id, o.metadata.original_width, o.metadata.original_height,
-                o.metadata.labels, o.metadata.quality_score, format_ts(o.timestamp),
+                o.id,
+                o.session_id,
+                o.metadata.original_width,
+                o.metadata.original_height,
+                o.metadata.labels,
+                o.metadata.quality_score,
+                format_ts(o.timestamp),
             );
         }
         println!("{} observation(s)", results.len());
@@ -155,7 +166,10 @@ pub fn cmd_similar(
     let matches = crate::find_similar(&obs.embedding, &store.observations, top_k, min_similarity);
 
     if json {
-        println!("{}", serde_json::to_string_pretty(&matches).unwrap_or_default());
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&matches).unwrap_or_default()
+        );
     } else {
         if matches.is_empty() {
             println!("No similar captures found.");
@@ -172,8 +186,12 @@ pub fn cmd_similar(
 /// Compare two captures.
 pub fn cmd_compare(path: &Path, id_a: u64, id_b: u64, json: bool) -> VisionResult<()> {
     let store = AvisReader::read_from_file(path)?;
-    let a = store.get(id_a).ok_or(crate::types::VisionError::CaptureNotFound(id_a))?;
-    let b = store.get(id_b).ok_or(crate::types::VisionError::CaptureNotFound(id_b))?;
+    let a = store
+        .get(id_a)
+        .ok_or(crate::types::VisionError::CaptureNotFound(id_a))?;
+    let b = store
+        .get(id_b)
+        .ok_or(crate::types::VisionError::CaptureNotFound(id_b))?;
 
     let sim = crate::cosine_similarity(&a.embedding, &b.embedding);
 
@@ -185,7 +203,10 @@ pub fn cmd_compare(path: &Path, id_a: u64, id_b: u64, json: bool) -> VisionResul
     } else {
         println!("Compare {} vs {}", id_a, id_b);
         println!("  Embedding similarity: {:.4}", sim);
-        println!("  Same image:           {}", if sim > 0.95 { "yes" } else { "no" });
+        println!(
+            "  Same image:           {}",
+            if sim > 0.95 { "yes" } else { "no" }
+        );
     }
 
     Ok(())
@@ -194,18 +215,25 @@ pub fn cmd_compare(path: &Path, id_a: u64, id_b: u64, json: bool) -> VisionResul
 /// Pixel-level diff between two captures.
 pub fn cmd_diff(path: &Path, id_a: u64, id_b: u64, json: bool) -> VisionResult<()> {
     let store = AvisReader::read_from_file(path)?;
-    let a = store.get(id_a).ok_or(crate::types::VisionError::CaptureNotFound(id_a))?;
-    let b = store.get(id_b).ok_or(crate::types::VisionError::CaptureNotFound(id_b))?;
+    let a = store
+        .get(id_a)
+        .ok_or(crate::types::VisionError::CaptureNotFound(id_a))?;
+    let b = store
+        .get(id_b)
+        .ok_or(crate::types::VisionError::CaptureNotFound(id_b))?;
 
-    let img_a = image::load_from_memory(&a.thumbnail)
-        .map_err(|e| crate::types::VisionError::Image(e))?;
-    let img_b = image::load_from_memory(&b.thumbnail)
-        .map_err(|e| crate::types::VisionError::Image(e))?;
+    let img_a =
+        image::load_from_memory(&a.thumbnail).map_err(|e| crate::types::VisionError::Image(e))?;
+    let img_b =
+        image::load_from_memory(&b.thumbnail).map_err(|e| crate::types::VisionError::Image(e))?;
 
     let diff = crate::compute_diff(id_a, id_b, &img_a, &img_b)?;
 
     if json {
-        println!("{}", serde_json::to_string_pretty(&diff).unwrap_or_default());
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&diff).unwrap_or_default()
+        );
     } else {
         println!("Diff {} vs {}", id_a, id_b);
         println!("  Similarity:      {:.4}", diff.similarity);
@@ -231,21 +259,37 @@ pub fn cmd_health(
     let now = now_secs();
     let stale_cutoff = now.saturating_sub(stale_hours * 3600);
 
-    let low_quality: Vec<u64> = store.observations.iter()
+    let low_quality: Vec<u64> = store
+        .observations
+        .iter()
         .filter(|o| o.metadata.quality_score < low_quality_threshold)
-        .take(max_examples).map(|o| o.id).collect();
+        .take(max_examples)
+        .map(|o| o.id)
+        .collect();
 
-    let stale: Vec<u64> = store.observations.iter()
+    let stale: Vec<u64> = store
+        .observations
+        .iter()
         .filter(|o| o.timestamp < stale_cutoff)
-        .take(max_examples).map(|o| o.id).collect();
+        .take(max_examples)
+        .map(|o| o.id)
+        .collect();
 
-    let unlinked: Vec<u64> = store.observations.iter()
+    let unlinked: Vec<u64> = store
+        .observations
+        .iter()
         .filter(|o| o.memory_link.is_none())
-        .take(max_examples).map(|o| o.id).collect();
+        .take(max_examples)
+        .map(|o| o.id)
+        .collect();
 
-    let unlabeled: Vec<u64> = store.observations.iter()
+    let unlabeled: Vec<u64> = store
+        .observations
+        .iter()
         .filter(|o| o.metadata.labels.is_empty())
-        .take(max_examples).map(|o| o.id).collect();
+        .take(max_examples)
+        .map(|o| o.id)
+        .collect();
 
     let status = if low_quality.is_empty() && stale.is_empty() {
         "pass"
@@ -268,7 +312,11 @@ pub fn cmd_health(
     } else {
         println!("Health: {}", status.to_uppercase());
         println!("  Total observations: {}", store.count());
-        println!("  Low quality (< {:.2}): {}", low_quality_threshold, low_quality.len());
+        println!(
+            "  Low quality (< {:.2}): {}",
+            low_quality_threshold,
+            low_quality.len()
+        );
         println!("  Stale (> {}h):        {}", stale_hours, stale.len());
         println!("  Unlinked memory:     {}", unlinked.len());
         println!("  Unlabeled:           {}", unlabeled.len());
@@ -280,7 +328,8 @@ pub fn cmd_health(
 /// Link a capture to a memory node.
 pub fn cmd_link(path: &Path, capture_id: u64, memory_node_id: u64, json: bool) -> VisionResult<()> {
     let mut store = AvisReader::read_from_file(path)?;
-    let obs = store.get_mut(capture_id)
+    let obs = store
+        .get_mut(capture_id)
         .ok_or(crate::types::VisionError::CaptureNotFound(capture_id))?;
 
     obs.memory_link = Some(memory_node_id);
@@ -290,7 +339,10 @@ pub fn cmd_link(path: &Path, capture_id: u64, memory_node_id: u64, json: bool) -
         let out = serde_json::json!({ "status": "linked", "capture_id": capture_id, "memory_node_id": memory_node_id });
         println!("{}", serde_json::to_string_pretty(&out).unwrap_or_default());
     } else {
-        println!("Linked capture {} -> memory node {}", capture_id, memory_node_id);
+        println!(
+            "Linked capture {} -> memory node {}",
+            capture_id, memory_node_id
+        );
     }
 
     Ok(())
@@ -302,10 +354,23 @@ pub fn cmd_stats(path: &Path, json: bool) -> VisionResult<()> {
     let file_size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
 
     let total = store.count();
-    let linked = store.observations.iter().filter(|o| o.memory_link.is_some()).count();
-    let labeled = store.observations.iter().filter(|o| !o.metadata.labels.is_empty()).count();
+    let linked = store
+        .observations
+        .iter()
+        .filter(|o| o.memory_link.is_some())
+        .count();
+    let labeled = store
+        .observations
+        .iter()
+        .filter(|o| !o.metadata.labels.is_empty())
+        .count();
     let avg_quality = if total > 0 {
-        store.observations.iter().map(|o| o.metadata.quality_score).sum::<f32>() / total as f32
+        store
+            .observations
+            .iter()
+            .map(|o| o.metadata.quality_score)
+            .sum::<f32>()
+            / total as f32
     } else {
         0.0
     };
