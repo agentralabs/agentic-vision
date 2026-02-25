@@ -54,6 +54,10 @@ One binary. 11 MCP tools. Persistent `.avis` files. Works with Claude Desktop, V
 
 ## Benchmarks
 
+<p align="center">
+  <img src="assets/benchmark-chart.svg" alt="Performance benchmarks" width="800">
+</p>
+
 Rust core. CLIP ViT-B/32 via ONNX Runtime. Binary `.avis` format. Real numbers from `cargo test --release`:
 
 | Operation | Time | Notes |
