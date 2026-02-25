@@ -18,7 +18,7 @@ pub enum ContextRole {
 }
 
 impl ContextRole {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse_str(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "primary" => Some(Self::Primary),
             "secondary" => Some(Self::Secondary),
@@ -282,9 +282,9 @@ mod tests {
 
     #[test]
     fn test_context_role_roundtrip() {
-        assert_eq!(ContextRole::from_str("primary"), Some(ContextRole::Primary));
-        assert_eq!(ContextRole::from_str("ARCHIVE"), Some(ContextRole::Archive));
-        assert_eq!(ContextRole::from_str("unknown"), None);
+        assert_eq!(ContextRole::parse_str("primary"), Some(ContextRole::Primary));
+        assert_eq!(ContextRole::parse_str("ARCHIVE"), Some(ContextRole::Archive));
+        assert_eq!(ContextRole::parse_str("unknown"), None);
     }
 
     #[test]
