@@ -1,0 +1,24 @@
+[package]
+name = "agentic-vision-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "FFI bindings for AgenticVision"
+keywords = ["ffi", "vision", "ai", "agent", "bindings"]
+categories = ["api-bindings"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+agentic-vision = { path = "../agentic-vision", version = "0.2.0", default-features = false }
+pyo3 = { version = "0.20", features = ["extension-module"], optional = true }
+wasm-bindgen = { version = "0.2", optional = true }
+serde-wasm-bindgen = { version = "0.6", optional = true }
+
+[features]
+python = ["pyo3"]
+wasm = ["wasm-bindgen", "serde-wasm-bindgen"]

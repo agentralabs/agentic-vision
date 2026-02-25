@@ -7,6 +7,7 @@
   <a href="https://crates.io/crates/agentic-vision-mcp"><img src="https://img.shields.io/badge/cargo_install-agentic--vision--mcp-3B82F6?style=for-the-badge&logo=rust&logoColor=white" alt="cargo install mcp"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-8B5CF6?style=for-the-badge" alt="MIT License"></a>
   <a href="publication/paper-ii-agentic-vision-mcp/agentic-vision-mcp-paper.pdf"><img src="https://img.shields.io/badge/Research-Paper-EF4444?style=for-the-badge" alt="Research Paper"></a>
+  <a href="docs/api-reference.md"><img src="https://img.shields.io/badge/format-.avis-3B82F6?style=for-the-badge" alt=".avis format"></a>
 </p>
 
 <p align="center">
@@ -403,6 +404,24 @@ Planned CLI shape (not available in current release):
 agentic-vision-mcp serve-http --port 8081 --token "<token>"
 agentic-vision-mcp serve-http --multi-tenant --data-dir /data/users --port 8081 --token "<token>"
 ```
+
+---
+
+## The .avis File
+
+Your agent's visual memory. Everything it's seen.
+
+| | |
+|-|-|
+| Size | ~5-8 GB over 20 years |
+| Format | Binary captures with embeddings |
+| Works with | Any vision-capable model |
+
+## v0.2: Grounding & Workspaces
+
+**Grounding**: Agent cannot claim "page shows X" without capture evidence.
+
+**Workspaces**: Compare across sites and time periods.
 
 ---
 

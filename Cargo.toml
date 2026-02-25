@@ -1,10 +1,15 @@
 [workspace]
 resolver = "2"
-members = ["crates/agentic-vision", "crates/agentic-vision-mcp"]
+members = [
+    "crates/agentic-vision",
+    "crates/agentic-vision-mcp",
+    "crates/agentic-vision-cli",
+    "crates/agentic-vision-ffi",
+]
 exclude = ["runtime", "npm/wasm"]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/agentralabs/agentic-vision"
