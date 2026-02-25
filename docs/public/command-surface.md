@@ -35,18 +35,55 @@ export CORTEX_STORAGE_BUDGET_HORIZON_YEARS=20
 export CORTEX_STORAGE_BUDGET_TARGET_FRACTION=0.85
 ```
 
-## Key tools exposed by MCP
+## MCP Tools
 
-- `vision_capture` (now returns `quality_score`)
-- `vision_query` (supports `description_contains`, `min_quality`, `sort_by`)
-- `vision_health` (quality + staleness + linkage summary)
-- `vision_similar`
-- `vision_compare`
-- `vision_diff`
-- `vision_ocr`
-- `vision_link`
-- `session_start`
-- `session_end`
+All tools exposed by the `agentic-vision-mcp` MCP server:
+
+### Core Tools
+
+| Tool | Purpose |
+|------|---------|
+| `vision_capture` | Capture an image and store it in visual memory (returns `quality_score`) |
+| `vision_query` | Search visual memory by filters (`description_contains`, `min_quality`, `sort_by`) |
+| `vision_compare` | Compare two captures for visual similarity |
+| `vision_diff` | Get detailed pixel-level diff between two captures |
+| `vision_similar` | Find visually similar captures by embedding |
+| `vision_ocr` | Extract text from a capture using OCR |
+| `vision_track` | Configure tracking for a UI region |
+| `vision_health` | Quality + staleness + linkage summary |
+| `vision_link` | Link a visual capture to an AgenticMemory node |
+
+### Context Capture Tools
+
+| Tool | Purpose |
+|------|---------|
+| `observation_log` | Log observation context and auto-capture visual interactions |
+
+### Grounding Tools (v0.2)
+
+| Tool | Purpose |
+|------|---------|
+| `vision_ground` | Verify a visual claim has capture backing |
+| `vision_evidence` | Get evidence for a visual claim from stored captures |
+| `vision_suggest` | Find similar captures when a claim doesn't match exactly |
+
+### Workspace Tools (v0.2)
+
+| Tool | Purpose |
+|------|---------|
+| `vision_workspace_create` | Create a multi-vision workspace |
+| `vision_workspace_add` | Add a .avis file to a workspace |
+| `vision_workspace_list` | List loaded vision files in a workspace |
+| `vision_workspace_query` | Query across all loaded vision files |
+| `vision_workspace_compare` | Compare across sites and time periods |
+| `vision_workspace_xref` | Find visual topic distribution across contexts |
+
+### Session Tools
+
+| Tool | Purpose |
+|------|---------|
+| `session_start` | Start a new vision session |
+| `session_end` | End the current vision session and save |
 
 ## Universal MCP entry
 
