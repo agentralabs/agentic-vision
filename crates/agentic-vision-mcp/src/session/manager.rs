@@ -87,6 +87,8 @@ pub struct VisionSessionManager {
     observation_notes: Vec<ObservationNote>,
     /// Counter for observation note IDs.
     next_note_id: u64,
+    /// Multi-context workspace manager for cross-vision queries.
+    workspace_manager: super::workspace::VisionWorkspaceManager,
 }
 
 impl VisionSessionManager {
@@ -157,12 +159,23 @@ impl VisionSessionManager {
             tool_call_log: Vec::new(),
             observation_notes: Vec::new(),
             next_note_id: 1,
+            workspace_manager: super::workspace::VisionWorkspaceManager::new(),
         })
     }
 
     /// Get the visual memory store.
     pub fn store(&self) -> &VisualMemoryStore {
         &self.store
+    }
+
+    /// Get the workspace manager (immutable).
+    pub fn workspace_manager(&self) -> &super::workspace::VisionWorkspaceManager {
+        &self.workspace_manager
+    }
+
+    /// Get the workspace manager (mutable).
+    pub fn workspace_manager_mut(&mut self) -> &mut super::workspace::VisionWorkspaceManager {
+        &mut self.workspace_manager
     }
 
     /// Current session ID.

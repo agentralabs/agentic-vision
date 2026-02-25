@@ -5,6 +5,24 @@ All notable changes to AgenticVision will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.2.0 — V2: Grounding & Multi-Context Workspaces
+
+### Added
+- **Grounding (anti-hallucination)**: `vision_ground` tool verifies visual claims have capture backing. Returns verified/ungrounded status with evidence.
+- **Visual evidence linking**: `vision_evidence` tool links observations to supporting captures.
+- **Multi-context workspaces**: Load and query across multiple `.avis` files simultaneously.
+  - `vision_workspace_create`: Create a workspace for cross-capture queries.
+  - `vision_workspace_add`: Load an `.avis` file into a workspace with role (primary/secondary/reference/archive).
+  - `vision_workspace_list`: List all visual contexts in a workspace.
+  - `vision_workspace_query`: Search across all loaded captures.
+  - `vision_workspace_compare`: Find where a visual element exists/doesn't across contexts.
+  - `vision_workspace_xref`: Cross-reference with coverage summary.
+- 30 new V2 stress tests (grounding, workspace, integration).
+
+### Changed
+- VisionSessionManager now includes VisionWorkspaceManager for multi-context support.
+- Tool count increased from 12 to 21.
+
 ## [0.1.6] - 2026-02-23
 
 ### Fixed

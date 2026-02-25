@@ -522,7 +522,7 @@ async fn test_tool_list_includes_observation_log() {
 }
 
 #[tokio::test]
-async fn test_tool_count_is_12() {
+async fn test_tool_count_is_21() {
     let dir = tempfile::tempdir().unwrap();
     let session = arc_session(&dir);
     let handler = ProtocolHandler::new(session.clone());
@@ -533,7 +533,7 @@ async fn test_tool_count_is_12() {
     let tools = resp["result"]["tools"].as_array().unwrap();
     assert_eq!(
         tools.len(),
-        12,
-        "Should have 12 tools (11 original + observation_log)"
+        21,
+        "Should have 21 tools (11 original + observation_log + 3 grounding + 6 workspace)"
     );
 }
