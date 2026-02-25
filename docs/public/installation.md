@@ -24,6 +24,12 @@ curl -fsSL https://agentralabs.tech/install/vision/server | bash
 cargo install agentic-vision-mcp
 ```
 
+## npm
+
+```bash
+npm install @agenticamem/vision
+```
+
 ## Verify
 
 ```bash

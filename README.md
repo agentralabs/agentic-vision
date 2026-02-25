@@ -180,6 +180,7 @@ curl -fsSL https://agentralabs.tech/install/vision/server | bash
 | GitHub installer (terminal profile) | `curl -fsSL https://agentralabs.tech/install/vision/terminal \| bash` | Installs binaries only; no desktop config writes |
 | GitHub installer (server profile) | `curl -fsSL https://agentralabs.tech/install/vision/server \| bash` | Installs binaries only; server-safe behavior |
 | crates.io + Cargo deps (official) | `cargo install agentic-vision-mcp` + `cargo add agentic-vision` | Installs MCP server binary and adds the core library crate to your project |
+| npm (wasm) | `npm install @agenticamem/vision` | WASM-based vision SDK for Node.js and browser |
 
 ### Server auth and artifact sync
 
