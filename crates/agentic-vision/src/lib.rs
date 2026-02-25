@@ -1,5 +1,8 @@
 //! AgenticVision — core vision library for image capture, embedding, similarity, and visual memory.
 
+#[cfg(feature = "cli")]
+pub mod cli;
+
 pub mod capture;
 pub mod diff;
 pub mod embedding;

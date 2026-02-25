@@ -11,6 +11,19 @@ keywords = ["vision", "embedding", "clip", "image", "ai"]
 categories = ["multimedia::images", "science"]
 exclude = [".DS_Store"]
 
+[lib]
+name = "agentic_vision"
+path = "src/lib.rs"
+
+[[bin]]
+name = "avis"
+path = "src/bin/avis.rs"
+required-features = ["cli"]
+
+[features]
+default = ["cli"]
+cli = ["dep:clap", "dep:clap_complete", "dep:rustyline", "dep:chrono"]
+
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -21,6 +34,12 @@ ndarray = "0.17"
 memmap2 = "0.9"
 tracing = "0.1"
 base64 = "0.22"
+
+# CLI (optional, behind "cli" feature)
+clap = { version = "4", features = ["derive"], optional = true }
+clap_complete = { version = "4", optional = true }
+rustyline = { version = "14", optional = true }
+chrono = { version = "0.4", optional = true }
 
 [dev-dependencies]
 tempfile = "3.9"
