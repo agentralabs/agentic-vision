@@ -40,10 +40,10 @@ Text-based memory exists. Visual memory doesn't — until now.
   **Solved:** memory linking connects visual captures directly to cognitive graph nodes.
 
 ```bash
-cargo install agentic-vision-mcp
+cargo install agentic-vision-cli agentic-vision-mcp
 ```
 
-One binary. 11 MCP tools. Persistent `.avis` files. Works with Claude Desktop, VS Code, Cursor, Windsurf, and any MCP-compatible client.
+CLI + MCP binaries. 11 MCP tools. Persistent `.avis` files. Works with Claude Desktop, VS Code, Cursor, Windsurf, and any MCP-compatible client.
 
 <p align="center">
   <img src="assets/github-terminal-pane.svg" alt="AgenticVision terminal pane" width="980">
@@ -184,7 +184,7 @@ curl -fsSL https://agentralabs.tech/install/vision/server | bash
 | GitHub installer (desktop profile) | `curl -fsSL https://agentralabs.tech/install/vision/desktop \| bash` | Explicit desktop profile behavior |
 | GitHub installer (terminal profile) | `curl -fsSL https://agentralabs.tech/install/vision/terminal \| bash` | Installs binaries only; no desktop config writes |
 | GitHub installer (server profile) | `curl -fsSL https://agentralabs.tech/install/vision/server \| bash` | Installs binaries only; server-safe behavior |
-| crates.io + Cargo deps (official) | `cargo install agentic-vision-mcp` + `cargo add agentic-vision` | Installs MCP server binary and adds the core library crate to your project |
+| crates.io + Cargo deps (official) | `cargo install agentic-vision-cli agentic-vision-mcp` + `cargo add agentic-vision` | Installs `avis`, MCP server binary, and adds the core library crate to your project |
 | npm (wasm) | `npm install @agenticamem/vision` | WASM-based vision SDK for Node.js and browser |
 
 ### Server auth and artifact sync
@@ -202,9 +202,9 @@ If `.avis/.amem/.acb` files are on another machine, sync them to the server firs
   <img src="assets/architecture-agentra.svg" alt="AgenticVision architecture in Agentra Labs design system" width="980">
 </p>
 
-**MCP Server** (for Claude Desktop, VS Code, Cursor, Windsurf):
+**CLI + MCP Server** (for Claude Desktop, VS Code, Cursor, Windsurf):
 ```bash
-cargo install agentic-vision-mcp
+cargo install agentic-vision-cli agentic-vision-mcp
 ```
 
 **Core library** (for Rust projects):
@@ -327,14 +327,16 @@ for m in matches {
 
 ## Repository Structure
 
-This is a Cargo workspace monorepo containing the core library and MCP server.
+This is a Cargo workspace monorepo containing the core library, CLI, MCP server, and FFI bindings.
 
 ```
 agentic-vision/
 ├── Cargo.toml                    # Workspace root
 ├── crates/
-│   ├── agentic-vision/           # Core library (crates.io: agentic-vision v0.1.0)
-│   └── agentic-vision-mcp/       # MCP server (crates.io: agentic-vision-mcp v0.1.0)
+│   ├── agentic-vision/           # Core library (crates.io: agentic-vision v0.2.1)
+│   ├── agentic-vision-cli/       # CLI (crates.io: agentic-vision-cli v0.2.1)
+│   ├── agentic-vision-mcp/       # MCP server (crates.io: agentic-vision-mcp v0.2.1)
+│   └── agentic-vision-ffi/       # FFI bindings (crates.io: agentic-vision-ffi v0.2.1)
 ├── tests/                        # Integration tests (Python → Rust, multi-agent)
 ├── models/                       # ONNX model directory (CLIP ViT-B/32)
 ├── publication/                  # Research papers (I, II)
@@ -362,7 +364,7 @@ python tests/integration/test_multi_agent.py
 ### MCP Server Quick Start
 
 ```bash
-cargo install agentic-vision-mcp
+cargo install agentic-vision-cli agentic-vision-mcp
 ```
 
 Configure Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json`):
@@ -382,7 +384,7 @@ Configure Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_c
 
 ---
 
-## Roadmap: v0.2.0 — Remote Server Support
+## Roadmap: Next — Remote Server Support
 
 The next release is planned to add HTTP/SSE transport for remote deployments. Track progress in [#2](https://github.com/agentralabs/agentic-vision/issues/2).
 
