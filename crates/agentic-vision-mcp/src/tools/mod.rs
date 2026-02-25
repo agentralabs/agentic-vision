@@ -1,5 +1,6 @@
 //! MCP tool implementations.
 
+pub mod observation_log;
 pub mod registry;
 pub mod session_end;
 pub mod session_start;

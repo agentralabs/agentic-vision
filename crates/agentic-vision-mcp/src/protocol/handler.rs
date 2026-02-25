@@ -20,6 +20,8 @@ pub struct ProtocolHandler {
     session: Arc<Mutex<VisionSessionManager>>,
     capabilities: Arc<Mutex<NegotiatedCapabilities>>,
     shutdown_requested: Arc<AtomicBool>,
+    /// Tracks whether an auto-session was started so we can auto-end it.
+    auto_session_started: AtomicBool,
 }
 
 impl ProtocolHandler {
@@ -28,6 +30,7 @@ impl ProtocolHandler {
             session,
             capabilities: Arc::new(Mutex::new(NegotiatedCapabilities::default())),
             shutdown_requested: Arc::new(AtomicBool::new(false)),
+            auto_session_started: AtomicBool::new(false),
         }
     }
 
@@ -48,6 +51,27 @@ impl ProtocolHandler {
                 None
             }
         }
+    }
+
+    /// Cleanup on transport close (EOF). Auto-ends session if one was started.
+    pub async fn cleanup(&self) {
+        if !self.auto_session_started.load(Ordering::Relaxed) {
+            return;
+        }
+
+        let mut session = self.session.lock().await;
+        match session.end_session() {
+            Ok(sid) => {
+                tracing::info!("Auto-ended vision session {sid} on EOF");
+            }
+            Err(e) => {
+                tracing::warn!("Failed to auto-end vision session on EOF: {e}");
+                if let Err(save_err) = session.save() {
+                    tracing::error!("Failed to save vision on EOF cleanup: {save_err}");
+                }
+            }
+        }
+        self.auto_session_started.store(false, Ordering::Relaxed);
     }
 
     async fn handle_request(&self, request: JsonRpcRequest) -> Value {
@@ -94,6 +118,18 @@ impl ProtocolHandler {
                 if let Err(e) = caps.mark_initialized() {
                     tracing::error!("Failed to mark initialized: {e}");
                 }
+
+                // Auto-start vision session when client confirms connection.
+                let mut session = self.session.lock().await;
+                match session.start_session(None) {
+                    Ok(sid) => {
+                        self.auto_session_started.store(true, Ordering::Relaxed);
+                        tracing::info!("Auto-started vision session {sid}");
+                    }
+                    Err(e) => {
+                        tracing::error!("Failed to auto-start vision session: {e}");
+                    }
+                }
             }
             "notifications/cancelled" | "$/cancelRequest" => {
                 tracing::info!("Received cancellation notification");
@@ -119,8 +155,25 @@ impl ProtocolHandler {
 
     async fn handle_shutdown(&self) -> McpResult<Value> {
         tracing::info!("Shutdown requested");
+
         let mut session = self.session.lock().await;
-        session.save()?;
+
+        // Auto-end vision session if one was auto-started.
+        if self.auto_session_started.swap(false, Ordering::Relaxed) {
+            let sid = session.current_session_id();
+            match session.end_session() {
+                Ok(_) => {
+                    tracing::info!("Auto-ended vision session {sid}");
+                }
+                Err(e) => {
+                    tracing::warn!("Failed to auto-end vision session on shutdown: {e}");
+                    session.save()?;
+                }
+            }
+        } else {
+            session.save()?;
+        }
+
         self.shutdown_requested.store(true, Ordering::Relaxed);
         Ok(Value::Object(serde_json::Map::new()))
     }
@@ -140,8 +193,33 @@ impl ProtocolHandler {
             .map_err(|e| McpError::InvalidParams(e.to_string()))?
             .ok_or_else(|| McpError::InvalidParams("Tool call params required".to_string()))?;
 
+        let tool_name = call_params.name.clone();
+        let args_summary = call_params
+            .arguments
+            .as_ref()
+            .map(|a| truncate_json_summary(a, 200))
+            .unwrap_or_default();
+
         let result =
             ToolRegistry::call(&call_params.name, call_params.arguments, &self.session).await?;
+
+        // Auto-capture tool context into the session log.
+        // Skip logging observation_log calls to avoid recursion.
+        if tool_name != "observation_log" {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs();
+            let capture_id = extract_capture_id(&result);
+            let record = crate::session::ToolCallRecord {
+                tool_name,
+                summary: args_summary,
+                timestamp: now,
+                capture_id,
+            };
+            let mut session = self.session.lock().await;
+            session.log_tool_call(record);
+        }
 
         serde_json::to_value(result).map_err(|e| McpError::InternalError(e.to_string()))
     }
@@ -193,4 +271,28 @@ impl ProtocolHandler {
 
         serde_json::to_value(result).map_err(|e| McpError::InternalError(e.to_string()))
     }
+}
+
+/// Truncate a JSON value to a short summary string.
+fn truncate_json_summary(value: &Value, max_len: usize) -> String {
+    let s = value.to_string();
+    if s.len() <= max_len {
+        s
+    } else {
+        format!("{}…", &s[..max_len])
+    }
+}
+
+/// Try to extract a capture_id from a tool call result.
+fn extract_capture_id(result: &crate::types::ToolCallResult) -> Option<u64> {
+    for content in &result.content {
+        if let crate::types::ToolContent::Text { text } = content {
+            if let Ok(v) = serde_json::from_str::<Value>(text) {
+                if let Some(id) = v.get("capture_id").and_then(|v| v.as_u64()) {
+                    return Some(id);
+                }
+            }
+        }
+    }
+    None
 }

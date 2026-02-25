@@ -9,8 +9,8 @@ use crate::session::VisionSessionManager;
 use crate::types::{McpError, McpResult, ToolCallResult, ToolDefinition};
 
 use super::{
-    session_end, session_start, vision_capture, vision_compare, vision_diff, vision_health,
-    vision_link, vision_ocr, vision_query, vision_similar, vision_track,
+    observation_log, session_end, session_start, vision_capture, vision_compare, vision_diff,
+    vision_health, vision_link, vision_ocr, vision_query, vision_similar, vision_track,
 };
 
 pub struct ToolRegistry;
@@ -18,6 +18,7 @@ pub struct ToolRegistry;
 impl ToolRegistry {
     pub fn list_tools() -> Vec<ToolDefinition> {
         vec![
+            observation_log::definition(),
             vision_capture::definition(),
             vision_compare::definition(),
             vision_query::definition(),
@@ -40,6 +41,7 @@ impl ToolRegistry {
         let args = arguments.unwrap_or(Value::Object(serde_json::Map::new()));
 
         match name {
+            "observation_log" => observation_log::execute(args, session).await,
             "vision_capture" => vision_capture::execute(args, session).await,
             "vision_compare" => vision_compare::execute(args, session).await,
             "vision_query" => vision_query::execute(args, session).await,

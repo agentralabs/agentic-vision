@@ -43,6 +43,26 @@ impl StorageBudgetMode {
     }
 }
 
+/// Record of a tool call with context.
+#[derive(Debug, Clone)]
+pub struct ToolCallRecord {
+    pub tool_name: String,
+    pub summary: String,
+    pub timestamp: u64,
+    pub capture_id: Option<u64>,
+}
+
+/// An observation context note from the observation_log tool.
+#[derive(Debug, Clone)]
+pub struct ObservationNote {
+    pub id: u64,
+    pub intent: String,
+    pub observation: Option<String>,
+    pub related_capture_id: Option<u64>,
+    pub topic: Option<String>,
+    pub timestamp: u64,
+}
+
 /// Manages the visual memory lifecycle, file I/O, and session state.
 pub struct VisionSessionManager {
     store: VisualMemoryStore,
@@ -57,6 +77,16 @@ pub struct VisionSessionManager {
     storage_budget_horizon_years: u32,
     storage_budget_target_fraction: f32,
     storage_budget_rollup_count: u64,
+    /// ID of the last capture/note in the temporal chain for this session.
+    last_temporal_capture_id: Option<u64>,
+    /// Temporal chain links: (prev_id, next_id) within this session.
+    temporal_chain: Vec<(u64, u64)>,
+    /// Log of tool calls with context summaries.
+    tool_call_log: Vec<ToolCallRecord>,
+    /// Context entries from observation_log tool.
+    observation_notes: Vec<ObservationNote>,
+    /// Counter for observation note IDs.
+    next_note_id: u64,
 }
 
 impl VisionSessionManager {
@@ -122,6 +152,11 @@ impl VisionSessionManager {
             storage_budget_horizon_years,
             storage_budget_target_fraction,
             storage_budget_rollup_count: 0,
+            last_temporal_capture_id: None,
+            temporal_chain: Vec::new(),
+            tool_call_log: Vec::new(),
+            observation_notes: Vec::new(),
+            next_note_id: 1,
         })
     }
 
@@ -140,6 +175,11 @@ impl VisionSessionManager {
         let session_id = explicit_id.unwrap_or(self.current_session + 1);
         self.current_session = session_id;
         self.store.session_count = self.store.session_count.max(session_id);
+        // Reset temporal chain and context logs for the new session.
+        self.last_temporal_capture_id = None;
+        self.temporal_chain.clear();
+        self.tool_call_log.clear();
+        self.observation_notes.clear();
         tracing::info!("Started session {session_id}");
         Ok(session_id)
     }
@@ -266,6 +306,13 @@ impl VisionSessionManager {
 
         let id = self.store.add(obs);
         self.dirty = true;
+
+        // Link into the temporal chain.
+        if let Some(prev) = self.last_temporal_capture_id {
+            self.temporal_chain.push((prev, id));
+        }
+        self.last_temporal_capture_id = Some(id);
+
         self.maybe_auto_save()?;
         self.maybe_enforce_storage_budget()?;
 
@@ -356,6 +403,68 @@ impl VisionSessionManager {
         obs.memory_link = Some(memory_node_id);
         self.dirty = true;
         Ok(())
+    }
+
+    // ── Temporal chain & context capture ────────────────────────────────
+
+    /// ID of the last node in the temporal chain for this session.
+    pub fn last_temporal_capture_id(&self) -> Option<u64> {
+        self.last_temporal_capture_id
+    }
+
+    /// Advance the temporal chain pointer to a new node.
+    pub fn advance_temporal_chain(&mut self, id: u64) {
+        if let Some(prev) = self.last_temporal_capture_id {
+            self.temporal_chain.push((prev, id));
+        }
+        self.last_temporal_capture_id = Some(id);
+    }
+
+    /// Record a tool call with context.
+    pub fn log_tool_call(&mut self, record: ToolCallRecord) {
+        tracing::info!(
+            "[context] tool={} summary={} capture={:?}",
+            record.tool_name,
+            record.summary,
+            record.capture_id
+        );
+        self.tool_call_log.push(record);
+    }
+
+    /// Add an observation context note. Returns the note ID.
+    pub fn add_observation_note(&mut self, mut note: ObservationNote) -> u64 {
+        let id = self.next_note_id;
+        self.next_note_id += 1;
+        note.id = id;
+        tracing::info!(
+            "[context] observation_note id={} intent={} topic={:?}",
+            id,
+            note.intent,
+            note.topic
+        );
+        // Link into the temporal chain using a note-space ID (offset to avoid collisions).
+        let chain_id = id + 10_000_000;
+        if let Some(prev) = self.last_temporal_capture_id {
+            self.temporal_chain.push((prev, chain_id));
+        }
+        self.last_temporal_capture_id = Some(chain_id);
+        self.observation_notes.push(note);
+        id
+    }
+
+    /// Access the observation notes for this session.
+    pub fn observation_notes(&self) -> &[ObservationNote] {
+        &self.observation_notes
+    }
+
+    /// Access the tool call log for this session.
+    pub fn tool_call_log(&self) -> &[ToolCallRecord] {
+        &self.tool_call_log
+    }
+
+    /// Access the temporal chain for this session.
+    pub fn temporal_chain(&self) -> &[(u64, u64)] {
+        &self.temporal_chain
     }
 
     /// Save to file.

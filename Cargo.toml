@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = ["crates/agentic-vision", "crates/agentic-vision-mcp"]
-exclude = ["runtime"]
+exclude = ["runtime", "npm/wasm"]
 
 [workspace.package]
 version = "0.1.7"
