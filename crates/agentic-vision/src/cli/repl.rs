@@ -17,12 +17,8 @@ pub fn run() -> VisionResult<()> {
     println!("Type /help for commands, /exit to quit.\n");
 
     let helper = AvisHelper::new();
-    let mut rl = Editor::new().map_err(|e| {
-        crate::types::VisionError::Io(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            e.to_string(),
-        ))
-    })?;
+    let mut rl = Editor::new()
+        .map_err(|e| crate::types::VisionError::Io(std::io::Error::other(e.to_string())))?;
     rl.set_helper(Some(helper));
     bind_keys(&mut rl);
 

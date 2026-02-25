@@ -4,6 +4,7 @@ use super::commands;
 use crate::types::VisionResult;
 use std::path::PathBuf;
 
+#[derive(Default)]
 pub struct ReplState {
     pub file_path: Option<PathBuf>,
     pub json: bool,
@@ -11,10 +12,7 @@ pub struct ReplState {
 
 impl ReplState {
     pub fn new() -> Self {
-        Self {
-            file_path: None,
-            json: false,
-        }
+        Self::default()
     }
 
     pub fn dispatch(&mut self, line: &str) -> VisionResult<()> {
@@ -256,11 +254,11 @@ fn levenshtein(a: &str, b: &str) -> usize {
     let b: Vec<char> = b.chars().collect();
     let (m, n) = (a.len(), b.len());
     let mut dp = vec![vec![0usize; n + 1]; m + 1];
-    for i in 0..=m {
-        dp[i][0] = i;
+    for (i, row) in dp.iter_mut().enumerate().take(m + 1) {
+        row[0] = i;
     }
-    for j in 0..=n {
-        dp[0][j] = j;
+    for (j, val) in dp[0].iter_mut().enumerate().take(n + 1) {
+        *val = j;
     }
     for i in 1..=m {
         for j in 1..=n {

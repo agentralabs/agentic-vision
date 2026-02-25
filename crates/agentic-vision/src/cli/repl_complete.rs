@@ -28,11 +28,17 @@ pub struct AvisHelper {
     hinter: HistoryHinter,
 }
 
-impl AvisHelper {
-    pub fn new() -> Self {
+impl Default for AvisHelper {
+    fn default() -> Self {
         Self {
             hinter: HistoryHinter::new(),
         }
+    }
+}
+
+impl AvisHelper {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -49,11 +55,7 @@ impl Completer for AvisHelper {
         if !trimmed.starts_with('/') && !trimmed.is_empty() {
             return Ok((0, vec![]));
         }
-        let prefix = if trimmed.starts_with('/') {
-            &trimmed[1..]
-        } else {
-            ""
-        };
+        let prefix = trimmed.strip_prefix('/').unwrap_or_default();
         let matches: Vec<Pair> = COMMANDS
             .iter()
             .filter(|(name, _)| name.starts_with(prefix))

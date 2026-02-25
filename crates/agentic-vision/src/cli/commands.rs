@@ -59,7 +59,7 @@ pub fn cmd_capture(
     let mut store = if path.exists() {
         AvisReader::read_from_file(path)?
     } else {
-        VisualMemoryStore::new(crate::EMBEDDING_DIM as u32)
+        VisualMemoryStore::new(crate::EMBEDDING_DIM)
     };
 
     let (img, source) = crate::capture_from_file(source_path)?;
@@ -222,10 +222,8 @@ pub fn cmd_diff(path: &Path, id_a: u64, id_b: u64, json: bool) -> VisionResult<(
         .get(id_b)
         .ok_or(crate::types::VisionError::CaptureNotFound(id_b))?;
 
-    let img_a =
-        image::load_from_memory(&a.thumbnail).map_err(|e| crate::types::VisionError::Image(e))?;
-    let img_b =
-        image::load_from_memory(&b.thumbnail).map_err(|e| crate::types::VisionError::Image(e))?;
+    let img_a = image::load_from_memory(&a.thumbnail).map_err(crate::types::VisionError::Image)?;
+    let img_b = image::load_from_memory(&b.thumbnail).map_err(crate::types::VisionError::Image)?;
 
     let diff = crate::compute_diff(id_a, id_b, &img_a, &img_b)?;
 
@@ -404,7 +402,7 @@ pub fn cmd_stats(path: &Path, json: bool) -> VisionResult<()> {
 /// Export the store as JSON.
 pub fn cmd_export(path: &Path, pretty: bool) -> VisionResult<()> {
     let store = AvisReader::read_from_file(path)?;
-    let items: Vec<_> = store.observations.iter().map(|o| obs_full(o)).collect();
+    let items: Vec<_> = store.observations.iter().map(obs_full).collect();
 
     let output = if pretty {
         serde_json::to_string_pretty(&items)
