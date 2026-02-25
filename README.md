@@ -333,10 +333,10 @@ This is a Cargo workspace monorepo containing the core library, CLI, MCP server,
 agentic-vision/
 ├── Cargo.toml                    # Workspace root
 ├── crates/
-│   ├── agentic-vision/           # Core library (crates.io: agentic-vision v0.2.1)
-│   ├── agentic-vision-cli/       # CLI (crates.io: agentic-vision-cli v0.2.1)
-│   ├── agentic-vision-mcp/       # MCP server (crates.io: agentic-vision-mcp v0.2.1)
-│   └── agentic-vision-ffi/       # FFI bindings (crates.io: agentic-vision-ffi v0.2.1)
+│   ├── agentic-vision/           # Core library (crates.io: agentic-vision v0.2.2)
+│   ├── agentic-vision-cli/       # CLI (crates.io: agentic-vision-cli v0.2.2)
+│   ├── agentic-vision-mcp/       # MCP server (crates.io: agentic-vision-mcp v0.2.2)
+│   └── agentic-vision-ffi/       # FFI bindings (crates.io: agentic-vision-ffi v0.2.2)
 ├── tests/                        # Integration tests (Python → Rust, multi-agent)
 ├── models/                       # ONNX model directory (CLIP ViT-B/32)
 ├── publication/                  # Research papers (I, II)
