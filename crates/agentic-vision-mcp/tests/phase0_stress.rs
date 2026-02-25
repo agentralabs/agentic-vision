@@ -240,11 +240,7 @@ async fn test_temporal_chain_consecutive_captures() {
     // Verify temporal chain in session
     let session_guard = session.lock().await;
     let chain = session_guard.temporal_chain();
-    assert_eq!(
-        chain.len(),
-        4,
-        "5 captures should produce 4 temporal links"
-    );
+    assert_eq!(chain.len(), 4, "5 captures should produce 4 temporal links");
 
     // Each link should be (prev, next)
     for i in 0..4 {
@@ -513,17 +509,10 @@ async fn test_tool_list_includes_observation_log() {
     let handler = ProtocolHandler::new(session.clone());
     send_unwrap(&handler, init_request()).await;
 
-    let resp = send_unwrap(
-        &handler,
-        mcp_request(10, "tools/list", json!({})),
-    )
-    .await;
+    let resp = send_unwrap(&handler, mcp_request(10, "tools/list", json!({}))).await;
 
     let tools = resp["result"]["tools"].as_array().unwrap();
-    let names: Vec<&str> = tools
-        .iter()
-        .filter_map(|t| t["name"].as_str())
-        .collect();
+    let names: Vec<&str> = tools.iter().filter_map(|t| t["name"].as_str()).collect();
 
     assert!(
         names.contains(&"observation_log"),
@@ -539,11 +528,7 @@ async fn test_tool_count_is_12() {
     let handler = ProtocolHandler::new(session.clone());
     send_unwrap(&handler, init_request()).await;
 
-    let resp = send_unwrap(
-        &handler,
-        mcp_request(10, "tools/list", json!({})),
-    )
-    .await;
+    let resp = send_unwrap(&handler, mcp_request(10, "tools/list", json!({}))).await;
 
     let tools = resp["result"]["tools"].as_array().unwrap();
     assert_eq!(
