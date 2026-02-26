@@ -1,0 +1,110 @@
+\begin{thebibliography}{10}
+
+\bibitem{mcp2024spec}
+{Anthropic}.
+\newblock Model context protocol specification.
+\newblock 2024.
+\newblock \url{https://modelcontextprotocol.io/specification}.
+
+\bibitem{dosovitskiy2020vit}
+Alexei Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn,
+  Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg
+  Heigold, Sylvain Gelly, et~al.
+\newblock An image is worth 16x16 words: Transformers for image recognition at
+  scale.
+\newblock {\em arXiv preprint arXiv:2010.11929}, 2020.
+
+\bibitem{protobuf}
+{Google}.
+\newblock Protocol buffers: Language-neutral, platform-neutral extensible
+  mechanism for serializing structured data.
+\newblock 2008.
+\newblock \url{https://protobuf.dev/}.
+
+\bibitem{flatbuffers}
+{Google}.
+\newblock {FlatBuffers}: An efficient cross-platform serialization library.
+\newblock 2014.
+\newblock \url{https://flatbuffers.dev/}.
+
+\bibitem{johnson2019faiss}
+Jeff Johnson, Matthijs Douze, and Herv{\'e} J{\'e}gou.
+\newblock Billion-scale similarity search with {GPUs}.
+\newblock In {\em IEEE Transactions on Big Data}, volume~7, pages 535--547,
+  2019.
+
+\bibitem{lewis2020rag}
+Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir
+  Karpukhin, Naman Goyal, Heinrich K{\"u}ttler, Mike Lewis, Wen-tau Yih, Tim
+  Rockt{\"a}schel, et~al.
+\newblock Retrieval-augmented generation for knowledge-intensive {NLP} tasks.
+\newblock {\em Advances in Neural Information Processing Systems},
+  33:9459--9474, 2020.
+
+\bibitem{mem0}
+{Mem0 AI}.
+\newblock Mem0: The memory layer for {AI} applications.
+\newblock 2024.
+\newblock \url{https://mem0.ai/}.
+
+\bibitem{onnxruntime}
+{Microsoft}.
+\newblock {ONNX Runtime}: cross-platform, high performance {ML} inferencing and
+  training accelerator.
+\newblock 2019.
+\newblock \url{https://onnxruntime.ai/}.
+
+\bibitem{openai_memory}
+{OpenAI}.
+\newblock {ChatGPT} memory.
+\newblock 2024.
+\newblock \url{https://openai.com/index/memory-and-new-controls-for-chatgpt/}.
+
+\bibitem{owolabi2025agenticmemory}
+Omoshola Owolabi.
+\newblock {AgenticMemory}: A binary graph format for persistent, portable, and
+  navigable {AI} agent memory.
+\newblock 2025.
+\newblock Independent Research.
+
+\bibitem{owolabi2025memorymcp}
+Omoshola Owolabi.
+\newblock {AgenticMemory-MCP}: Universal {LLM} access to persistent cognitive
+  graph memory.
+\newblock 2025.
+\newblock Independent Research.
+
+\bibitem{owolabi2025queryexpansion}
+Omoshola Owolabi.
+\newblock {AgenticMemory} query expansion: Nine novel query types for cognitive
+  graph navigation.
+\newblock 2025.
+\newblock Independent Research.
+
+\bibitem{packer2023memgpt}
+Charles Packer, Joseph~E Gonzalez, Ben Poole, Dawn Song, and Ion Stoica.
+\newblock {MemGPT}: Towards {LLMs} as operating systems.
+\newblock {\em arXiv preprint arXiv:2310.08560}, 2023.
+
+\bibitem{pinecone2024}
+{Pinecone Systems}.
+\newblock Pinecone: Vector database for machine learning.
+\newblock 2024.
+\newblock \url{https://www.pinecone.io/}.
+
+\bibitem{radford2021clip}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh,
+  Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark,
+  et~al.
+\newblock Learning transferable visual models from natural language
+  supervision.
+\newblock In {\em International Conference on Machine Learning}, pages
+  8748--8763. PMLR, 2021.
+
+\bibitem{weaviate2024}
+{Weaviate}.
+\newblock Weaviate: The {AI}-native vector database.
+\newblock 2024.
+\newblock \url{https://weaviate.io/}.
+
+\end{thebibliography}
