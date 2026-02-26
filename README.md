@@ -43,7 +43,7 @@ Text-based memory exists. Visual memory doesn't — until now.
 cargo install agentic-vision-cli agentic-vision-mcp
 ```
 
-CLI + MCP binaries. 11 MCP tools. Persistent `.avis` files. Works with Claude Desktop, VS Code, Cursor, Windsurf, and any MCP-compatible client.
+CLI + MCP binaries. 21 MCP tools. Persistent `.avis` files. Works with Claude Desktop, VS Code, Cursor, Windsurf, and any MCP-compatible client.
 
 <p align="center">
   <img src="assets/github-terminal-pane.svg" alt="AgenticVision terminal pane" width="980">
@@ -88,9 +88,33 @@ Rust core. CLIP ViT-B/32 via ONNX Runtime. Binary `.avis` format. Real numbers f
 
 **Binary format, not a database.** The `.avis` file is a single portable binary — 64-byte header, JSON payload, JPEG thumbnails. Copy it, share it, back it up. No server, no database, no dependencies.
 
-**Works with every MCP client.** AgenticVision-MCP exposes 11 tools, 6 resources, and 4 prompts via the Model Context Protocol. Any LLM that speaks MCP gains visual memory automatically.
+**Works with every MCP client.** AgenticVision-MCP exposes 21 tools, 6 resources, and 4 prompts via the Model Context Protocol. Any LLM that speaks MCP gains visual memory automatically.
 
 **Links to AgenticMemory.** The `vision_link` tool connects visual captures to [AgenticMemory](https://github.com/agentralabs/agentic-memory) cognitive graph nodes — bridging what an agent *sees* with what it *knows*.
+
+---
+
+## Ghost Writer
+
+> **New in v0.2.4** -- Auto-syncs visual context to your AI coding tools every 5 seconds.
+
+| Client | Config Location | Status |
+|:---|:---|:---|
+| **Claude Code** | `~/.claude/memory/VISION_CONTEXT.md` | Full support |
+| **Cursor** | `~/.cursor/memory/agentic-vision.md` | Full support |
+| **Windsurf** | `~/.windsurf/memory/agentic-vision.md` | Full support |
+| **Cody** | `~/.sourcegraph/cody/memory/agentic-vision.md` | Full support |
+
+Syncs: recent captures, observations, visual tool calls. **Zero configuration.** Context survives sessions automatically.
+
+## MCP Hardening
+
+> **New in v0.2.5** -- Production-grade stdio transport.
+
+- Content-Length framing with 8 MiB limit
+- JSON-RPC 2.0 validation
+- Atomic writes (temp + rename + fsync)
+- No silent fallbacks
 
 ---
 
@@ -117,7 +141,7 @@ Rust core. CLIP ViT-B/32 via ONNX Runtime. Binary `.avis` format. Real numbers f
 
 <br>
 
-**11 Tools:**
+**21 Tools** (core 11 + grounding 3 + workspace 5 + observation 1 + session 1):
 
 | Tool | Description |
 |:---|:---|
