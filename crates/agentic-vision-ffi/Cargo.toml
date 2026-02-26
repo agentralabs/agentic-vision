@@ -14,7 +14,7 @@ categories = ["api-bindings"]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-agentic-vision = { path = "../agentic-vision", version = "0.2.3", default-features = false }
+agentic-vision = { path = "../agentic-vision", version = "0.2.4", default-features = false }
 pyo3 = { version = "0.20", features = ["extension-module"], optional = true }
 wasm-bindgen = { version = "0.2", optional = true }
 serde-wasm-bindgen = { version = "0.6", optional = true }

@@ -1,6 +1,7 @@
 //! AgenticVision MCP Server — universal LLM access to persistent visual memory.
 
 pub mod config;
+pub mod ghost_bridge;
 pub mod prompts;
 pub mod protocol;
 pub mod repl;

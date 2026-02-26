@@ -15,8 +15,8 @@ name = "avis"
 path = "src/main.rs"
 
 [dependencies]
-agentic-vision = { path = "../agentic-vision", version = "0.2.3", features = ["cli"] }
-agentic-vision-mcp = { path = "../agentic-vision-mcp", version = "0.2.3" }
+agentic-vision = { path = "../agentic-vision", version = "0.2.4", features = ["cli"] }
+agentic-vision-mcp = { path = "../agentic-vision-mcp", version = "0.2.4" }
 clap = { version = "4", features = ["derive"] }
 clap_complete = "4"
 rustyline = "14"

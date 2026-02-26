@@ -133,6 +133,11 @@ async fn main() -> anyhow::Result<()> {
             let vision_path = resolve_vision_path(effective_vision.as_deref());
             let session = VisionSessionManager::open(&vision_path, effective_model.as_deref())?;
             let session = Arc::new(Mutex::new(session));
+
+            // Ghost Writer: background sync to Claude, Cursor, Windsurf, Cody
+            let _ghost_writer_task =
+                agentic_vision_mcp::ghost_bridge::spawn_ghost_writer(session.clone());
+
             let handler = ProtocolHandler::new(session);
             let transport = StdioTransport::new(handler);
             transport.run().await?;
