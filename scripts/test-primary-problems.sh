@@ -23,7 +23,7 @@ run_vision() {
 
 echo "[1/4] Validate MCP surface for visual-state and non-text-signal tools"
 info_out="$(run_vision info)"
-assert_contains "$info_out" '"tool_count": 11' "vision info"
+assert_contains "$info_out" '"tool_count": 21' "vision info"
 assert_contains "$info_out" '"vision_capture"' "vision info"
 assert_contains "$info_out" '"vision_query"' "vision info"
 assert_contains "$info_out" '"vision_health"' "vision info"

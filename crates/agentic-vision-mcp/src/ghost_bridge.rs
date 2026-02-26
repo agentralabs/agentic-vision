@@ -18,9 +18,7 @@ pub fn spawn_ghost_writer(
 ) -> Option<tokio::task::JoinHandle<()>> {
     let clients = detect_all_memory_dirs();
     if clients.is_empty() {
-        tracing::info!(
-            "Ghost Writer (Vision): no AI coding assistants detected. Sync disabled."
-        );
+        tracing::info!("Ghost Writer (Vision): no AI coding assistants detected. Sync disabled.");
         return None;
     }
 
@@ -54,7 +52,11 @@ async fn sync_once(session: &Arc<Mutex<VisionSessionManager>>, clients: &[Client
     for client in clients {
         let target = client.dir.join(&client.filename);
         if let Err(e) = atomic_write(&target, markdown.as_bytes()) {
-            tracing::warn!("Ghost Writer (Vision): failed to sync to {:?}: {}", target, e);
+            tracing::warn!(
+                "Ghost Writer (Vision): failed to sync to {:?}: {}",
+                target,
+                e
+            );
         }
     }
 }
@@ -80,7 +82,11 @@ async fn build_vision_context(session: &Arc<Mutex<VisionSessionManager>>) -> Str
     if !observations.is_empty() {
         md.push_str("## Recent Observations\n\n");
         for note in observations.iter().rev().take(10) {
-            md.push_str(&format!("- **[{}]** {}", note.topic.as_deref().unwrap_or("general"), note.intent));
+            md.push_str(&format!(
+                "- **[{}]** {}",
+                note.topic.as_deref().unwrap_or("general"),
+                note.intent
+            ));
             if let Some(obs) = &note.observation {
                 let preview = if obs.len() > 150 {
                     format!("{}...", &obs[..150])
@@ -130,10 +136,26 @@ fn detect_all_memory_dirs() -> Vec<ClientDir> {
     };
 
     let candidates = [
-        ("Claude Code", home.join(".claude").join("memory"), "VISION_CONTEXT.md"),
-        ("Cursor", home.join(".cursor").join("memory"), "agentic-vision.md"),
-        ("Windsurf", home.join(".windsurf").join("memory"), "agentic-vision.md"),
-        ("Cody", home.join(".sourcegraph").join("cody").join("memory"), "agentic-vision.md"),
+        (
+            "Claude Code",
+            home.join(".claude").join("memory"),
+            "VISION_CONTEXT.md",
+        ),
+        (
+            "Cursor",
+            home.join(".cursor").join("memory"),
+            "agentic-vision.md",
+        ),
+        (
+            "Windsurf",
+            home.join(".windsurf").join("memory"),
+            "agentic-vision.md",
+        ),
+        (
+            "Cody",
+            home.join(".sourcegraph").join("cody").join("memory"),
+            "agentic-vision.md",
+        ),
     ];
 
     let mut dirs = Vec::new();
