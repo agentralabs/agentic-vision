@@ -7,6 +7,9 @@ use crate::types::{JsonRpcError, McpError, McpResult, RequestId, JSONRPC_VERSION
 
 use super::framing;
 
+/// Hard limit for framed stdio payloads (8 MiB).
+const MAX_CONTENT_LENGTH_BYTES: usize = 8 * 1024 * 1024;
+
 /// Stdio transport for desktop MCP clients.
 pub struct StdioTransport {
     handler: ProtocolHandler,
@@ -44,9 +47,25 @@ impl StdioTransport {
             let lower = trimmed.to_ascii_lowercase();
             if lower.starts_with("content-length:") {
                 let rest = trimmed.split_once(':').map(|(_, rhs)| rhs).unwrap_or("");
-                content_length = rest.trim().parse::<usize>().ok();
-                if content_length.is_some() {
-                    framed_output = true;
+                match rest.trim().parse::<usize>() {
+                    Ok(n) if n <= MAX_CONTENT_LENGTH_BYTES => {
+                        content_length = Some(n);
+                        framed_output = true;
+                    }
+                    Ok(n) => {
+                        tracing::warn!(
+                            "Content-Length {n} exceeds max frame size of {MAX_CONTENT_LENGTH_BYTES} bytes"
+                        );
+                        return Err(McpError::ParseError(format!(
+                            "Content-Length exceeds max frame size ({MAX_CONTENT_LENGTH_BYTES} bytes)"
+                        )));
+                    }
+                    Err(_) => {
+                        tracing::warn!("Invalid Content-Length header: {trimmed}");
+                        return Err(McpError::ParseError(
+                            "Invalid Content-Length header".to_string(),
+                        ));
+                    }
                 }
                 continue;
             }
