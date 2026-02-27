@@ -9,7 +9,7 @@ members = [
 exclude = ["runtime", "npm/wasm"]
 
 [workspace.dependencies]
-agentic-contracts = { version = "0.2.0", path = "../agentic-contracts" }
+agentic-sdk = { version = "0.2.0", path = "../agentic-sdk" }
 
 [workspace.package]
 version = "0.3.0"

@@ -1,4 +1,4 @@
-//! Contracts bridge — implements agentic-contracts v0.2.0 traits for Vision.
+//! Contracts bridge — implements agentic-sdk v0.2.0 traits for Vision.
 //!
 //! This module provides `VisionSister`, a contracts-compliant wrapper
 //! around the core `VisualMemoryStore` + storage. It implements:
@@ -12,7 +12,7 @@
 //! The MCP server can use `VisionSister` instead of raw store + storage
 //! to get compile-time contracts compliance.
 
-use agentic_contracts::prelude::*;
+use agentic_sdk::prelude::*;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
