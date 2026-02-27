@@ -3,15 +3,16 @@
 </p>
 
 <p align="center">
-  <a href="https://crates.io/crates/agentic-vision"><img src="https://img.shields.io/badge/cargo_install-agentic--vision-F59E0B?style=for-the-badge&logo=rust&logoColor=white" alt="cargo install"></a>
-  <a href="https://crates.io/crates/agentic-vision-mcp"><img src="https://img.shields.io/badge/cargo_install-agentic--vision--mcp-3B82F6?style=for-the-badge&logo=rust&logoColor=white" alt="cargo install mcp"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-8B5CF6?style=for-the-badge" alt="MIT License"></a>
-  <a href="publication/paper-ii-agentic-vision-mcp/agentic-vision-mcp-paper.pdf"><img src="https://img.shields.io/badge/Research-Paper-EF4444?style=for-the-badge" alt="Research Paper"></a>
+  <a href="#install"><img src="https://img.shields.io/badge/pip_install-agentic--vision-3B82F6?style=for-the-badge&logo=python&logoColor=white" alt="pip install"></a>
+  <a href="#install"><img src="https://img.shields.io/badge/cargo_install-agentic--vision-F59E0B?style=for-the-badge&logo=rust&logoColor=white" alt="cargo install"></a>
+  <a href="#mcp-server"><img src="https://img.shields.io/badge/MCP_Server-agentic--vision--mcp-10B981?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiAydjIwTTIgMTJoMjAiLz48L3N2Zz4=&logoColor=white" alt="MCP Server"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge" alt="MIT License"></a>
+  <a href="paper/paper-i-cortex/cortex-paper.pdf"><img src="https://img.shields.io/badge/Research-Paper_I-8B5CF6?style=for-the-badge" alt="Research Paper I"></a>
   <a href="docs/api-reference.md"><img src="https://img.shields.io/badge/format-.avis-3B82F6?style=for-the-badge" alt=".avis format"></a>
 </p>
 
 <p align="center">
-  <a href="#quickstart">Quickstart</a> · <a href="#problems-solved">Problems Solved</a> · <a href="#why-agenticvision">Why</a> · <a href="#benchmarks">Benchmarks</a> · <a href="#how-it-works">How It Works</a> · <a href="#install">Install</a> · <a href="INSTALL.md">Full Install Guide</a> · <a href="publication/paper-ii-agentic-vision-mcp/agentic-vision-mcp-paper.pdf">Paper</a>
+  <a href="#quickstart">Quickstart</a> · <a href="#problems-solved">Problems Solved</a> · <a href="#why-agenticvision">Why</a> · <a href="#benchmarks">Benchmarks</a> · <a href="#how-it-works">How It Works</a> · <a href="#install">Install</a> · <a href="docs/api-reference.md">API</a> · <a href="paper/paper-i-cortex/cortex-paper.pdf">Papers</a>
 </p>
 
 ---
