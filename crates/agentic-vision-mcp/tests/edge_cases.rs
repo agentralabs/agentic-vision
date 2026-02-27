@@ -214,8 +214,7 @@ async fn test_04_invalid_params_no_source() {
 
     // Per MCP spec, tool execution errors use isError: true (not JSON-RPC errors)
     assert!(
-        resp.get("result").is_some()
-            && resp["result"].get("isError") == Some(&json!(true)),
+        resp.get("result").is_some() && resp["result"].get("isError") == Some(&json!(true)),
         "Missing source should return tool error with isError: true, got: {resp}"
     );
 
@@ -232,8 +231,7 @@ async fn test_04_invalid_params_no_source() {
     );
     let resp2 = send_unwrap(&handler, msg2).await;
     assert!(
-        resp2.get("result").is_some()
-            && resp2["result"].get("isError") == Some(&json!(true)),
+        resp2.get("result").is_some() && resp2["result"].get("isError") == Some(&json!(true)),
         "Missing path should return tool error with isError: true"
     );
 
@@ -250,8 +248,7 @@ async fn test_04_invalid_params_no_source() {
     );
     let resp3 = send_unwrap(&handler, msg3).await;
     assert!(
-        resp3.get("result").is_some()
-            && resp3["result"].get("isError") == Some(&json!(true)),
+        resp3.get("result").is_some() && resp3["result"].get("isError") == Some(&json!(true)),
         "Invalid source type should return tool error with isError: true"
     );
 
@@ -609,8 +606,7 @@ async fn test_13_huge_id() {
 
     // Per MCP spec, tool execution errors (capture not found) use isError: true
     assert!(
-        resp.get("result").is_some()
-            && resp["result"].get("isError") == Some(&json!(true)),
+        resp.get("result").is_some() && resp["result"].get("isError") == Some(&json!(true)),
         "Huge ID should return tool error with isError: true: {resp}"
     );
     // The error message should mention the capture was not found
@@ -903,8 +899,7 @@ async fn test_bonus_vision_query_param_validation() {
         let resp = send_unwrap(&handler, msg).await;
         // Per MCP spec, tool execution errors use isError: true
         assert!(
-            resp.get("result").is_some()
-                && resp["result"].get("isError") == Some(&json!(true)),
+            resp.get("result").is_some() && resp["result"].get("isError") == Some(&json!(true)),
             "Invalid vision_query case #{i} should return tool error with isError: true: {resp}"
         );
     }
@@ -943,8 +938,7 @@ async fn test_bonus_vision_similar_param_validation() {
         let resp = send_unwrap(&handler, msg).await;
         // Per MCP spec, tool execution errors use isError: true
         assert!(
-            resp.get("result").is_some()
-                && resp["result"].get("isError") == Some(&json!(true)),
+            resp.get("result").is_some() && resp["result"].get("isError") == Some(&json!(true)),
             "Invalid vision_similar case #{i} should return tool error with isError: true: {resp}"
         );
     }
@@ -994,8 +988,7 @@ async fn test_bonus_vision_track_param_validation() {
         let resp = send_unwrap(&handler, msg).await;
         // Per MCP spec, tool execution errors use isError: true
         assert!(
-            resp.get("result").is_some()
-                && resp["result"].get("isError") == Some(&json!(true)),
+            resp.get("result").is_some() && resp["result"].get("isError") == Some(&json!(true)),
             "Invalid vision_track case #{i} should return tool error with isError: true: {resp}"
         );
     }

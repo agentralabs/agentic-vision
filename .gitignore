@@ -45,12 +45,18 @@ docs/REPO_HYGIENE.md
 # Test reports (generated, not source)
 tests/reports/
 
-# LaTeX build artifacts (canonical PDF kept in publication/)
-publication/**/*.aux
-publication/**/*.log
-publication/**/*.bbl
-publication/**/*.blg
-publication/**/*.out
-publication/**/*.fls
-publication/**/*.fdb_latexmk
-publication/**/*.synctex.gz
+# Internal docs (not for public repo)
+docs/internal/
+ECOSYSTEM-CONVENTIONS.md
+
+# Local goals (internal only)
+goals/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz

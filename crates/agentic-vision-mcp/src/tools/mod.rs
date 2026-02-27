@@ -23,4 +23,10 @@ pub mod vision_workspace_list;
 pub mod vision_workspace_query;
 pub mod vision_workspace_xref;
 
+// V3: 16 Perception Inventions
+pub mod invention_cognition;
+pub mod invention_grounding;
+pub mod invention_prediction;
+pub mod invention_temporal;
+
 pub use registry::ToolRegistry;

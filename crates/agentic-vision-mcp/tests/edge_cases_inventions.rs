@@ -100,8 +100,7 @@ async fn call_tool_err(handler: &ProtocolHandler, id: i64, name: &str, args: Val
     assert!(
         has_error,
         "Tool '{}' should fail with error, got: {}",
-        name,
-        resp
+        name, resp
     );
     resp
 }
@@ -270,7 +269,11 @@ async fn test_03_ground_claim_empty_args() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({ "name": "vision_ground_claim", "arguments": {} })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({ "name": "vision_ground_claim", "arguments": {} }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -282,7 +285,11 @@ async fn test_04_hallucination_check_empty_args() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({ "name": "vision_hallucination_check", "arguments": {} })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({ "name": "vision_hallucination_check", "arguments": {} }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -336,7 +343,11 @@ async fn test_11_reason_empty_args() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({ "name": "vision_reason", "arguments": {} })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({ "name": "vision_reason", "arguments": {} }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -348,7 +359,11 @@ async fn test_12_semantic_find_empty_args() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({ "name": "vision_semantic_find", "arguments": {} })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({ "name": "vision_semantic_find", "arguments": {} }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -360,7 +375,11 @@ async fn test_13_regression_predict_empty_args() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({ "name": "vision_regression_predict", "arguments": {} })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({ "name": "vision_regression_predict", "arguments": {} }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -372,7 +391,11 @@ async fn test_14_phantom_create_empty_args() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({ "name": "vision_phantom_create", "arguments": {} })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({ "name": "vision_phantom_create", "arguments": {} }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -384,7 +407,11 @@ async fn test_15_gestalt_analyze_empty_args() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({ "name": "vision_gestalt_analyze", "arguments": {} })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({ "name": "vision_gestalt_analyze", "arguments": {} }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -396,7 +423,11 @@ async fn test_16_bind_code_empty_args() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({ "name": "vision_bind_code", "arguments": {} })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({ "name": "vision_bind_code", "arguments": {} }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -408,7 +439,11 @@ async fn test_17_prophecy_empty_args() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({ "name": "vision_prophecy", "arguments": {} })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({ "name": "vision_prophecy", "arguments": {} }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -423,90 +458,150 @@ async fn test_17_prophecy_empty_args() {
 #[tokio::test]
 async fn test_18_compare_contexts_empty_store() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_err(&handler, 1, "vision_compare_contexts", json!({
-        "capture_ids": []
-    })).await;
+    call_tool_err(
+        &handler,
+        1,
+        "vision_compare_contexts",
+        json!({
+            "capture_ids": []
+        }),
+    )
+    .await;
 }
 
 /// Test 19: vision_compare_sites referencing non-existent captures.
 #[tokio::test]
 async fn test_19_compare_sites_nonexistent_captures() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_ok(&handler, 1, "vision_compare_sites", json!({
-        "capture_a": 99999, "capture_b": 99998
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_compare_sites",
+        json!({
+            "capture_a": 99999, "capture_b": 99998
+        }),
+    )
+    .await;
 }
 
 /// Test 20: vision_dejavu_check with non-existent capture_id.
 #[tokio::test]
 async fn test_20_dejavu_check_nonexistent() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_err(&handler, 1, "vision_dejavu_check", json!({
-        "capture_id": 12345
-    })).await;
+    call_tool_err(
+        &handler,
+        1,
+        "vision_dejavu_check",
+        json!({
+            "capture_id": 12345
+        }),
+    )
+    .await;
 }
 
 /// Test 21: vision_attention_predict with non-existent capture.
 #[tokio::test]
 async fn test_21_attention_predict_nonexistent() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_err(&handler, 1, "vision_attention_predict", json!({
-        "capture_id": 77777
-    })).await;
+    call_tool_err(
+        &handler,
+        1,
+        "vision_attention_predict",
+        json!({
+            "capture_id": 77777
+        }),
+    )
+    .await;
 }
 
 /// Test 22: vision_semantic_analyze with non-existent capture.
 #[tokio::test]
 async fn test_22_semantic_analyze_nonexistent() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_err(&handler, 1, "vision_semantic_analyze", json!({
-        "capture_id": 88888
-    })).await;
+    call_tool_err(
+        &handler,
+        1,
+        "vision_semantic_analyze",
+        json!({
+            "capture_id": 88888
+        }),
+    )
+    .await;
 }
 
 /// Test 23: vision_gestalt_harmony with non-existent capture.
 #[tokio::test]
 async fn test_23_gestalt_harmony_nonexistent() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_err(&handler, 1, "vision_gestalt_harmony", json!({
-        "capture_id": 33333
-    })).await;
+    call_tool_err(
+        &handler,
+        1,
+        "vision_gestalt_harmony",
+        json!({
+            "capture_id": 33333
+        }),
+    )
+    .await;
 }
 
 /// Test 24: vision_traverse_binding with non-existent capture.
 #[tokio::test]
 async fn test_24_traverse_binding_nonexistent() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_ok(&handler, 1, "vision_traverse_binding", json!({
-        "capture_id": 44444
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_traverse_binding",
+        json!({
+            "capture_id": 44444
+        }),
+    )
+    .await;
 }
 
 /// Test 25: vision_archaeology_dig on empty store.
 #[tokio::test]
 async fn test_25_archaeology_dig_empty_store() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_ok(&handler, 1, "vision_archaeology_dig", json!({
-        "target": "nonexistent page"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_archaeology_dig",
+        json!({
+            "target": "nonexistent page"
+        }),
+    )
+    .await;
 }
 
 /// Test 26: vision_prophecy_diff with non-existent capture.
 #[tokio::test]
 async fn test_26_prophecy_diff_nonexistent() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_ok(&handler, 1, "vision_prophecy_diff", json!({
-        "capture_id": 55555, "change_description": "add footer"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_prophecy_diff",
+        json!({
+            "capture_id": 55555, "change_description": "add footer"
+        }),
+    )
+    .await;
 }
 
 /// Test 27: vision_regression_test on empty store.
 #[tokio::test]
 async fn test_27_regression_test_empty_store() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_ok(&handler, 1, "vision_regression_test", json!({
-        "target": "dashboard"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_regression_test",
+        json!({
+            "target": "dashboard"
+        }),
+    )
+    .await;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -519,10 +614,14 @@ async fn test_28_compare_contexts_wrong_type() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({
-            "name": "vision_compare_contexts",
-            "arguments": { "capture_ids": "not_an_array" }
-        })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({
+                "name": "vision_compare_contexts",
+                "arguments": { "capture_ids": "not_an_array" }
+            }),
+        ),
     )
     .await;
     // Should not panic; any response is acceptable
@@ -535,10 +634,14 @@ async fn test_29_compare_sites_negative_ids() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({
-            "name": "vision_compare_sites",
-            "arguments": { "capture_a": -1, "capture_b": -2 }
-        })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({
+                "name": "vision_compare_sites",
+                "arguments": { "capture_a": -1, "capture_b": -2 }
+            }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -550,13 +653,17 @@ async fn test_30_phantom_create_empty_modifications() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({
-            "name": "vision_phantom_create",
-            "arguments": {
-                "base_capture": 1,
-                "modifications": []
-            }
-        })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({
+                "name": "vision_phantom_create",
+                "arguments": {
+                    "base_capture": 1,
+                    "modifications": []
+                }
+            }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -566,9 +673,15 @@ async fn test_30_phantom_create_empty_modifications() {
 #[tokio::test]
 async fn test_31_dejavu_alert_empty_labels() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_ok(&handler, 1, "vision_dejavu_alert", json!({
-        "pattern_labels": []
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_dejavu_alert",
+        json!({
+            "pattern_labels": []
+        }),
+    )
+    .await;
 }
 
 /// Test 32: vision_bind_code with null fields.
@@ -577,14 +690,18 @@ async fn test_32_bind_code_null_fields() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({
-            "name": "vision_bind_code",
-            "arguments": {
-                "capture_id": null,
-                "code_node_id": null,
-                "binding_type": null
-            }
-        })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({
+                "name": "vision_bind_code",
+                "arguments": {
+                    "capture_id": null,
+                    "code_node_id": null,
+                    "binding_type": null
+                }
+            }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -596,10 +713,14 @@ async fn test_33_reason_diagnose_wrong_type() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({
-            "name": "vision_reason_diagnose",
-            "arguments": { "symptoms": "not_an_array" }
-        })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({
+                "name": "vision_reason_diagnose",
+                "arguments": { "symptoms": "not_an_array" }
+            }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -611,12 +732,16 @@ async fn test_34_compare_devices_malformed() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({
-            "name": "vision_compare_devices",
-            "arguments": {
-                "captures": [{ "bad_key": 1 }]
-            }
-        })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({
+                "name": "vision_compare_devices",
+                "arguments": {
+                    "captures": [{ "bad_key": 1 }]
+                }
+            }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -628,10 +753,14 @@ async fn test_35_at_time_string_target() {
     let (_dir, handler) = setup_empty().await;
     let resp = send_unwrap(
         &handler,
-        mcp_request(1, "tools/call", json!({
-            "name": "vision_at_time",
-            "arguments": { "target_time": "not-a-number" }
-        })),
+        mcp_request(
+            1,
+            "tools/call",
+            json!({
+                "name": "vision_at_time",
+                "arguments": { "target_time": "not-a-number" }
+            }),
+        ),
     )
     .await;
     assert!(resp.get("result").is_some() || resp.get("error").is_some());
@@ -660,16 +789,28 @@ async fn test_37_at_time_epoch_zero() {
 #[tokio::test]
 async fn test_38_at_time_far_future() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_ok(&handler, 1, "vision_at_time", json!({ "target_time": 9999999999i64 })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_at_time",
+        json!({ "target_time": 9999999999i64 }),
+    )
+    .await;
 }
 
 /// Test 39: vision_consolidate_policy with extreme max_age_hours.
 #[tokio::test]
 async fn test_39_consolidate_policy_extreme_age() {
     let (_dir, handler) = setup_empty().await;
-    call_tool_ok(&handler, 1, "vision_consolidate_policy", json!({
-        "max_age_hours": 999_999_999
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_consolidate_policy",
+        json!({
+            "max_age_hours": 999_999_999
+        }),
+    )
+    .await;
 }
 
 /// Test 40: vision_compare_contexts with many IDs (large array).
@@ -677,9 +818,15 @@ async fn test_39_consolidate_policy_extreme_age() {
 async fn test_40_compare_contexts_large_id_array() {
     let (_dir, handler) = setup_empty().await;
     let ids: Vec<u64> = (1..=500).collect();
-    call_tool_ok(&handler, 1, "vision_compare_contexts", json!({
-        "capture_ids": ids
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_compare_contexts",
+        json!({
+            "capture_ids": ids
+        }),
+    )
+    .await;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -763,7 +910,10 @@ async fn test_44_rapid_mixed_tools_60() {
         ("vision_truth_check", json!({ "claim": "test" })),
         ("vision_reason", json!({ "observation": "test" })),
         ("vision_semantic_find", json!({ "role": "nav" })),
-        ("vision_regression_predict", json!({ "change_description": "test" })),
+        (
+            "vision_regression_predict",
+            json!({ "change_description": "test" }),
+        ),
         ("vision_dejavu_patterns", json!({})),
     ];
 
@@ -834,9 +984,15 @@ async fn test_45_rapid_concurrent_10_tasks() {
 #[tokio::test]
 async fn test_46_compare_contexts_real_captures() {
     let (_dir, handler, ids) = setup_with_captures(3).await;
-    let resp = call_tool_ok(&handler, 1, "vision_compare_contexts", json!({
-        "capture_ids": [ids[0], ids[1], ids[2]]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_compare_contexts",
+        json!({
+            "capture_ids": [ids[0], ids[1], ids[2]]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty(), "Expected non-empty response text");
 }
@@ -845,9 +1001,15 @@ async fn test_46_compare_contexts_real_captures() {
 #[tokio::test]
 async fn test_47_dejavu_check_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(2).await;
-    let resp = call_tool_ok(&handler, 1, "vision_dejavu_check", json!({
-        "capture_id": ids[0]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_dejavu_check",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty());
 }
@@ -856,9 +1018,15 @@ async fn test_47_dejavu_check_real_capture() {
 #[tokio::test]
 async fn test_48_attention_predict_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    let resp = call_tool_ok(&handler, 1, "vision_attention_predict", json!({
-        "capture_id": ids[0]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_attention_predict",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty());
 }
@@ -867,9 +1035,15 @@ async fn test_48_attention_predict_real_capture() {
 #[tokio::test]
 async fn test_49_semantic_analyze_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    let resp = call_tool_ok(&handler, 1, "vision_semantic_analyze", json!({
-        "capture_id": ids[0]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_semantic_analyze",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty());
 }
@@ -878,9 +1052,15 @@ async fn test_49_semantic_analyze_real_capture() {
 #[tokio::test]
 async fn test_50_semantic_intent_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    let resp = call_tool_ok(&handler, 1, "vision_semantic_intent", json!({
-        "capture_id": ids[0]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_semantic_intent",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty());
 }
@@ -889,9 +1069,15 @@ async fn test_50_semantic_intent_real_capture() {
 #[tokio::test]
 async fn test_51_gestalt_analyze_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    let resp = call_tool_ok(&handler, 1, "vision_gestalt_analyze", json!({
-        "capture_id": ids[0]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_gestalt_analyze",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty());
 }
@@ -900,9 +1086,15 @@ async fn test_51_gestalt_analyze_real_capture() {
 #[tokio::test]
 async fn test_52_gestalt_harmony_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    let resp = call_tool_ok(&handler, 1, "vision_gestalt_harmony", json!({
-        "capture_id": ids[0]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_gestalt_harmony",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty());
 }
@@ -911,9 +1103,15 @@ async fn test_52_gestalt_harmony_real_capture() {
 #[tokio::test]
 async fn test_53_gestalt_improve_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    let resp = call_tool_ok(&handler, 1, "vision_gestalt_improve", json!({
-        "capture_id": ids[0]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_gestalt_improve",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty());
 }
@@ -922,9 +1120,15 @@ async fn test_53_gestalt_improve_real_capture() {
 #[tokio::test]
 async fn test_54_traverse_binding_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    let resp = call_tool_ok(&handler, 1, "vision_traverse_binding", json!({
-        "capture_id": ids[0]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_traverse_binding",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty());
 }
@@ -933,9 +1137,15 @@ async fn test_54_traverse_binding_real_capture() {
 #[tokio::test]
 async fn test_55_prophecy_diff_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    let resp = call_tool_ok(&handler, 1, "vision_prophecy_diff", json!({
-        "capture_id": ids[0], "change_description": "Move button to top"
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_prophecy_diff",
+        json!({
+            "capture_id": ids[0], "change_description": "Move button to top"
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty());
 }
@@ -948,177 +1158,291 @@ async fn test_55_prophecy_diff_real_capture() {
 #[tokio::test]
 async fn test_56_bind_memory_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_bind_memory", json!({
-        "capture_id": ids[0], "memory_node_id": "mem_999", "binding_type": "fact_about"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_bind_memory",
+        json!({
+            "capture_id": ids[0], "memory_node_id": "mem_999", "binding_type": "fact_about"
+        }),
+    )
+    .await;
 }
 
 /// Test 57: vision_bind_identity with real capture.
 #[tokio::test]
 async fn test_57_bind_identity_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_bind_identity", json!({
-        "capture_id": ids[0], "receipt_id": "arec_edge", "binding_type": "modified_by"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_bind_identity",
+        json!({
+            "capture_id": ids[0], "receipt_id": "arec_edge", "binding_type": "modified_by"
+        }),
+    )
+    .await;
 }
 
 /// Test 58: vision_bind_time with real capture.
 #[tokio::test]
 async fn test_58_bind_time_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_bind_time", json!({
-        "capture_id": ids[0], "entity_id": "release_v3", "binding_type": "has_deadline"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_bind_time",
+        json!({
+            "capture_id": ids[0], "entity_id": "release_v3", "binding_type": "has_deadline"
+        }),
+    )
+    .await;
 }
 
 /// Test 59: vision_bind_code with real capture.
 #[tokio::test]
 async fn test_59_bind_code_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_bind_code", json!({
-        "capture_id": ids[0], "code_node_id": "node_app_tsx", "binding_type": "rendered_by"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_bind_code",
+        json!({
+            "capture_id": ids[0], "code_node_id": "node_app_tsx", "binding_type": "rendered_by"
+        }),
+    )
+    .await;
 }
 
 /// Test 60: vision_phantom_create with real capture.
 #[tokio::test]
 async fn test_60_phantom_create_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_phantom_create", json!({
-        "base_capture": ids[0],
-        "modifications": [
-            { "mod_type": "layout", "target": "header", "modification": "move to bottom" }
-        ]
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_phantom_create",
+        json!({
+            "base_capture": ids[0],
+            "modifications": [
+                { "mod_type": "layout", "target": "header", "modification": "move to bottom" }
+            ]
+        }),
+    )
+    .await;
 }
 
 /// Test 61: vision_phantom_compare with real capture.
 #[tokio::test]
 async fn test_61_phantom_compare_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_phantom_compare", json!({
-        "real_capture": ids[0], "phantom_id": "phantom_edge"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_phantom_compare",
+        json!({
+            "real_capture": ids[0], "phantom_id": "phantom_edge"
+        }),
+    )
+    .await;
 }
 
 /// Test 62: vision_phantom_ab_test with real capture.
 #[tokio::test]
 async fn test_62_phantom_ab_test_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_phantom_ab_test", json!({
-        "base_capture": ids[0], "variant_description": "Dark mode variant"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_phantom_ab_test",
+        json!({
+            "base_capture": ids[0], "variant_description": "Dark mode variant"
+        }),
+    )
+    .await;
 }
 
 /// Test 63: vision_attention_optimize with real capture.
 #[tokio::test]
 async fn test_63_attention_optimize_real_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_attention_optimize", json!({
-        "capture_id": ids[0], "target_element": "sign-up button"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_attention_optimize",
+        json!({
+            "capture_id": ids[0], "target_element": "sign-up button"
+        }),
+    )
+    .await;
 }
 
 /// Test 64: vision_attention_compare with two real captures.
 #[tokio::test]
 async fn test_64_attention_compare_real_captures() {
     let (_dir, handler, ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_attention_compare", json!({
-        "capture_a": ids[0], "capture_b": ids[1]
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_attention_compare",
+        json!({
+            "capture_a": ids[0], "capture_b": ids[1]
+        }),
+    )
+    .await;
 }
 
 /// Test 65: vision_prophecy with real captures present.
 #[tokio::test]
 async fn test_65_prophecy_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_prophecy", json!({
-        "change_type": "layout", "target": "sidebar", "details": "collapse to icons"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_prophecy",
+        json!({
+            "change_type": "layout", "target": "sidebar", "details": "collapse to icons"
+        }),
+    )
+    .await;
 }
 
 /// Test 66: vision_prophecy_compare with real captures.
 #[tokio::test]
 async fn test_66_prophecy_compare_real_captures() {
     let (_dir, handler, ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_prophecy_compare", json!({
-        "capture_before": ids[0], "capture_after": ids[1]
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_prophecy_compare",
+        json!({
+            "capture_before": ids[0], "capture_after": ids[1]
+        }),
+    )
+    .await;
 }
 
 /// Test 67: vision_regression_history with captures.
 #[tokio::test]
 async fn test_67_regression_history_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(3).await;
-    call_tool_ok(&handler, 1, "vision_regression_history", json!({
-        "element": "login button"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_regression_history",
+        json!({
+            "element": "login button"
+        }),
+    )
+    .await;
 }
 
 /// Test 68: vision_compare_versions with real captures.
 #[tokio::test]
 async fn test_68_compare_versions_real_captures() {
     let (_dir, handler, ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_compare_versions", json!({
-        "capture_old": ids[0], "capture_new": ids[1]
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_compare_versions",
+        json!({
+            "capture_old": ids[0], "capture_new": ids[1]
+        }),
+    )
+    .await;
 }
 
 /// Test 69: vision_compare_devices with real captures.
 #[tokio::test]
 async fn test_69_compare_devices_real_captures() {
     let (_dir, handler, ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_compare_devices", json!({
-        "captures": [
-            { "capture_id": ids[0], "device": "Desktop Chrome" },
-            { "capture_id": ids[1], "device": "iPhone Safari" }
-        ]
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_compare_devices",
+        json!({
+            "captures": [
+                { "capture_id": ids[0], "device": "Desktop Chrome" },
+                { "capture_id": ids[1], "device": "iPhone Safari" }
+            ]
+        }),
+    )
+    .await;
 }
 
 /// Test 70: vision_hallucination_check with unicode and captures.
 #[tokio::test]
 async fn test_70_hallucination_check_unicode_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_hallucination_check", json!({
-        "ai_description": "该页面显示带有日本语ボタン的登录表单"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_hallucination_check",
+        json!({
+            "ai_description": "该页面显示带有日本语ボタン的登录表单"
+        }),
+    )
+    .await;
 }
 
 /// Test 71: vision_hallucination_fix with captures.
 #[tokio::test]
 async fn test_71_hallucination_fix_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_hallucination_fix", json!({
-        "claim": "I see a complex dashboard with 10 graphs"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_hallucination_fix",
+        json!({
+            "claim": "I see a complex dashboard with 10 graphs"
+        }),
+    )
+    .await;
 }
 
 /// Test 72: vision_truth_history with captures.
 #[tokio::test]
 async fn test_72_truth_history_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_truth_history", json!({
-        "subject": "page header color"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_truth_history",
+        json!({
+            "subject": "page header color"
+        }),
+    )
+    .await;
 }
 
 /// Test 73: vision_archaeology_reconstruct with captures.
 #[tokio::test]
 async fn test_73_archaeology_reconstruct_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_archaeology_reconstruct", json!({
-        "target": "navigation bar"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_archaeology_reconstruct",
+        json!({
+            "target": "navigation bar"
+        }),
+    )
+    .await;
 }
 
 /// Test 74: vision_archaeology_report with captures.
 #[tokio::test]
 async fn test_74_archaeology_report_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_archaeology_report", json!({
-        "target": "footer"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_archaeology_report",
+        json!({
+            "target": "footer"
+        }),
+    )
+    .await;
 }
 
 /// Test 75: vision_consolidate with captures present.
@@ -1139,18 +1463,30 @@ async fn test_76_consolidate_preview_with_captures() {
 #[tokio::test]
 async fn test_77_dejavu_alert_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(3).await;
-    call_tool_ok(&handler, 1, "vision_dejavu_alert", json!({
-        "pattern_labels": ["edge-test", "tiny"]
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_dejavu_alert",
+        json!({
+            "pattern_labels": ["edge-test", "tiny"]
+        }),
+    )
+    .await;
 }
 
 /// Test 78: vision_dejavu_patterns with captures.
 #[tokio::test]
 async fn test_78_dejavu_patterns_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(3).await;
-    call_tool_ok(&handler, 1, "vision_dejavu_patterns", json!({
-        "min_occurrences": 1
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_dejavu_patterns",
+        json!({
+            "min_occurrences": 1
+        }),
+    )
+    .await;
 }
 
 /// Test 79: vision_reconstruct at now-ish time with captures.
@@ -1161,81 +1497,135 @@ async fn test_79_reconstruct_with_captures() {
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    call_tool_ok(&handler, 1, "vision_reconstruct", json!({
-        "target_time": now
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_reconstruct",
+        json!({
+            "target_time": now
+        }),
+    )
+    .await;
 }
 
 /// Test 80: vision_timeline with subject and captures.
 #[tokio::test]
 async fn test_80_timeline_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(3).await;
-    call_tool_ok(&handler, 1, "vision_timeline", json!({
-        "subject": "edge-test"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_timeline",
+        json!({
+            "subject": "edge-test"
+        }),
+    )
+    .await;
 }
 
 /// Test 81: vision_reason_about with captures.
 #[tokio::test]
 async fn test_81_reason_about_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_reason_about", json!({
-        "question": "What are the main UI elements visible?"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_reason_about",
+        json!({
+            "question": "What are the main UI elements visible?"
+        }),
+    )
+    .await;
 }
 
 /// Test 82: vision_reason_diagnose with captures.
 #[tokio::test]
 async fn test_82_reason_diagnose_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_reason_diagnose", json!({
-        "symptoms": ["Button is too small", "Text overlaps image"]
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_reason_diagnose",
+        json!({
+            "symptoms": ["Button is too small", "Text overlaps image"]
+        }),
+    )
+    .await;
 }
 
 /// Test 83: vision_verify_claim with captures.
 #[tokio::test]
 async fn test_83_verify_claim_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_verify_claim", json!({
-        "claim": "The captured image is a 1x1 pixel PNG"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_verify_claim",
+        json!({
+            "claim": "The captured image is a 1x1 pixel PNG"
+        }),
+    )
+    .await;
 }
 
 /// Test 84: vision_cite with captures.
 #[tokio::test]
 async fn test_84_cite_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_cite", json!({
-        "element": "the pixel at position 0,0"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_cite",
+        json!({
+            "element": "the pixel at position 0,0"
+        }),
+    )
+    .await;
 }
 
 /// Test 85: vision_contradict with captures.
 #[tokio::test]
 async fn test_85_contradict_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(1).await;
-    call_tool_ok(&handler, 1, "vision_contradict", json!({
-        "claim": "The captured image contains multiple colors"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_contradict",
+        json!({
+            "claim": "The captured image contains multiple colors"
+        }),
+    )
+    .await;
 }
 
 /// Test 86: vision_regression_predict with captures.
 #[tokio::test]
 async fn test_86_regression_predict_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_regression_predict", json!({
-        "change_description": "Increase all font sizes by 2px"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_regression_predict",
+        json!({
+            "change_description": "Increase all font sizes by 2px"
+        }),
+    )
+    .await;
 }
 
 /// Test 87: vision_regression_test with captures.
 #[tokio::test]
 async fn test_87_regression_test_with_captures() {
     let (_dir, handler, _ids) = setup_with_captures(2).await;
-    call_tool_ok(&handler, 1, "vision_regression_test", json!({
-        "target": "form layout"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_regression_test",
+        json!({
+            "target": "form layout"
+        }),
+    )
+    .await;
 }
 
 /// Test 88: Rapid-fire with captures — 30 calls across grounding tools.
@@ -1247,34 +1637,70 @@ async fn test_88_rapid_fire_grounding_with_captures() {
     for i in 0..30 {
         match i % 6 {
             0 => {
-                call_tool_ok(&handler, i, "vision_ground_claim", json!({
-                    "claim": format!("Claim with captures {i}")
-                })).await;
+                call_tool_ok(
+                    &handler,
+                    i,
+                    "vision_ground_claim",
+                    json!({
+                        "claim": format!("Claim with captures {i}")
+                    }),
+                )
+                .await;
             }
             1 => {
-                call_tool_ok(&handler, i, "vision_verify_claim", json!({
-                    "claim": format!("Verify {i}")
-                })).await;
+                call_tool_ok(
+                    &handler,
+                    i,
+                    "vision_verify_claim",
+                    json!({
+                        "claim": format!("Verify {i}")
+                    }),
+                )
+                .await;
             }
             2 => {
-                call_tool_ok(&handler, i, "vision_hallucination_check", json!({
-                    "ai_description": format!("AI says {i}")
-                })).await;
+                call_tool_ok(
+                    &handler,
+                    i,
+                    "vision_hallucination_check",
+                    json!({
+                        "ai_description": format!("AI says {i}")
+                    }),
+                )
+                .await;
             }
             3 => {
-                call_tool_ok(&handler, i, "vision_truth_check", json!({
-                    "claim": format!("Truth {i}")
-                })).await;
+                call_tool_ok(
+                    &handler,
+                    i,
+                    "vision_truth_check",
+                    json!({
+                        "claim": format!("Truth {i}")
+                    }),
+                )
+                .await;
             }
             4 => {
-                call_tool_ok(&handler, i, "vision_compare_contexts", json!({
-                    "capture_ids": [ids[0], ids[1]]
-                })).await;
+                call_tool_ok(
+                    &handler,
+                    i,
+                    "vision_compare_contexts",
+                    json!({
+                        "capture_ids": [ids[0], ids[1]]
+                    }),
+                )
+                .await;
             }
             _ => {
-                call_tool_ok(&handler, i, "vision_contradict", json!({
-                    "claim": format!("Contradiction {i}")
-                })).await;
+                call_tool_ok(
+                    &handler,
+                    i,
+                    "vision_contradict",
+                    json!({
+                        "claim": format!("Contradiction {i}")
+                    }),
+                )
+                .await;
             }
         }
     }
@@ -1292,26 +1718,56 @@ async fn test_88_rapid_fire_grounding_with_captures() {
 async fn test_89_all_bindings_on_single_capture() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
 
-    call_tool_ok(&handler, 1, "vision_bind_code", json!({
-        "capture_id": ids[0], "code_node_id": "cmp_header", "binding_type": "rendered_by"
-    })).await;
+    call_tool_ok(
+        &handler,
+        1,
+        "vision_bind_code",
+        json!({
+            "capture_id": ids[0], "code_node_id": "cmp_header", "binding_type": "rendered_by"
+        }),
+    )
+    .await;
 
-    call_tool_ok(&handler, 2, "vision_bind_memory", json!({
-        "capture_id": ids[0], "memory_node_id": "mem_100", "binding_type": "fact_about"
-    })).await;
+    call_tool_ok(
+        &handler,
+        2,
+        "vision_bind_memory",
+        json!({
+            "capture_id": ids[0], "memory_node_id": "mem_100", "binding_type": "fact_about"
+        }),
+    )
+    .await;
 
-    call_tool_ok(&handler, 3, "vision_bind_identity", json!({
-        "capture_id": ids[0], "receipt_id": "arec_500", "binding_type": "modified_by"
-    })).await;
+    call_tool_ok(
+        &handler,
+        3,
+        "vision_bind_identity",
+        json!({
+            "capture_id": ids[0], "receipt_id": "arec_500", "binding_type": "modified_by"
+        }),
+    )
+    .await;
 
-    call_tool_ok(&handler, 4, "vision_bind_time", json!({
-        "capture_id": ids[0], "entity_id": "sprint_42", "binding_type": "has_deadline"
-    })).await;
+    call_tool_ok(
+        &handler,
+        4,
+        "vision_bind_time",
+        json!({
+            "capture_id": ids[0], "entity_id": "sprint_42", "binding_type": "has_deadline"
+        }),
+    )
+    .await;
 
     // Now traverse and verify we get something
-    let resp = call_tool_ok(&handler, 5, "vision_traverse_binding", json!({
-        "capture_id": ids[0]
-    })).await;
+    let resp = call_tool_ok(
+        &handler,
+        5,
+        "vision_traverse_binding",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     let text = extract_tool_text(&resp);
     assert!(!text.is_empty(), "Traverse should return bindings");
 }
@@ -1321,18 +1777,36 @@ async fn test_89_all_bindings_on_single_capture() {
 async fn test_90_full_gestalt_pipeline() {
     let (_dir, handler, ids) = setup_with_captures(1).await;
 
-    let analyze_resp = call_tool_ok(&handler, 1, "vision_gestalt_analyze", json!({
-        "capture_id": ids[0]
-    })).await;
+    let analyze_resp = call_tool_ok(
+        &handler,
+        1,
+        "vision_gestalt_analyze",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     assert!(!extract_tool_text(&analyze_resp).is_empty());
 
-    let harmony_resp = call_tool_ok(&handler, 2, "vision_gestalt_harmony", json!({
-        "capture_id": ids[0]
-    })).await;
+    let harmony_resp = call_tool_ok(
+        &handler,
+        2,
+        "vision_gestalt_harmony",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     assert!(!extract_tool_text(&harmony_resp).is_empty());
 
-    let improve_resp = call_tool_ok(&handler, 3, "vision_gestalt_improve", json!({
-        "capture_id": ids[0]
-    })).await;
+    let improve_resp = call_tool_ok(
+        &handler,
+        3,
+        "vision_gestalt_improve",
+        json!({
+            "capture_id": ids[0]
+        }),
+    )
+    .await;
     assert!(!extract_tool_text(&improve_resp).is_empty());
 }
