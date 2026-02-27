@@ -4,6 +4,7 @@
 pub mod cli;
 
 pub mod capture;
+pub mod contracts;
 pub mod diff;
 pub mod embedding;
 pub mod similarity;

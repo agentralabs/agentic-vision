@@ -23,9 +23,12 @@ required-features = ["cli"]
 
 [features]
 default = ["cli"]
-cli = ["dep:clap", "dep:clap_complete", "dep:rustyline", "dep:chrono"]
+cli = ["dep:clap", "dep:clap_complete", "dep:rustyline"]
 
 [dependencies]
+# Contracts (shared sister traits)
+agentic-contracts = { workspace = true }
+
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
@@ -35,12 +38,13 @@ ndarray = "0.17"
 memmap2 = "0.9"
 tracing = "0.1"
 base64 = "0.22"
+chrono = { version = "0.4", features = ["serde"] }
+blake3 = "1.5"
 
 # CLI (optional, behind "cli" feature)
 clap = { version = "4", features = ["derive"], optional = true }
 clap_complete = { version = "4", optional = true }
 rustyline = { version = "14", optional = true }
-chrono = { version = "0.4", optional = true }
 
 [dev-dependencies]
 tempfile = "3.9"
