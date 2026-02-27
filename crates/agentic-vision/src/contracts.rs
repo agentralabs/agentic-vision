@@ -26,15 +26,11 @@ use crate::types::{VisionError, VisualMemoryStore, VisualObservation};
 impl From<VisionError> for SisterError {
     fn from(e: VisionError) -> Self {
         match &e {
-            VisionError::CaptureNotFound(id) => {
-                SisterError::not_found(format!("capture {}", id))
-            }
+            VisionError::CaptureNotFound(id) => SisterError::not_found(format!("capture {}", id)),
             VisionError::InvalidInput(msg) => {
                 SisterError::new(ErrorCode::InvalidInput, msg.clone())
             }
-            VisionError::Storage(msg) => {
-                SisterError::new(ErrorCode::StorageError, msg.clone())
-            }
+            VisionError::Storage(msg) => SisterError::new(ErrorCode::StorageError, msg.clone()),
             VisionError::Io(io_err) => {
                 SisterError::new(ErrorCode::StorageError, format!("I/O error: {}", io_err))
             }
@@ -47,9 +43,10 @@ impl From<VisionError> for SisterError {
             VisionError::Capture(msg) => {
                 SisterError::new(ErrorCode::VisionError, format!("Capture error: {}", msg))
             }
-            VisionError::ModelNotAvailable(msg) => {
-                SisterError::new(ErrorCode::VisionError, format!("Model not available: {}", msg))
-            }
+            VisionError::ModelNotAvailable(msg) => SisterError::new(
+                ErrorCode::VisionError,
+                format!("Model not available: {}", msg),
+            ),
         }
     }
 }
@@ -128,16 +125,13 @@ impl Sister for VisionSister {
     where
         Self: Sized,
     {
-        let embedding_dim = config
-            .get_option::<u32>("embedding_dim")
-            .unwrap_or(512);
+        let embedding_dim = config.get_option::<u32>("embedding_dim").unwrap_or(512);
 
         let file_path = config.data_path.clone();
 
         let store = if let Some(ref path) = file_path {
             if path.exists() {
-                AvisReader::read_from_file(path)
-                    .map_err(SisterError::from)?
+                AvisReader::read_from_file(path).map_err(SisterError::from)?
             } else if config.create_if_missing {
                 VisualMemoryStore::new(embedding_dim)
             } else {
@@ -180,8 +174,7 @@ impl Sister for VisionSister {
 
         // Save to file if path is set
         if let Some(ref path) = self.file_path {
-            AvisWriter::write_to_file(&self.store, path)
-                .map_err(SisterError::from)?;
+            AvisWriter::write_to_file(&self.store, path).map_err(SisterError::from)?;
         }
 
         Ok(())
@@ -189,13 +182,28 @@ impl Sister for VisionSister {
 
     fn capabilities(&self) -> Vec<Capability> {
         vec![
-            Capability::new("vision_capture", "Capture an image and store in visual memory"),
+            Capability::new(
+                "vision_capture",
+                "Capture an image and store in visual memory",
+            ),
             Capability::new("vision_query", "Search visual memory by filters"),
             Capability::new("vision_compare", "Compare two captures for similarity"),
-            Capability::new("vision_ground", "Verify visual claims against stored captures"),
-            Capability::new("vision_evidence", "Get detailed evidence for a visual query"),
-            Capability::new("vision_suggest", "Find similar captures when exact match fails"),
-            Capability::new("vision_similar", "Find visually similar captures by embedding"),
+            Capability::new(
+                "vision_ground",
+                "Verify visual claims against stored captures",
+            ),
+            Capability::new(
+                "vision_evidence",
+                "Get detailed evidence for a visual query",
+            ),
+            Capability::new(
+                "vision_suggest",
+                "Find similar captures when exact match fails",
+            ),
+            Capability::new(
+                "vision_similar",
+                "Find visually similar captures by embedding",
+            ),
             Capability::new("vision_diff", "Get pixel-level diff between two captures"),
             Capability::new("vision_track", "Configure tracking for a UI region"),
             Capability::new("observation_log", "Log observation intent and context"),
@@ -248,9 +256,10 @@ impl SessionManagement for VisionSister {
     }
 
     fn current_session_info(&self) -> SisterResult<ContextInfo> {
-        let session = self.current_session.as_ref().ok_or_else(|| {
-            SisterError::new(ErrorCode::InvalidState, "No active session")
-        })?;
+        let session = self
+            .current_session
+            .as_ref()
+            .ok_or_else(|| SisterError::new(ErrorCode::InvalidState, "No active session"))?;
 
         let captures_in_session = self.store.count() - session.capture_count_at_start;
 
@@ -372,10 +381,7 @@ impl Grounding for VisionSister {
                     text.push(' ');
                 }
 
-                let matched = claim_words
-                    .iter()
-                    .filter(|w| text.contains(**w))
-                    .count();
+                let matched = claim_words.iter().filter(|w| text.contains(**w)).count();
                 let score = matched as f64 / claim_words.len() as f64;
                 (score, obs)
             })
@@ -386,16 +392,15 @@ impl Grounding for VisionSister {
 
         if scored.is_empty() {
             return Ok(
-                GroundingResult::ungrounded(claim, "No matching captures found")
-                    .with_suggestions(
-                        self.store
-                            .observations
-                            .iter()
-                            .rev()
-                            .take(3)
-                            .filter_map(|o| o.metadata.description.clone())
-                            .collect(),
-                    ),
+                GroundingResult::ungrounded(claim, "No matching captures found").with_suggestions(
+                    self.store
+                        .observations
+                        .iter()
+                        .rev()
+                        .take(3)
+                        .filter_map(|o| o.metadata.description.clone())
+                        .collect(),
+                ),
             );
         }
 
@@ -409,10 +414,15 @@ impl Grounding for VisionSister {
                     .description
                     .clone()
                     .unwrap_or_else(|| format!("capture_{}", obs.id));
-                GroundingEvidence::new("visual_capture", format!("capture_{}", obs.id), *score, &desc)
-                    .with_data("labels", obs.metadata.labels.clone())
-                    .with_data("session_id", obs.session_id)
-                    .with_data("quality_score", obs.metadata.quality_score)
+                GroundingEvidence::new(
+                    "visual_capture",
+                    format!("capture_{}", obs.id),
+                    *score,
+                    &desc,
+                )
+                .with_data("labels", obs.metadata.labels.clone())
+                .with_data("session_id", obs.session_id)
+                .with_data("quality_score", obs.metadata.quality_score)
             })
             .collect();
 
@@ -446,10 +456,7 @@ impl Grounding for VisionSister {
                     text.push(' ');
                 }
 
-                let matched = query_words
-                    .iter()
-                    .filter(|w| text.contains(**w))
-                    .count();
+                let matched = query_words.iter().filter(|w| text.contains(**w)).count();
                 let score = if query_words.is_empty() {
                     0.0
                 } else {
@@ -466,8 +473,8 @@ impl Grounding for VisionSister {
             .into_iter()
             .take(max_results)
             .map(|(score, obs)| {
-                let created_at = chrono::DateTime::from_timestamp(obs.timestamp as i64, 0)
-                    .unwrap_or_default();
+                let created_at =
+                    chrono::DateTime::from_timestamp(obs.timestamp as i64, 0).unwrap_or_default();
 
                 EvidenceDetail {
                     evidence_type: "visual_capture".to_string(),
@@ -517,10 +524,7 @@ impl Grounding for VisionSister {
                     text.push(' ');
                 }
 
-                let matched = query_words
-                    .iter()
-                    .filter(|w| text.contains(**w))
-                    .count();
+                let matched = query_words.iter().filter(|w| text.contains(**w)).count();
                 let score = if query_words.is_empty() {
                     0.0
                 } else {
@@ -668,10 +672,8 @@ impl Queryable for VisionSister {
             QueryTypeInfo::new("search", "Search captures by description/labels")
                 .required(vec!["text"])
                 .optional(vec!["limit"]),
-            QueryTypeInfo::new("recent", "Get most recent captures")
-                .optional(vec!["limit"]),
-            QueryTypeInfo::new("get", "Get a specific capture by ID")
-                .required(vec!["id"]),
+            QueryTypeInfo::new("recent", "Get most recent captures").optional(vec!["limit"]),
+            QueryTypeInfo::new("get", "Get a specific capture by ID").required(vec!["id"]),
         ]
     }
 }
@@ -682,8 +684,7 @@ impl Queryable for VisionSister {
 
 impl FileFormatReader for VisionSister {
     fn read_file(path: &Path) -> SisterResult<Self> {
-        let store = AvisReader::read_from_file(path)
-            .map_err(SisterError::from)?;
+        let store = AvisReader::read_from_file(path).map_err(SisterError::from)?;
         Ok(Self::from_store(store, Some(path.to_path_buf())))
     }
 
@@ -716,7 +717,9 @@ impl FileFormatReader for VisionSister {
             version: Version::new(version as u8, 0, 0),
             created_at: chrono::Utc::now(),
             updated_at: chrono::DateTime::from(
-                metadata.modified().unwrap_or(std::time::SystemTime::UNIX_EPOCH),
+                metadata
+                    .modified()
+                    .unwrap_or(std::time::SystemTime::UNIX_EPOCH),
             ),
             content_length: metadata.len(),
             needs_migration: version < 1,
@@ -747,14 +750,12 @@ impl FileFormatReader for VisionSister {
 
 impl FileFormatWriter for VisionSister {
     fn write_file(&self, path: &Path) -> SisterResult<()> {
-        AvisWriter::write_to_file(&self.store, path)
-            .map_err(SisterError::from)
+        AvisWriter::write_to_file(&self.store, path).map_err(SisterError::from)
     }
 
     fn to_bytes(&self) -> SisterResult<Vec<u8>> {
         let mut buffer = Vec::new();
-        AvisWriter::write_to(&self.store, &mut buffer)
-            .map_err(SisterError::from)?;
+        AvisWriter::write_to(&self.store, &mut buffer).map_err(SisterError::from)?;
         Ok(buffer)
     }
 }
@@ -769,12 +770,15 @@ mod tests {
     use crate::types::{CaptureSource, ObservationMeta};
 
     fn make_test_sister() -> VisionSister {
-        let config = SisterConfig::stateless()
-            .option("embedding_dim", 512u32);
+        let config = SisterConfig::stateless().option("embedding_dim", 512u32);
         VisionSister::init(config).unwrap()
     }
 
-    fn make_test_observation(session_id: u32, description: &str, labels: Vec<&str>) -> VisualObservation {
+    fn make_test_observation(
+        session_id: u32,
+        description: &str,
+        labels: Vec<&str>,
+    ) -> VisualObservation {
         VisualObservation {
             id: 0, // will be assigned by store
             timestamp: std::time::SystemTime::now()
@@ -869,8 +873,7 @@ mod tests {
         // Ground a claim that should match
         let result = sister.ground("login page blue").unwrap();
         assert!(
-            result.status == GroundingStatus::Verified
-                || result.status == GroundingStatus::Partial,
+            result.status == GroundingStatus::Verified || result.status == GroundingStatus::Partial,
             "Expected verified or partial, got {:?}",
             result.status
         );
@@ -888,7 +891,10 @@ mod tests {
         add_test_captures(&mut sister);
 
         let evidence = sister.evidence("settings dark mode", 10).unwrap();
-        assert!(!evidence.is_empty(), "Expected evidence for 'settings dark mode'");
+        assert!(
+            !evidence.is_empty(),
+            "Expected evidence for 'settings dark mode'"
+        );
         assert_eq!(evidence[0].source_sister, SisterType::Vision);
     }
 
