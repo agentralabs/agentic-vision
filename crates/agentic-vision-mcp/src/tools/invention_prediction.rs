@@ -137,6 +137,7 @@ pub async fn execute_vision_prophecy(
         change_type: String,
         target: String,
         details: String,
+        #[allow(dead_code)]
         capture_id: Option<u64>,
     }
     let p: P = serde_json::from_value(args).map_err(|e| McpError::InvalidParams(e.to_string()))?;
@@ -335,7 +336,7 @@ pub async fn execute_vision_regression_predict(
     let p: P = serde_json::from_value(args).map_err(|e| McpError::InvalidParams(e.to_string()))?;
 
     let session = session.lock().await;
-    let store = session.store();
+    let _store = session.store();
 
     let desc_lower = p.change_description.to_lowercase();
 
