@@ -405,6 +405,19 @@ Configure Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_c
 }
 ```
 
+Configure VS Code / Cursor (`.vscode/settings.json`):
+
+```json
+{
+  "mcp.servers": {
+    "agentic-vision": {
+      "command": "agentic-vision-mcp",
+      "args": ["--vision", "~/.vision.avis", "serve"]
+    }
+  }
+}
+```
+
 `agentic-vision-mcp` supports both line-delimited JSON-RPC and `Content-Length` framed MCP stdio messages.
 
 ---

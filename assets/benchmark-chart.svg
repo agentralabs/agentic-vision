@@ -5,11 +5,11 @@
     </pattern>
     <style><![CDATA[
       .mono { font-family:'IBM Plex Mono','JetBrains Mono',monospace; }
-      .ink { fill:#121212; }
+      .ink { fill:#111111; }
       .muted { fill:#6d6a63; }
       .accent { fill:#ea580c; }
       .frame { fill:#fffdf6; stroke:#1f1f1f; stroke-width:2; }
-      .bar-fast { fill:#121212; }
+      .bar-fast { fill:#111111; }
       .bar-mid { fill:#4f4a43; }
       .bar-slow { fill:#ea580c; }
     ]]></style>
