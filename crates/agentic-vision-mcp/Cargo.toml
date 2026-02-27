@@ -5,6 +5,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 authors.workspace = true
+homepage.workspace = true
 description = "MCP server for AgenticVision — universal LLM access to persistent visual memory"
 readme = "README.md"
 keywords = ["mcp", "llm", "vision", "agent", "ai"]
@@ -12,7 +13,7 @@ categories = ["development-tools", "multimedia::images"]
 exclude = [".DS_Store"]
 
 [dependencies]
-agentic-vision = { version = "0.2.5", path = "../agentic-vision" }
+agentic-vision = { version = "0.3.0", path = "../agentic-vision" }
 image = "0.25"
 
 serde = { version = "1.0", features = ["derive"] }
