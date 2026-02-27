@@ -131,11 +131,7 @@ pub async fn execute_vision_at_time(
     let mut captures: Vec<Value> = Vec::new();
 
     for obs in &store.observations {
-        let dist = if obs.timestamp > p.target_time {
-            obs.timestamp - p.target_time
-        } else {
-            p.target_time - obs.timestamp
-        };
+        let dist = obs.timestamp.abs_diff(p.target_time);
         if dist > p.tolerance_seconds {
             continue;
         }

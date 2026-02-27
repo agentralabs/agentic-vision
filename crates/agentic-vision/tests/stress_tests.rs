@@ -334,7 +334,7 @@ fn stress_avis_file_round_trip_heavy() {
 #[test]
 fn edge_avis_corrupted_magic_bytes() {
     // Valid header length but wrong magic
-    let mut buf = vec![0u8; 128];
+    let mut buf = [0u8; 128];
     buf[0..4].copy_from_slice(&[0xDE, 0xAD, 0xBE, 0xEF]);
     let result = AvisReader::read_from(&mut &buf[..]);
     assert!(result.is_err(), "corrupted magic should fail");
@@ -348,7 +348,7 @@ fn edge_avis_corrupted_magic_bytes() {
 #[test]
 fn edge_avis_truncated_header() {
     // Header is 64 bytes; supply only 10
-    let buf = vec![0u8; 10];
+    let buf = [0u8; 10];
     let result = AvisReader::read_from(&mut &buf[..]);
     assert!(result.is_err(), "truncated header should fail");
 }

@@ -504,7 +504,7 @@ pub async fn execute_vision_hallucination_check(
     // Split description into sentences/claims
     let claims: Vec<&str> = p
         .ai_description
-        .split(|c: char| c == '.' || c == '\n')
+        .split(['.', '\n'])
         .map(|s| s.trim())
         .filter(|s| s.len() > 5)
         .collect();
@@ -696,11 +696,7 @@ pub async fn execute_vision_truth_check(
         }
 
         if let Some(est) = p.established_at {
-            let dist = if obs.timestamp > est {
-                obs.timestamp - est
-            } else {
-                est - obs.timestamp
-            };
+            let dist = obs.timestamp.abs_diff(est);
             if dist < 3600 && score > old_score {
                 old_score = score;
                 old_evidence = Some(json!({
@@ -719,9 +715,7 @@ pub async fn execute_vision_truth_check(
 
     let status = if new_score > 0.4 {
         "valid"
-    } else if new_evidence.is_some() {
-        "stale"
-    } else if old_evidence.is_some() {
+    } else if new_evidence.is_some() || old_evidence.is_some() {
         "stale"
     } else {
         "unknown"
