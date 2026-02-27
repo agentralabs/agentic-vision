@@ -200,8 +200,13 @@ impl ProtocolHandler {
             .map(|a| truncate_json_summary(a, 200))
             .unwrap_or_default();
 
-        let result =
-            ToolRegistry::call(&call_params.name, call_params.arguments, &self.session).await?;
+        // Classify errors: protocol errors (ToolNotFound etc.) become JSON-RPC errors;
+        // tool execution errors (CaptureNotFound, VisionError, etc.) become isError: true.
+        let result = match ToolRegistry::call(&call_params.name, call_params.arguments, &self.session).await {
+            Ok(r) => r,
+            Err(e) if e.is_protocol_error() => return Err(e),
+            Err(e) => ToolCallResult::error(e.to_string()),
+        };
 
         // Auto-capture tool context into the session log.
         // Skip logging observation_log calls to avoid recursion.

@@ -91,6 +91,25 @@ pub enum McpError {
 }
 
 impl McpError {
+    /// Returns true if this is a protocol-level error (should be a JSON-RPC error).
+    /// Tool execution errors (capture not found, vision error, etc.) return false
+    /// and should use `ToolCallResult::error()` with `isError: true` instead.
+    pub fn is_protocol_error(&self) -> bool {
+        matches!(
+            self,
+            McpError::ParseError(_)
+                | McpError::InvalidRequest(_)
+                | McpError::MethodNotFound(_)
+                | McpError::ToolNotFound(_)
+                | McpError::RequestCancelled
+                | McpError::ContentTooLarge { .. }
+                | McpError::ResourceNotFound(_)
+                | McpError::PromptNotFound(_)
+                | McpError::Unauthorized
+                | McpError::UserNotFound(_)
+        )
+    }
+
     pub fn code(&self) -> i32 {
         use error_codes::*;
         use mcp_error_codes::*;
