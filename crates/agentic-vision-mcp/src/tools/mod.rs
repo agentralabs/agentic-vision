@@ -13,6 +13,7 @@ pub mod vision_health;
 pub mod vision_link;
 pub mod vision_ocr;
 pub mod vision_query;
+pub mod vision_session_resume;
 pub mod vision_similar;
 pub mod vision_suggest;
 pub mod vision_track;

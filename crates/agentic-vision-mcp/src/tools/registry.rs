@@ -11,8 +11,9 @@ use crate::types::{McpError, McpResult, ToolCallResult, ToolDefinition};
 use super::{
     observation_log, session_end, session_start, vision_capture, vision_compare, vision_diff,
     vision_evidence, vision_ground, vision_health, vision_link, vision_ocr, vision_query,
-    vision_similar, vision_suggest, vision_track, vision_workspace_add, vision_workspace_compare,
-    vision_workspace_create, vision_workspace_list, vision_workspace_query, vision_workspace_xref,
+    vision_session_resume, vision_similar, vision_suggest, vision_track, vision_workspace_add,
+    vision_workspace_compare, vision_workspace_create, vision_workspace_list,
+    vision_workspace_query, vision_workspace_xref,
 };
 
 // V3: 16 Perception Inventions
@@ -50,6 +51,7 @@ impl ToolRegistry {
             // Session lifecycle
             session_start::definition(),
             session_end::definition(),
+            vision_session_resume::definition(),
             // ── V3: Invention 1 — Visual Grounding ──
             invention_grounding::definition_vision_ground_claim(),
             invention_grounding::definition_vision_verify_claim(),
@@ -180,6 +182,7 @@ impl ToolRegistry {
             // Session
             "session_start" => session_start::execute(args, session).await,
             "session_end" => session_end::execute(args, session).await,
+            "vision_session_resume" => vision_session_resume::execute(args, session).await,
             // ── V3: Grounding Inventions (1–4) ──
             "vision_ground_claim" => {
                 invention_grounding::execute_vision_ground_claim(args, session).await

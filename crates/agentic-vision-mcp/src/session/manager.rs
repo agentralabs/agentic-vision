@@ -72,6 +72,9 @@ pub struct VisionSessionManager {
     dirty: bool,
     last_save: Instant,
     auto_save_interval: Duration,
+    auto_capture_mode: String,
+    auto_capture_redact: bool,
+    auto_capture_max_chars: usize,
     storage_budget_mode: StorageBudgetMode,
     storage_budget_max_bytes: u64,
     storage_budget_horizon_years: u32,
@@ -130,6 +133,17 @@ impl VisionSessionManager {
             }
         );
 
+        let auto_capture_mode =
+            read_env_string_any(&["CORTEX_AUTO_CAPTURE_MODE", "AUTO_CAPTURE_MODE"])
+                .unwrap_or_else(|| "full".to_string());
+        let auto_capture_redact =
+            read_env_bool_any(&["CORTEX_AUTO_CAPTURE_REDACT", "AUTO_CAPTURE_REDACT"], true);
+        let auto_capture_max_chars = read_env_usize_any(
+            &["CORTEX_AUTO_CAPTURE_MAX_CHARS", "AUTO_CAPTURE_MAX_CHARS"],
+            768,
+        )
+        .max(64);
+
         let storage_budget_mode = StorageBudgetMode::from_env("CORTEX_STORAGE_BUDGET_MODE");
         let storage_budget_max_bytes =
             read_env_u64("CORTEX_STORAGE_BUDGET_BYTES", DEFAULT_STORAGE_BUDGET_BYTES).max(1);
@@ -149,6 +163,9 @@ impl VisionSessionManager {
             dirty: false,
             last_save: Instant::now(),
             auto_save_interval: Duration::from_secs(DEFAULT_AUTO_SAVE_SECS),
+            auto_capture_mode,
+            auto_capture_redact,
+            auto_capture_max_chars,
             storage_budget_mode,
             storage_budget_max_bytes,
             storage_budget_horizon_years,
@@ -434,7 +451,16 @@ impl VisionSessionManager {
     }
 
     /// Record a tool call with context.
-    pub fn log_tool_call(&mut self, record: ToolCallRecord) {
+    pub fn log_tool_call(&mut self, mut record: ToolCallRecord) {
+        if self.auto_capture_mode.eq_ignore_ascii_case("off") {
+            return;
+        }
+        if self.auto_capture_redact {
+            record.summary = sanitize_metadata_text(&record.summary);
+        }
+        if record.summary.len() > self.auto_capture_max_chars {
+            record.summary.truncate(self.auto_capture_max_chars);
+        }
         tracing::info!(
             "[context] tool={} summary={} capture={:?}",
             record.tool_name,
@@ -696,6 +722,27 @@ pub struct VisionStorageBudgetStatus {
 
 fn read_env_string(name: &str) -> Option<String> {
     std::env::var(name).ok().map(|v| v.trim().to_string())
+}
+
+fn read_env_string_any(names: &[&str]) -> Option<String> {
+    names.iter().find_map(|name| read_env_string(name))
+}
+
+fn read_env_bool_any(names: &[&str], default_value: bool) -> bool {
+    read_env_string_any(names)
+        .map(|v| {
+            matches!(
+                v.trim().to_ascii_lowercase().as_str(),
+                "1" | "true" | "yes" | "on"
+            )
+        })
+        .unwrap_or(default_value)
+}
+
+fn read_env_usize_any(names: &[&str], default_value: usize) -> usize {
+    read_env_string_any(names)
+        .and_then(|v| v.parse::<usize>().ok())
+        .unwrap_or(default_value)
 }
 
 fn read_env_u64(name: &str, default_value: u64) -> u64 {

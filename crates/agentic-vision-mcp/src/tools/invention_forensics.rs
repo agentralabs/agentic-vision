@@ -257,10 +257,7 @@ fn extract_forensic_features(
     features.insert("label_count".to_string(), labels.len() as f64);
 
     // Description length
-    let desc_len = description
-        .as_ref()
-        .map(|d| d.len())
-        .unwrap_or(0);
+    let desc_len = description.as_ref().map(|d| d.len()).unwrap_or(0);
     features.insert("description_length".to_string(), desc_len as f64);
 
     // Embedding statistics
@@ -439,7 +436,9 @@ fn detect_change_types(
             .abs();
         findings.push(ForensicFinding {
             change_type: ForensicChangeType::SizeChanged.label().to_string(),
-            severity: ForensicSeverity::from_score(size_change.min(1.0)).label().to_string(),
+            severity: ForensicSeverity::from_score(size_change.min(1.0))
+                .label()
+                .to_string(),
             description: format!(
                 "Dimensions changed from {}x{} to {}x{}",
                 width_a, height_a, width_b, height_b
@@ -454,7 +453,9 @@ fn detect_change_types(
     if quality_diff > 0.1 {
         findings.push(ForensicFinding {
             change_type: ForensicChangeType::QualityChanged.label().to_string(),
-            severity: ForensicSeverity::from_score(quality_diff as f64).label().to_string(),
+            severity: ForensicSeverity::from_score(quality_diff as f64)
+                .label()
+                .to_string(),
             description: format!(
                 "Quality score changed from {:.2} to {:.2}",
                 quality_a, quality_b
@@ -499,7 +500,9 @@ fn detect_change_types(
         let change_score = 1.0 - desc_similarity;
         findings.push(ForensicFinding {
             change_type: ForensicChangeType::ContentModified.label().to_string(),
-            severity: ForensicSeverity::from_score(change_score).label().to_string(),
+            severity: ForensicSeverity::from_score(change_score)
+                .label()
+                .to_string(),
             description: format!(
                 "Description changed (similarity: {:.1}%)",
                 desc_similarity * 100.0
@@ -518,7 +521,9 @@ fn detect_change_types(
         };
         findings.push(ForensicFinding {
             change_type: change_type.label().to_string(),
-            severity: ForensicSeverity::from_score(embedding_dist).label().to_string(),
+            severity: ForensicSeverity::from_score(embedding_dist)
+                .label()
+                .to_string(),
             description: format!(
                 "Visual content changed (embedding distance: {:.3})",
                 embedding_dist
@@ -803,10 +808,7 @@ pub async fn execute_vision_forensic_diff(
 pub fn definition_vision_forensic_timeline() -> ToolDefinition {
     ToolDefinition {
         name: "vision_forensic_timeline".to_string(),
-        description: Some(
-            "Build forensic timeline of all visual changes in a session"
-                .to_string(),
-        ),
+        description: Some("Build forensic timeline of all visual changes in a session".to_string()),
         input_schema: json!({
             "type": "object",
             "properties": {
@@ -893,12 +895,13 @@ pub async fn execute_vision_forensic_timeline(
             max_change = max_change.max(change_score);
 
             for f in &findings {
-                *change_types_count
-                    .entry(f.change_type.clone())
-                    .or_insert(0) += 1;
+                *change_types_count.entry(f.change_type.clone()).or_insert(0) += 1;
             }
 
-            let primary_change = findings.first().map(|f| f.change_type.clone()).unwrap_or_default();
+            let primary_change = findings
+                .first()
+                .map(|f| f.change_type.clone())
+                .unwrap_or_default();
 
             timeline.push(json!({
                 "index": timeline.len(),
@@ -1397,10 +1400,7 @@ pub async fn execute_vision_anomaly_detect(
 pub fn definition_vision_anomaly_pattern() -> ToolDefinition {
     ToolDefinition {
         name: "vision_anomaly_pattern".to_string(),
-        description: Some(
-            "Detect recurring anomaly patterns across a capture series"
-                .to_string(),
-        ),
+        description: Some("Detect recurring anomaly patterns across a capture series".to_string()),
         input_schema: json!({
             "type": "object",
             "properties": {
@@ -1545,8 +1545,7 @@ pub fn definition_vision_anomaly_baseline() -> ToolDefinition {
     ToolDefinition {
         name: "vision_anomaly_baseline".to_string(),
         description: Some(
-            "Establish baseline statistics for a session to use in anomaly detection"
-                .to_string(),
+            "Establish baseline statistics for a session to use in anomaly detection".to_string(),
         ),
         input_schema: json!({
             "type": "object",
@@ -1760,9 +1759,10 @@ pub async fn execute_vision_anomaly_alert(
             let severity = ForensicSeverity::from_score((z / (threshold * 2.0)).min(1.0));
             match (&severity, &max_severity) {
                 (ForensicSeverity::Critical, _) => max_severity = ForensicSeverity::Critical,
-                (ForensicSeverity::High, ForensicSeverity::Info | ForensicSeverity::Low | ForensicSeverity::Medium) => {
-                    max_severity = ForensicSeverity::High
-                }
+                (
+                    ForensicSeverity::High,
+                    ForensicSeverity::Info | ForensicSeverity::Low | ForensicSeverity::Medium,
+                ) => max_severity = ForensicSeverity::High,
                 (ForensicSeverity::Medium, ForensicSeverity::Info | ForensicSeverity::Low) => {
                     max_severity = ForensicSeverity::Medium
                 }
@@ -1820,8 +1820,7 @@ pub fn definition_vision_regression_snapshot() -> ToolDefinition {
     ToolDefinition {
         name: "vision_regression_snapshot".to_string(),
         description: Some(
-            "Take a regression snapshot of a capture for future comparison"
-                .to_string(),
+            "Take a regression snapshot of a capture for future comparison".to_string(),
         ),
         input_schema: json!({
             "type": "object",
@@ -1864,9 +1863,7 @@ pub async fn execute_vision_regression_snapshot(
         &obs.metadata.description,
     );
 
-    let snapshot_name = p
-        .name
-        .unwrap_or_else(|| format!("snapshot_{}", obs.id));
+    let snapshot_name = p.name.unwrap_or_else(|| format!("snapshot_{}", obs.id));
 
     // Compute embedding hash for quick comparison
     let emb_hash = {
@@ -1904,8 +1901,7 @@ pub fn definition_vision_regression_check() -> ToolDefinition {
     ToolDefinition {
         name: "vision_regression_check".to_string(),
         description: Some(
-            "Check current capture against a reference capture for visual regression"
-                .to_string(),
+            "Check current capture against a reference capture for visual regression".to_string(),
         ),
         input_schema: json!({
             "type": "object",
@@ -1956,22 +1952,28 @@ pub async fn execute_vision_regression_check(
     let cos_sim = cosine_similarity(&obs_current.embedding, &obs_reference.embedding);
 
     // Size regression check
-    let size_match =
-        obs_current.metadata.width == obs_reference.metadata.width
-            && obs_current.metadata.height == obs_reference.metadata.height;
+    let size_match = obs_current.metadata.width == obs_reference.metadata.width
+        && obs_current.metadata.height == obs_reference.metadata.height;
 
     // Quality regression check
-    let quality_diff = (obs_current.metadata.quality_score - obs_reference.metadata.quality_score).abs();
-    let quality_regression = obs_current.metadata.quality_score < obs_reference.metadata.quality_score - 0.1;
+    let quality_diff =
+        (obs_current.metadata.quality_score - obs_reference.metadata.quality_score).abs();
+    let quality_regression =
+        obs_current.metadata.quality_score < obs_reference.metadata.quality_score - 0.1;
 
     // Label regression check
-    let ref_labels: std::collections::HashSet<&String> = obs_reference.metadata.labels.iter().collect();
-    let cur_labels: std::collections::HashSet<&String> = obs_current.metadata.labels.iter().collect();
+    let ref_labels: std::collections::HashSet<&String> =
+        obs_reference.metadata.labels.iter().collect();
+    let cur_labels: std::collections::HashSet<&String> =
+        obs_current.metadata.labels.iter().collect();
     let missing_labels: Vec<&&String> = ref_labels.difference(&cur_labels).collect();
     let new_labels: Vec<&&String> = cur_labels.difference(&ref_labels).collect();
 
     // Description change
-    let desc_similarity = match (&obs_current.metadata.description, &obs_reference.metadata.description) {
+    let desc_similarity = match (
+        &obs_current.metadata.description,
+        &obs_reference.metadata.description,
+    ) {
         (Some(dc), Some(dr)) => word_overlap(dc, dr),
         (None, None) => 1.0,
         _ => 0.0,
@@ -2043,8 +2045,7 @@ pub fn definition_vision_regression_report() -> ToolDefinition {
     ToolDefinition {
         name: "vision_regression_report".to_string(),
         description: Some(
-            "Generate a full regression report comparing captures across a session"
-                .to_string(),
+            "Generate a full regression report comparing captures across a session".to_string(),
         ),
         input_schema: json!({
             "type": "object",
@@ -2126,9 +2127,8 @@ pub async fn execute_vision_regression_report(
             _ => 0.0,
         };
 
-        let size_match =
-            obs.metadata.width == ref_obs.metadata.width
-                && obs.metadata.height == ref_obs.metadata.height;
+        let size_match = obs.metadata.width == ref_obs.metadata.width
+            && obs.metadata.height == ref_obs.metadata.height;
         let quality_diff = (obs.metadata.quality_score - ref_obs.metadata.quality_score).abs();
 
         let mut score = emb_dist * 0.4 + (1.0 - desc_sim) * 0.2;
@@ -2202,7 +2202,11 @@ mod tests {
     fn test_cosine_similarity_identical() {
         let a = vec![1.0f32, 2.0, 3.0];
         let sim = cosine_similarity(&a, &a);
-        assert!((sim - 1.0).abs() < 0.001, "Same vector should have sim ~1.0: {}", sim);
+        assert!(
+            (sim - 1.0).abs() < 0.001,
+            "Same vector should have sim ~1.0: {}",
+            sim
+        );
     }
 
     #[test]
@@ -2210,7 +2214,11 @@ mod tests {
         let a = vec![1.0f32, 0.0, 0.0];
         let b = vec![0.0f32, 1.0, 0.0];
         let sim = cosine_similarity(&a, &b);
-        assert!(sim.abs() < 0.001, "Orthogonal vectors should have sim ~0: {}", sim);
+        assert!(
+            sim.abs() < 0.001,
+            "Orthogonal vectors should have sim ~0: {}",
+            sim
+        );
     }
 
     #[test]
@@ -2218,7 +2226,11 @@ mod tests {
         let a = vec![1.0f32, 2.0, 3.0];
         let b = vec![-1.0f32, -2.0, -3.0];
         let sim = cosine_similarity(&a, &b);
-        assert!((sim + 1.0).abs() < 0.001, "Opposite vectors should have sim ~-1.0: {}", sim);
+        assert!(
+            (sim + 1.0).abs() < 0.001,
+            "Opposite vectors should have sim ~-1.0: {}",
+            sim
+        );
     }
 
     #[test]
@@ -2364,11 +2376,26 @@ mod tests {
 
     #[test]
     fn test_forensic_severity_from_score() {
-        assert!(matches!(ForensicSeverity::from_score(0.1), ForensicSeverity::Info));
-        assert!(matches!(ForensicSeverity::from_score(0.3), ForensicSeverity::Low));
-        assert!(matches!(ForensicSeverity::from_score(0.5), ForensicSeverity::Medium));
-        assert!(matches!(ForensicSeverity::from_score(0.7), ForensicSeverity::High));
-        assert!(matches!(ForensicSeverity::from_score(0.9), ForensicSeverity::Critical));
+        assert!(matches!(
+            ForensicSeverity::from_score(0.1),
+            ForensicSeverity::Info
+        ));
+        assert!(matches!(
+            ForensicSeverity::from_score(0.3),
+            ForensicSeverity::Low
+        ));
+        assert!(matches!(
+            ForensicSeverity::from_score(0.5),
+            ForensicSeverity::Medium
+        ));
+        assert!(matches!(
+            ForensicSeverity::from_score(0.7),
+            ForensicSeverity::High
+        ));
+        assert!(matches!(
+            ForensicSeverity::from_score(0.9),
+            ForensicSeverity::Critical
+        ));
     }
 
     #[test]
@@ -2396,6 +2423,10 @@ mod tests {
     #[test]
     fn test_word_overlap_partial() {
         let score = word_overlap("hello world test", "hello test");
-        assert!(score > 0.5, "Partial overlap should give moderate score: {}", score);
+        assert!(
+            score > 0.5,
+            "Partial overlap should give moderate score: {}",
+            score
+        );
     }
 }

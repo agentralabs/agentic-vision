@@ -245,6 +245,14 @@ enum Commands {
         #[command(subcommand)]
         subcommand: WorkspaceCommands,
     },
+    /// Scan workspace `.avis` files and emit runtime sync snapshot
+    RuntimeSync {
+        file: PathBuf,
+        #[arg(long, default_value = ".")]
+        workspace: PathBuf,
+        #[arg(long, default_value = "4")]
+        max_depth: u32,
+    },
     /// Generate shell completion scripts
     Completions { shell: Shell },
 }
@@ -521,6 +529,63 @@ fn main() {
                 Ok(())
             })()
         }
+        Some(Commands::RuntimeSync {
+            file,
+            workspace,
+            max_depth,
+        }) => (|| -> agentic_vision::VisionResult<()> {
+            let mut avis_files = Vec::new();
+            scan_avis_files(&workspace, max_depth, &mut avis_files);
+
+            let mut reports = Vec::new();
+            let mut total_observations = 0usize;
+            for path in &avis_files {
+                match AvisReader::read_from_file(path) {
+                    Ok(store) => {
+                        total_observations += store.count();
+                        reports.push(serde_json::json!({
+                            "path": path.to_string_lossy(),
+                            "observations": store.count(),
+                            "sessions": store.session_count
+                        }));
+                    }
+                    Err(e) => {
+                        reports.push(serde_json::json!({
+                            "path": path.to_string_lossy(),
+                            "error": e.to_string()
+                        }));
+                    }
+                }
+            }
+
+            let payload = serde_json::json!({
+                "mode": "runtime-sync",
+                "workspace": workspace,
+                "scanned_files": avis_files.len(),
+                "total_observations": total_observations,
+                "files": reports,
+                "synced_at": std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs()
+            });
+
+            write_runtime_sync_snapshot(&file, &payload)?;
+
+            if json {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&payload).unwrap_or_default()
+                );
+            } else {
+                println!(
+                    "runtime-sync: {} files, {} observations",
+                    avis_files.len(),
+                    total_observations
+                );
+            }
+            Ok(())
+        })(),
         Some(Commands::Workspace { subcommand }) => (|| -> agentic_vision::VisionResult<()> {
             match subcommand {
                 WorkspaceCommands::Create { name } => {
@@ -719,4 +784,37 @@ fn main() {
         eprintln!("Error: {}", e);
         process::exit(1);
     }
+}
+
+fn scan_avis_files(root: &Path, max_depth: u32, out: &mut Vec<PathBuf>) {
+    if max_depth == 0 {
+        return;
+    }
+    let Ok(read_dir) = std::fs::read_dir(root) else {
+        return;
+    };
+
+    for entry in read_dir.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            scan_avis_files(&path, max_depth - 1, out);
+        } else if path.extension().and_then(|e| e.to_str()) == Some("avis") {
+            out.push(path);
+        }
+    }
+}
+
+fn write_runtime_sync_snapshot(
+    file: &Path,
+    payload: &serde_json::Value,
+) -> agentic_vision::VisionResult<()> {
+    let snapshot_path = file.with_extension("runtime-sync.json");
+    if let Some(parent) = snapshot_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    let raw = serde_json::to_string_pretty(payload).map_err(|e| {
+        agentic_vision::VisionError::Io(std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+    })?;
+    std::fs::write(snapshot_path, raw)?;
+    Ok(())
 }

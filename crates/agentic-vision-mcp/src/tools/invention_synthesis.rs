@@ -409,8 +409,19 @@ fn detect_layout_pattern(
 fn compute_text_density(labels: &[String], description: &Option<String>) -> f64 {
     let mut text_indicators = 0.0;
     let text_keywords = [
-        "text", "paragraph", "content", "article", "heading", "title", "body", "code",
-        "document", "blog", "post", "comment", "message",
+        "text",
+        "paragraph",
+        "content",
+        "article",
+        "heading",
+        "title",
+        "body",
+        "code",
+        "document",
+        "blog",
+        "post",
+        "comment",
+        "message",
     ];
     for label in labels {
         let lower = label.to_lowercase();
@@ -455,8 +466,7 @@ fn build_visual_dna(
 ) -> VisualDNA {
     let color_profile = compute_color_histogram(embedding, width, height);
     let edge_profile = compute_edge_density(embedding, width, height);
-    let layout_pattern =
-        detect_layout_pattern(width, height, labels, edge_profile.overall_density);
+    let layout_pattern = detect_layout_pattern(width, height, labels, edge_profile.overall_density);
     let text_density = compute_text_density(labels, description);
     let aspect_ratio = if height > 0 {
         (width as f64 / height as f64 * 100.0).round() / 100.0
@@ -530,8 +540,8 @@ fn edge_profile_distance(a: &EdgeDensityProfile, b: &EdgeDensityProfile) -> f64 
     } else {
         0.5
     };
-    let block_diff =
-        (a.block_count as f64 - b.block_count as f64).abs() / (a.block_count.max(b.block_count).max(1) as f64);
+    let block_diff = (a.block_count as f64 - b.block_count as f64).abs()
+        / (a.block_count.max(b.block_count).max(1) as f64);
 
     overall_diff * 0.3 + quad_diff * 0.3 + hv_diff * 0.2 + block_diff * 0.2
 }
@@ -546,7 +556,9 @@ fn dna_distance(a: &VisualDNA, b: &VisualDNA) -> f64 {
         0.6
     };
     let text_dist = (a.text_density - b.text_density).abs();
-    let aspect_dist = ((a.aspect_ratio - b.aspect_ratio).abs() / a.aspect_ratio.max(b.aspect_ratio).max(0.01)).min(1.0);
+    let aspect_dist = ((a.aspect_ratio - b.aspect_ratio).abs()
+        / a.aspect_ratio.max(b.aspect_ratio).max(0.01))
+    .min(1.0);
     let complexity_dist = (a.complexity_score - b.complexity_score).abs();
 
     // Label overlap (Jaccard distance)
@@ -583,7 +595,7 @@ fn dna_to_features(dna: &VisualDNA) -> Vec<f64> {
     features.extend_from_slice(&dna.edge_profile.quadrant_density);
     features.push(dna.edge_profile.h_v_ratio.min(5.0) / 5.0); // normalize
     features.push(dna.edge_profile.block_count as f64 / 50.0); // normalize
-    // Other features
+                                                               // Other features
     features.push(dna.text_density);
     features.push(dna.aspect_ratio.min(3.0) / 3.0); // normalize
     features.push(dna.complexity_score);
@@ -766,10 +778,7 @@ fn silhouette_score(features: &[Vec<f64>], assignments: &[usize], k: usize) -> f
 }
 
 /// Compute visual weight for a capture quadrant from edge density + embedding.
-fn compute_visual_weight(
-    quadrant_density: f64,
-    embedding_segment: &[f32],
-) -> f64 {
+fn compute_visual_weight(quadrant_density: f64, embedding_segment: &[f32]) -> f64 {
     let energy: f64 = embedding_segment
         .iter()
         .map(|&v| (v as f64).powi(2))
@@ -1205,7 +1214,8 @@ pub async fn execute_vision_dna_mutate(
     );
 
     let distance = dna_distance(&dna_current, &dna_baseline);
-    let color_dist = color_histogram_distance(&dna_current.color_profile, &dna_baseline.color_profile);
+    let color_dist =
+        color_histogram_distance(&dna_current.color_profile, &dna_baseline.color_profile);
     let edge_dist = edge_profile_distance(&dna_current.edge_profile, &dna_baseline.edge_profile);
     let threshold = p.mutation_threshold.max(0.01).min(1.0);
     let is_mutated = distance > threshold;
@@ -1257,8 +1267,10 @@ pub async fn execute_vision_dna_mutate(
     }
 
     // Label mutations
-    let baseline_labels: std::collections::HashSet<&String> = dna_baseline.label_signature.iter().collect();
-    let current_labels: std::collections::HashSet<&String> = dna_current.label_signature.iter().collect();
+    let baseline_labels: std::collections::HashSet<&String> =
+        dna_baseline.label_signature.iter().collect();
+    let current_labels: std::collections::HashSet<&String> =
+        dna_current.label_signature.iter().collect();
     let added: Vec<&&String> = current_labels.difference(&baseline_labels).collect();
     let removed: Vec<&&String> = baseline_labels.difference(&current_labels).collect();
     if !added.is_empty() || !removed.is_empty() {
@@ -1662,10 +1674,7 @@ pub async fn execute_vision_composition_score(
 pub fn definition_vision_composition_suggest() -> ToolDefinition {
     ToolDefinition {
         name: "vision_composition_suggest".to_string(),
-        description: Some(
-            "Suggest improvements based on detected composition issues"
-                .to_string(),
-        ),
+        description: Some("Suggest improvements based on detected composition issues".to_string()),
         input_schema: json!({
             "type": "object",
             "required": ["capture_id"],
@@ -1834,10 +1843,7 @@ pub async fn execute_vision_composition_suggest(
 pub fn definition_vision_composition_compare() -> ToolDefinition {
     ToolDefinition {
         name: "vision_composition_compare".to_string(),
-        description: Some(
-            "Compare composition quality across multiple captures"
-                .to_string(),
-        ),
+        description: Some("Compare composition quality across multiple captures".to_string()),
         input_schema: json!({
             "type": "object",
             "required": ["capture_ids"],
@@ -1894,7 +1900,8 @@ pub async fn execute_vision_composition_compare(
         let contrast = (color.entropy / 2.08 * 0.6 + edge.overall_density * 0.4).min(1.0);
         let consistency = grid.alignment_score * 0.5 + grid.gutter_consistency * 0.5;
         let whitespace_score = (1.0 - (whitespace - 0.4).abs() * 2.0).max(0.0).min(1.0);
-        let overall = balance * 0.30 + contrast * 0.25 + consistency * 0.25 + whitespace_score * 0.20;
+        let overall =
+            balance * 0.30 + contrast * 0.25 + consistency * 0.25 + whitespace_score * 0.20;
 
         if overall > best_score {
             best_score = overall;
@@ -2273,10 +2280,7 @@ pub async fn execute_vision_cluster_outliers(
 pub fn definition_vision_cluster_timeline() -> ToolDefinition {
     ToolDefinition {
         name: "vision_cluster_timeline".to_string(),
-        description: Some(
-            "Show how visual clusters evolve over time within a session"
-                .to_string(),
-        ),
+        description: Some("Show how visual clusters evolve over time within a session".to_string()),
         input_schema: json!({
             "type": "object",
             "properties": {
@@ -2393,7 +2397,9 @@ pub async fn execute_vision_cluster_timeline(
     let mut cluster_durations: HashMap<usize, u64> = HashMap::new();
     for i in 0..n.saturating_sub(1) {
         let c = assignments[i];
-        let duration = obs_list[i + 1].timestamp.saturating_sub(obs_list[i].timestamp);
+        let duration = obs_list[i + 1]
+            .timestamp
+            .saturating_sub(obs_list[i].timestamp);
         *cluster_durations.entry(c).or_insert(0) += duration;
     }
 
@@ -2407,7 +2413,8 @@ pub async fn execute_vision_cluster_timeline(
             })
         })
         .collect();
-    duration_info.sort_by_key(|v| std::cmp::Reverse(v["total_duration_seconds"].as_u64().unwrap_or(0)));
+    duration_info
+        .sort_by_key(|v| std::cmp::Reverse(v["total_duration_seconds"].as_u64().unwrap_or(0)));
 
     // Transition rate
     let transition_rate = if n > 1 {
@@ -2554,7 +2561,11 @@ mod tests {
         let d1 = build_visual_dna(1, &embedding, 800, 600, &labels, &desc);
         let d2 = build_visual_dna(2, &embedding, 800, 600, &labels, &desc);
         let dist = dna_distance(&d1, &d2);
-        assert!(dist < 0.01, "Identical DNA should have near-zero distance: {}", dist);
+        assert!(
+            dist < 0.01,
+            "Identical DNA should have near-zero distance: {}",
+            dist
+        );
     }
 
     #[test]
@@ -2566,7 +2577,11 @@ mod tests {
         let d1 = build_visual_dna(1, &emb_a, 800, 600, &la, &None);
         let d2 = build_visual_dna(2, &emb_b, 400, 800, &lb, &None);
         let dist = dna_distance(&d1, &d2);
-        assert!(dist > 0.05, "Different DNA should have positive distance: {}", dist);
+        assert!(
+            dist > 0.05,
+            "Different DNA should have positive distance: {}",
+            dist
+        );
     }
 
     #[test]
@@ -2611,21 +2626,32 @@ mod tests {
         ];
         let assignments = vec![0, 0, 1, 1];
         let sil = silhouette_score(&features, &assignments, 2);
-        assert!(sil > 0.5, "Well-separated clusters should have high silhouette: {}", sil);
+        assert!(
+            sil > 0.5,
+            "Well-separated clusters should have high silhouette: {}",
+            sil
+        );
     }
 
     #[test]
     fn test_balance_score_equal() {
         let weights = [0.25, 0.25, 0.25, 0.25];
         let score = compute_balance_score(weights);
-        assert!((score - 1.0).abs() < 0.001, "Equal weights should give balance ~1.0");
+        assert!(
+            (score - 1.0).abs() < 0.001,
+            "Equal weights should give balance ~1.0"
+        );
     }
 
     #[test]
     fn test_balance_score_imbalanced() {
         let weights = [1.0, 0.0, 0.0, 0.0];
         let score = compute_balance_score(weights);
-        assert!(score < 0.5, "Imbalanced weights should give low score: {}", score);
+        assert!(
+            score < 0.5,
+            "Imbalanced weights should give low score: {}",
+            score
+        );
     }
 
     #[test]
@@ -2647,7 +2673,10 @@ mod tests {
             block_count: 2,
         };
         let whitespace = estimate_whitespace(&edge_low, 800, 600);
-        assert!(whitespace > 0.5, "Low edge density should indicate high whitespace");
+        assert!(
+            whitespace > 0.5,
+            "Low edge density should indicate high whitespace"
+        );
     }
 
     #[test]
@@ -2655,7 +2684,10 @@ mod tests {
         let embedding: Vec<f32> = (0..64).map(|i| (i as f32) * 0.05).collect();
         let dna = build_visual_dna(1, &embedding, 800, 600, &[], &None);
         let features = dna_to_features(&dna);
-        assert!(features.len() > 15, "Feature vector should have enough dimensions");
+        assert!(
+            features.len() > 15,
+            "Feature vector should have enough dimensions"
+        );
     }
 
     #[test]
