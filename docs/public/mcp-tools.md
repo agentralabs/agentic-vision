@@ -4,7 +4,7 @@ status: stable
 
 # MCP Tools
 
-AgenticVision exposes 69 tools through the MCP protocol via `agentic-vision-mcp`: 21 core tools and 48 V3 Perception Invention tools.
+AgenticVision exposes 69 tools through the MCP protocol via `agentic-vision-mcp`: 21 core tools and 48 V3 Perception Advanced tools.
 
 ## Core Vision Tools
 
@@ -236,11 +236,11 @@ Log the intent and context behind a visual observation. Entries are linked into 
 | `related_capture_id` | number | No | Capture ID this observation relates to |
 | `topic` | string | No | Category (e.g., `ui-testing`, `layout-check`) |
 
-## V3 Perception Invention Tools
+## V3 Perception Advanced Tools
 
-AgenticVision V3 adds 48 tools organized into 16 inventions across 4 categories.
+AgenticVision V3 adds 48 tools organized into 16 advanced capabilities across 4 categories.
 
-### Grounding Inventions (1--4)
+### Grounding Advanced (1--4)
 
 | Tool | Description |
 |------|-------------|
@@ -258,7 +258,7 @@ AgenticVision V3 adds 48 tools organized into 16 inventions across 4 categories.
 | `vision_compare_versions` | Compare visual appearance across versions |
 | `vision_compare_devices` | Compare visual appearance across devices |
 
-### Temporal Inventions (5--8)
+### Temporal Advanced (5--8)
 
 | Tool | Description |
 |------|-------------|
@@ -275,7 +275,7 @@ AgenticVision V3 adds 48 tools organized into 16 inventions across 4 categories.
 | `vision_dejavu_patterns` | List recurring visual patterns |
 | `vision_dejavu_alert` | Configure alerts for recurring visual patterns |
 
-### Prediction Inventions (9--12)
+### Prediction Advanced (9--12)
 
 | Tool | Description |
 |------|-------------|
@@ -292,7 +292,7 @@ AgenticVision V3 adds 48 tools organized into 16 inventions across 4 categories.
 | `vision_phantom_compare` | Compare phantom with real captures |
 | `vision_phantom_ab_test` | A/B test phantom visual variations |
 
-### Cognition Inventions (13--16)
+### Cognition Advanced (13--16)
 
 | Tool | Description |
 |------|-------------|

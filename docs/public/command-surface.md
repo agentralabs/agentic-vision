@@ -85,7 +85,7 @@ All tools exposed by the `agentic-vision-mcp` MCP server:
 | `session_start` | Start a new vision session |
 | `session_end` | End the current vision session and save |
 
-### Invention Tools
+### Advanced Tools
 
 | Tool | Purpose |
 |------|---------|

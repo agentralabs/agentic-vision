@@ -38,7 +38,7 @@ The core library. All visual memory logic lives here.
 The MCP server binary (`agentic-vision-mcp`).
 
 - JSON-RPC 2.0 over stdio (default) or HTTP/SSE (with `sse` feature)
-- 21 core MCP tools + 48 V3 Perception Invention tools (69 total)
+- 21 core MCP tools + 48 V3 Perception Advanced tools (69 total)
 - MCP resources via `avis://` URI scheme
 - 4 MCP prompts (observe, compare, track, describe)
 - Auto-session lifecycle management

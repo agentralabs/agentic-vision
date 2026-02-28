@@ -54,7 +54,7 @@ Yes. Use a standard MCP server entry and restart the client after install. The s
 
 ### How many tools does the MCP server expose?
 
-The server exposes core tools (capture, query, similar, diff, compare, OCR, track, health, link), grounding tools (ground, evidence, suggest), workspace tools (create, add, list, query, compare, xref), session tools (start, end), observation logging, and V3 invention tools for advanced cognition and prediction.
+The server exposes core tools (capture, query, similar, diff, compare, OCR, track, health, link), grounding tools (ground, evidence, suggest), workspace tools (create, add, list, query, compare, xref), session tools (start, end), observation logging, and V3 advanced tools for advanced cognition and prediction.
 
 ### Can server runtime read laptop files directly?
 
