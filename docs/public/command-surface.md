@@ -85,6 +85,16 @@ All tools exposed by the `agentic-vision-mcp` MCP server:
 | `session_start` | Start a new vision session |
 | `session_end` | End the current vision session and save |
 
+### Invention Tools
+
+| Tool | Purpose |
+|------|---------|
+| `vision_at_time` | Get visual state at a specific time |
+| `vision_cite` | Get citation for a visual element from captures |
+| `vision_prophecy` | Predict visual impact of a proposed change |
+| `vision_reason` | Build a reasoning chain from visual observations |
+| `vision_timeline` | Get visual timeline for an element or page |
+
 ## Universal MCP entry
 
 ```json
