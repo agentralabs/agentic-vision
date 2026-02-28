@@ -84,6 +84,31 @@ All tools exposed by the `agentic-vision-mcp` MCP server:
 |------|---------|
 | `session_start` | Start a new vision session |
 | `session_end` | End the current vision session and save |
+| `vision_session_resume` | Load context from previous vision sessions |
+
+### Compact Facade Tools (v0.3+)
+
+Use these to keep MCP tool surfaces small while preserving backward compatibility:
+
+| Tool | Purpose |
+|------|---------|
+| `vision_core` | Unified core operations via `operation` |
+| `vision_grounding` | Unified grounding operations via `operation` |
+| `vision_workspace` | Unified workspace operations via `operation` |
+| `vision_session` | Unified session operations via `operation` |
+| `vision_temporal` | Unified temporal operations via `operation` |
+| `vision_prediction` | Unified prediction operations via `operation` |
+| `vision_cognition` | Unified cognition operations via `operation` |
+| `vision_synthesis` | Unified synthesis operations via `operation` |
+| `vision_forensics` | Unified forensics operations via `operation` |
+
+Compact list mode:
+
+```bash
+export AVIS_MCP_TOOL_SURFACE=compact
+```
+
+In compact mode, `tools/list` returns only the 9 facade tools above, while all legacy tool names remain callable.
 
 ### Advanced Tools
 

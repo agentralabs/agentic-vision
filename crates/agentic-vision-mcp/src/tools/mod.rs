@@ -5,6 +5,7 @@ pub mod registry;
 pub mod session_end;
 pub mod session_start;
 pub mod vision_capture;
+pub mod vision_compact;
 pub mod vision_compare;
 pub mod vision_diff;
 pub mod vision_evidence;

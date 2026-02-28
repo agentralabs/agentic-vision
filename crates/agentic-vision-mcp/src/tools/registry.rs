@@ -9,10 +9,10 @@ use crate::session::VisionSessionManager;
 use crate::types::{McpError, McpResult, ToolCallResult, ToolDefinition};
 
 use super::{
-    observation_log, session_end, session_start, vision_capture, vision_compare, vision_diff,
-    vision_evidence, vision_ground, vision_health, vision_link, vision_ocr, vision_query,
-    vision_session_resume, vision_similar, vision_suggest, vision_track, vision_workspace_add,
-    vision_workspace_compare, vision_workspace_create, vision_workspace_list,
+    observation_log, session_end, session_start, vision_capture, vision_compact, vision_compare,
+    vision_diff, vision_evidence, vision_ground, vision_health, vision_link, vision_ocr,
+    vision_query, vision_session_resume, vision_similar, vision_suggest, vision_track,
+    vision_workspace_add, vision_workspace_compare, vision_workspace_create, vision_workspace_list,
     vision_workspace_query, vision_workspace_xref,
 };
 
@@ -26,7 +26,7 @@ pub struct ToolRegistry;
 
 impl ToolRegistry {
     pub fn list_tools() -> Vec<ToolDefinition> {
-        vec![
+        let mut tools = vec![
             observation_log::definition(),
             vision_capture::definition(),
             vision_compare::definition(),
@@ -147,7 +147,15 @@ impl ToolRegistry {
             invention_forensics::definition_vision_regression_snapshot(),
             invention_forensics::definition_vision_regression_check(),
             invention_forensics::definition_vision_regression_report(),
-        ]
+        ];
+        // Consolidated compact facade tools.
+        tools.extend(vision_compact::definitions());
+        tools
+    }
+
+    /// List only consolidated compact facade tool definitions.
+    pub fn list_tools_compact() -> Vec<ToolDefinition> {
+        vision_compact::definitions()
     }
 
     pub async fn call(
@@ -157,6 +165,18 @@ impl ToolRegistry {
     ) -> McpResult<ToolCallResult> {
         let args = arguments.unwrap_or(Value::Object(serde_json::Map::new()));
 
+        if let Some(result) = vision_compact::try_execute(name, args.clone(), session).await {
+            return result;
+        }
+
+        Self::call_legacy(name, args, session).await
+    }
+
+    pub(crate) async fn call_legacy(
+        name: &str,
+        args: Value,
+        session: &Arc<Mutex<VisionSessionManager>>,
+    ) -> McpResult<ToolCallResult> {
         match name {
             "observation_log" => observation_log::execute(args, session).await,
             "vision_capture" => vision_capture::execute(args, session).await,

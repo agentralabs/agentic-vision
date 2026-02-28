@@ -22,6 +22,27 @@ pub struct ProtocolHandler {
     shutdown_requested: Arc<AtomicBool>,
     /// Tracks whether an auto-session was started so we can auto-end it.
     auto_session_started: AtomicBool,
+    tool_surface: ToolSurface,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ToolSurface {
+    Full,
+    Compact,
+}
+
+impl ToolSurface {
+    fn from_env() -> Self {
+        let raw = std::env::var("AVIS_MCP_TOOL_SURFACE")
+            .ok()
+            .or_else(|| std::env::var("CORTEX_MCP_TOOL_SURFACE").ok())
+            .or_else(|| std::env::var("MCP_TOOL_SURFACE").ok())
+            .unwrap_or_else(|| "full".to_string());
+        match raw.trim().to_ascii_lowercase().as_str() {
+            "compact" => Self::Compact,
+            _ => Self::Full,
+        }
+    }
 }
 
 impl ProtocolHandler {
@@ -31,6 +52,7 @@ impl ProtocolHandler {
             capabilities: Arc::new(Mutex::new(NegotiatedCapabilities::default())),
             shutdown_requested: Arc::new(AtomicBool::new(false)),
             auto_session_started: AtomicBool::new(false),
+            tool_surface: ToolSurface::from_env(),
         }
     }
 
@@ -180,7 +202,10 @@ impl ProtocolHandler {
 
     async fn handle_tools_list(&self) -> McpResult<Value> {
         let result = ToolListResult {
-            tools: ToolRegistry::list_tools(),
+            tools: match self.tool_surface {
+                ToolSurface::Full => ToolRegistry::list_tools(),
+                ToolSurface::Compact => ToolRegistry::list_tools_compact(),
+            },
             next_cursor: None,
         };
         serde_json::to_value(result).map_err(|e| McpError::InternalError(e.to_string()))
