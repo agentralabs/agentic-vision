@@ -18,6 +18,9 @@ use super::{
 // V3: 16 Perception Inventions
 use super::{invention_cognition, invention_grounding, invention_prediction, invention_temporal};
 
+// V3: 6 Synthesis & Forensics Inventions
+use super::{invention_forensics, invention_synthesis};
+
 pub struct ToolRegistry;
 
 impl ToolRegistry {
@@ -114,6 +117,34 @@ impl ToolRegistry {
             invention_cognition::definition_vision_gestalt_analyze(),
             invention_cognition::definition_vision_gestalt_harmony(),
             invention_cognition::definition_vision_gestalt_improve(),
+            // ── V3: Invention 17 — Visual DNA ──
+            invention_synthesis::definition_vision_dna_extract(),
+            invention_synthesis::definition_vision_dna_compare(),
+            invention_synthesis::definition_vision_dna_lineage(),
+            invention_synthesis::definition_vision_dna_mutate(),
+            // ── V3: Invention 18 — Visual Composition ──
+            invention_synthesis::definition_vision_composition_analyze(),
+            invention_synthesis::definition_vision_composition_score(),
+            invention_synthesis::definition_vision_composition_suggest(),
+            invention_synthesis::definition_vision_composition_compare(),
+            // ── V3: Invention 19 — Visual Clustering ──
+            invention_synthesis::definition_vision_cluster_captures(),
+            invention_synthesis::definition_vision_cluster_outliers(),
+            invention_synthesis::definition_vision_cluster_timeline(),
+            // ── V3: Invention 20 — Visual Diff Engine ──
+            invention_forensics::definition_vision_forensic_diff(),
+            invention_forensics::definition_vision_forensic_timeline(),
+            invention_forensics::definition_vision_forensic_blame(),
+            invention_forensics::definition_vision_forensic_reconstruct(),
+            // ── V3: Invention 21 — Visual Anomaly Detection ──
+            invention_forensics::definition_vision_anomaly_detect(),
+            invention_forensics::definition_vision_anomaly_pattern(),
+            invention_forensics::definition_vision_anomaly_baseline(),
+            invention_forensics::definition_vision_anomaly_alert(),
+            // ── V3: Invention 22 — Visual Regression Testing ──
+            invention_forensics::definition_vision_regression_snapshot(),
+            invention_forensics::definition_vision_regression_check(),
+            invention_forensics::definition_vision_regression_report(),
         ]
     }
 
@@ -295,6 +326,74 @@ impl ToolRegistry {
             }
             "vision_gestalt_improve" => {
                 invention_cognition::execute_vision_gestalt_improve(args, session).await
+            }
+            // ── V3: Synthesis Inventions (17–19) ──
+            "vision_dna_extract" => {
+                invention_synthesis::execute_vision_dna_extract(args, session).await
+            }
+            "vision_dna_compare" => {
+                invention_synthesis::execute_vision_dna_compare(args, session).await
+            }
+            "vision_dna_lineage" => {
+                invention_synthesis::execute_vision_dna_lineage(args, session).await
+            }
+            "vision_dna_mutate" => {
+                invention_synthesis::execute_vision_dna_mutate(args, session).await
+            }
+            "vision_composition_analyze" => {
+                invention_synthesis::execute_vision_composition_analyze(args, session).await
+            }
+            "vision_composition_score" => {
+                invention_synthesis::execute_vision_composition_score(args, session).await
+            }
+            "vision_composition_suggest" => {
+                invention_synthesis::execute_vision_composition_suggest(args, session).await
+            }
+            "vision_composition_compare" => {
+                invention_synthesis::execute_vision_composition_compare(args, session).await
+            }
+            "vision_cluster_captures" => {
+                invention_synthesis::execute_vision_cluster_captures(args, session).await
+            }
+            "vision_cluster_outliers" => {
+                invention_synthesis::execute_vision_cluster_outliers(args, session).await
+            }
+            "vision_cluster_timeline" => {
+                invention_synthesis::execute_vision_cluster_timeline(args, session).await
+            }
+            // ── V3: Forensics Inventions (20–22) ──
+            "vision_forensic_diff" => {
+                invention_forensics::execute_vision_forensic_diff(args, session).await
+            }
+            "vision_forensic_timeline" => {
+                invention_forensics::execute_vision_forensic_timeline(args, session).await
+            }
+            "vision_forensic_blame" => {
+                invention_forensics::execute_vision_forensic_blame(args, session).await
+            }
+            "vision_forensic_reconstruct" => {
+                invention_forensics::execute_vision_forensic_reconstruct(args, session).await
+            }
+            "vision_anomaly_detect" => {
+                invention_forensics::execute_vision_anomaly_detect(args, session).await
+            }
+            "vision_anomaly_pattern" => {
+                invention_forensics::execute_vision_anomaly_pattern(args, session).await
+            }
+            "vision_anomaly_baseline" => {
+                invention_forensics::execute_vision_anomaly_baseline(args, session).await
+            }
+            "vision_anomaly_alert" => {
+                invention_forensics::execute_vision_anomaly_alert(args, session).await
+            }
+            "vision_regression_snapshot" => {
+                invention_forensics::execute_vision_regression_snapshot(args, session).await
+            }
+            "vision_regression_check" => {
+                invention_forensics::execute_vision_regression_check(args, session).await
+            }
+            "vision_regression_report" => {
+                invention_forensics::execute_vision_regression_report(args, session).await
             }
             _ => Err(McpError::ToolNotFound(name.to_string())),
         }

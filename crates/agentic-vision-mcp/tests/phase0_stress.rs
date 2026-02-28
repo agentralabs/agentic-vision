@@ -533,7 +533,7 @@ async fn test_tool_count_is_72() {
     let tools = resp["result"]["tools"].as_array().unwrap();
     assert_eq!(
         tools.len(),
-        72,
-        "Should have 72 tools (21 original + 51 invention tools)"
+        94,
+        "Should have 94 tools (21 original + 51 invention + 22 synthesis/forensics tools)"
     );
 }

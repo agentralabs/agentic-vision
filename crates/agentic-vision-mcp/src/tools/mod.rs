@@ -29,4 +29,8 @@ pub mod invention_grounding;
 pub mod invention_prediction;
 pub mod invention_temporal;
 
+// V3: 6 Synthesis & Forensics Inventions
+pub mod invention_forensics;
+pub mod invention_synthesis;
+
 pub use registry::ToolRegistry;
