@@ -3,6 +3,7 @@
 #[cfg(feature = "cli")]
 pub mod cli;
 
+pub mod bridges;
 pub mod capture;
 pub mod contracts;
 pub mod diff;
