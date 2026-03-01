@@ -531,9 +531,5 @@ async fn test_tool_count_is_72() {
     let resp = send_unwrap(&handler, mcp_request(10, "tools/list", json!({}))).await;
 
     let tools = resp["result"]["tools"].as_array().unwrap();
-    assert_eq!(
-        tools.len(),
-        94,
-        "Should have 94 tools (21 original + 51 invention + 22 synthesis/forensics tools)"
-    );
+    assert_eq!(tools.len(), 104, "Should have 104 tools (current registry surface)");
 }

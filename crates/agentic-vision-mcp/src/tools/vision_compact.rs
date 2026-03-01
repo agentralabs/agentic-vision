@@ -360,11 +360,6 @@ pub async fn try_execute(
     args: Value,
     session: &Arc<Mutex<VisionSessionManager>>,
 ) -> Option<McpResult<ToolCallResult>> {
-    let (operation, params) = match decode_operation(args) {
-        Ok(v) => v,
-        Err(e) => return Some(Err(e)),
-    };
-
     if !matches!(
         name,
         "vision_core"
@@ -379,6 +374,11 @@ pub async fn try_execute(
     ) {
         return None;
     }
+
+    let (operation, params) = match decode_operation(args) {
+        Ok(v) => v,
+        Err(e) => return Some(Err(e)),
+    };
 
     let resolved = match resolve_tool_name(name, &operation) {
         Ok(tool) => tool,
