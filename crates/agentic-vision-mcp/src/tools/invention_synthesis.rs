@@ -274,6 +274,7 @@ fn compute_color_histogram(embedding: &[f32], width: u32, height: u32) -> ColorH
 }
 
 /// Compute edge density profile from embedding features.
+#[allow(clippy::needless_range_loop)]
 fn compute_edge_density(embedding: &[f32], width: u32, height: u32) -> EdgeDensityProfile {
     let dim = embedding.len();
     if dim < 4 {
@@ -343,7 +344,7 @@ fn compute_edge_density(embedding: &[f32], width: u32, height: u32) -> EdgeDensi
         }
         prev_sign = current_sign;
     }
-    let block_count = (crossings / 4).max(1).min(50);
+    let block_count = (crossings / 4).clamp(1, 50);
 
     // Factor in dimensions
     let area_factor = if width > 0 && height > 0 {
@@ -1217,7 +1218,7 @@ pub async fn execute_vision_dna_mutate(
     let color_dist =
         color_histogram_distance(&dna_current.color_profile, &dna_baseline.color_profile);
     let edge_dist = edge_profile_distance(&dna_current.edge_profile, &dna_baseline.edge_profile);
-    let threshold = p.mutation_threshold.max(0.01).min(1.0);
+    let threshold = p.mutation_threshold.clamp(0.01, 1.0);
     let is_mutated = distance > threshold;
 
     // Identify specific mutations
@@ -1542,7 +1543,7 @@ fn estimate_whitespace(edge: &EdgeDensityProfile, _width: u32, _height: u32) -> 
     // Whitespace is inverse of edge density, with adjustment for block count
     let base = 1.0 - edge.overall_density;
     let block_factor = 1.0 - (edge.block_count as f64 / 30.0).min(0.5);
-    (base * 0.7 + block_factor * 0.3).min(1.0).max(0.0)
+    (base * 0.7 + block_factor * 0.3).clamp(0.0, 1.0)
 }
 
 /// Compute alignment score from edge density and grid.
@@ -1623,7 +1624,7 @@ pub async fn execute_vision_composition_score(
 
     // Whitespace score (not too dense, not too sparse)
     let whitespace_score = 1.0 - (whitespace - 0.4).abs() * 2.0; // Peak at 0.4
-    let whitespace_score = whitespace_score.max(0.0).min(1.0);
+    let whitespace_score = whitespace_score.clamp(0.0, 1.0);
 
     // Overall composition score (weighted average)
     let overall = balance * 0.25
@@ -1899,7 +1900,7 @@ pub async fn execute_vision_composition_compare(
         let balance = weight_map.balance_score;
         let contrast = (color.entropy / 2.08 * 0.6 + edge.overall_density * 0.4).min(1.0);
         let consistency = grid.alignment_score * 0.5 + grid.gutter_consistency * 0.5;
-        let whitespace_score = (1.0 - (whitespace - 0.4).abs() * 2.0).max(0.0).min(1.0);
+        let whitespace_score = (1.0 - (whitespace - 0.4).abs() * 2.0).clamp(0.0, 1.0);
         let overall =
             balance * 0.30 + contrast * 0.25 + consistency * 0.25 + whitespace_score * 0.20;
 
@@ -2023,13 +2024,13 @@ pub async fn execute_vision_cluster_captures(
             )
         })
         .collect();
-    let features: Vec<Vec<f64>> = dna_list.iter().map(|d| dna_to_features(d)).collect();
+    let features: Vec<Vec<f64>> = dna_list.iter().map(dna_to_features).collect();
 
     // Auto-detect k if not specified (try 2 to sqrt(n), pick best silhouette)
     let k = if p.k > 0 {
         p.k.min(n)
     } else {
-        let max_k = ((n as f64).sqrt().ceil() as usize).max(2).min(8);
+        let max_k = ((n as f64).sqrt().ceil() as usize).clamp(2, 8);
         let mut best_k = 2;
         let mut best_sil = -1.0f64;
         for candidate_k in 2..=max_k {
@@ -2202,7 +2203,7 @@ pub async fn execute_vision_cluster_outliers(
             )
         })
         .collect();
-    let features: Vec<Vec<f64>> = dna_list.iter().map(|d| dna_to_features(d)).collect();
+    let features: Vec<Vec<f64>> = dna_list.iter().map(dna_to_features).collect();
 
     // Compute average distance of each point to all others
     let mut avg_distances: Vec<f64> = Vec::with_capacity(n);
@@ -2344,13 +2345,13 @@ pub async fn execute_vision_cluster_timeline(
             )
         })
         .collect();
-    let features: Vec<Vec<f64>> = dna_list.iter().map(|d| dna_to_features(d)).collect();
+    let features: Vec<Vec<f64>> = dna_list.iter().map(dna_to_features).collect();
 
     // Determine k
     let k = if p.k > 0 {
         p.k.min(n)
     } else {
-        let max_k = ((n as f64).sqrt().ceil() as usize).max(2).min(6);
+        let max_k = ((n as f64).sqrt().ceil() as usize).clamp(2, 6);
         let mut best_k = 2;
         let mut best_sil = -1.0f64;
         for candidate_k in 2..=max_k {

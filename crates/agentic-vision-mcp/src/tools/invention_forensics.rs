@@ -218,7 +218,7 @@ fn cosine_similarity(a: &[f32], b: &[f32]) -> f64 {
     if denom < 1e-10 {
         return 0.0;
     }
-    (dot / denom).max(-1.0).min(1.0)
+    (dot / denom).clamp(-1.0, 1.0)
 }
 
 /// Compute embedding distance (1 - cosine_similarity).
@@ -370,7 +370,7 @@ fn compute_feature_stats(values: &[f64]) -> FeatureStats {
     let mut sorted = values.to_vec();
     sorted.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
 
-    let median = if n % 2 == 0 {
+    let median = if n.is_multiple_of(2) {
         (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
     } else {
         sorted[n / 2]
@@ -413,6 +413,7 @@ fn is_iqr_outlier(value: f64, q1: f64, q3: f64, iqr: f64, factor: f64) -> bool {
 }
 
 /// Detect change type between two observations based on metadata comparison.
+#[allow(clippy::too_many_arguments)]
 fn detect_change_types(
     desc_a: &Option<String>,
     desc_b: &Option<String>,
@@ -704,7 +705,7 @@ pub async fn execute_vision_forensic_diff(
 
     // Per-dimension diff analysis
     let min_dim = obs_a.embedding.len().min(obs_b.embedding.len());
-    let noise_thresh = p.noise_threshold.max(0.0).min(1.0);
+    let noise_thresh = p.noise_threshold.clamp(0.0, 1.0);
     let mut changed_dimensions = 0u32;
     let mut total_abs_diff = 0.0f64;
     let mut max_diff = 0.0f64;
@@ -1115,6 +1116,7 @@ pub fn definition_vision_forensic_reconstruct() -> ToolDefinition {
     }
 }
 
+#[allow(clippy::needless_range_loop)]
 pub async fn execute_vision_forensic_reconstruct(
     args: Value,
     session: &Arc<Mutex<VisionSessionManager>>,
@@ -1945,7 +1947,7 @@ pub async fn execute_vision_regression_check(
         .find(|o| o.id == p.reference_capture_id)
         .ok_or(McpError::CaptureNotFound(p.reference_capture_id))?;
 
-    let tolerance = p.tolerance.max(0.01).min(1.0);
+    let tolerance = p.tolerance.clamp(0.01, 1.0);
 
     // Compute various diff metrics
     let emb_dist = embedding_distance(&obs_current.embedding, &obs_reference.embedding);
@@ -2108,7 +2110,7 @@ pub async fn execute_vision_regression_report(
         .find(|o| o.id == ref_id)
         .ok_or(McpError::CaptureNotFound(ref_id))?;
 
-    let tolerance = p.tolerance.max(0.01).min(1.0);
+    let tolerance = p.tolerance.clamp(0.01, 1.0);
 
     let mut pass_count = 0u32;
     let mut warning_count = 0u32;
