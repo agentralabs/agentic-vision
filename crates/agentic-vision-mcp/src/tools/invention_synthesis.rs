@@ -698,8 +698,8 @@ fn kmeans_cluster(
         }
         for c in 0..k {
             if counts[c] > 0 {
-                for j in 0..dim {
-                    new_centroids[c][j] /= counts[c] as f64;
+                for item in new_centroids[c].iter_mut().take(dim) {
+                    *item /= counts[c] as f64;
                 }
             } else {
                 // Empty cluster: keep old centroid

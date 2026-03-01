@@ -2240,7 +2240,7 @@ mod tests {
         let a = vec![1.0f32, 0.5, 0.2];
         let b = vec![0.3f32, 0.8, 0.1];
         let d = embedding_distance(&a, &b);
-        assert!(d >= 0.0 && d <= 2.0);
+        assert!((0.0..=2.0).contains(&d));
     }
 
     #[test]
