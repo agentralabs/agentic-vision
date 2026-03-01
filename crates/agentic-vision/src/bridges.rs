@@ -11,7 +11,12 @@
 /// Bridge to agentic-memory for linking captures to memory nodes.
 pub trait MemoryBridge: Send + Sync {
     /// Link a visual capture to a memory node
-    fn link_to_memory(&self, capture_id: u64, node_id: u64, relationship: &str) -> Result<(), String> {
+    fn link_to_memory(
+        &self,
+        capture_id: u64,
+        node_id: u64,
+        relationship: &str,
+    ) -> Result<(), String> {
         let _ = (capture_id, node_id, relationship);
         Err("Memory bridge not connected".to_string())
     }
@@ -89,7 +94,12 @@ pub trait ContractBridge: Send + Sync {
 /// Bridge to agentic-codebase for code-visual bindings.
 pub trait CodebaseBridge: Send + Sync {
     /// Link a capture to a code symbol (rendered_by, styled_by, controlled_by)
-    fn link_to_code(&self, capture_id: u64, symbol: &str, binding_type: &str) -> Result<(), String> {
+    fn link_to_code(
+        &self,
+        capture_id: u64,
+        symbol: &str,
+        binding_type: &str,
+    ) -> Result<(), String> {
         let _ = (capture_id, symbol, binding_type);
         Err("Codebase bridge not connected".to_string())
     }
@@ -134,7 +144,7 @@ impl CodebaseBridge for NoOpBridges {}
 impl CommBridge for NoOpBridges {}
 
 /// Configuration for which bridges are active.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct BridgeConfig {
     pub memory_enabled: bool,
     pub identity_enabled: bool,
@@ -142,19 +152,6 @@ pub struct BridgeConfig {
     pub contract_enabled: bool,
     pub codebase_enabled: bool,
     pub comm_enabled: bool,
-}
-
-impl Default for BridgeConfig {
-    fn default() -> Self {
-        Self {
-            memory_enabled: false,
-            identity_enabled: false,
-            time_enabled: false,
-            contract_enabled: false,
-            codebase_enabled: false,
-            comm_enabled: false,
-        }
-    }
 }
 
 /// Hydra adapter trait — future orchestrator discovery interface.
@@ -248,7 +245,7 @@ mod tests {
 
     #[test]
     fn noop_bridges_default_and_clone() {
-        let b = NoOpBridges::default();
+        let b = NoOpBridges;
         let _b2 = b.clone();
     }
 }
