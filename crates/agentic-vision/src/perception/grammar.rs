@@ -9,20 +9,15 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 /// The type of CSS/DOM selector used in a grammar field.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum SelectorType {
+    #[default]
     Css,
     Xpath,
     Aria,
     Text,
     ShadowDom,
-}
-
-impl Default for SelectorType {
-    fn default() -> Self {
-        Self::Css
-    }
 }
 
 /// A single selector entry with confidence and fallbacks.

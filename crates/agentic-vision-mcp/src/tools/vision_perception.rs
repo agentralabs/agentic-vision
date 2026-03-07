@@ -133,8 +133,8 @@ pub async fn execute_dom_extract(
 struct IntentExtractParams {
     url: String,
     intent: String,
-    #[serde(default)]
-    budget_tier: Option<String>,
+    #[serde(default, rename = "budget_tier")]
+    _budget_tier: Option<String>,
 }
 
 pub fn definition_intent_extract() -> ToolDefinition {

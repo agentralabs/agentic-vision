@@ -156,7 +156,7 @@ impl AvisReader {
         }
 
         let version = read_u16(&header[4..6]);
-        if version < MIN_READABLE_VERSION || version > FORMAT_VERSION {
+        if !(MIN_READABLE_VERSION..=FORMAT_VERSION).contains(&version) {
             return Err(VisionError::Storage(format!(
                 "Unsupported version: {version} (supported: {MIN_READABLE_VERSION}-{FORMAT_VERSION})"
             )));

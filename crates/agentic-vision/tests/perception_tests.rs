@@ -22,11 +22,10 @@ use agentic_vision::perception::significance::{
     RetentionTier, SignificanceScore, SignificanceScorer,
 };
 use agentic_vision::perception::types::{
-    ActionType, ContentScope, DataField, FallbackStrategy, FieldType, PerceptionIntent,
-    PerceptionRequest,
+    DataField, FallbackStrategy, FieldType, PerceptionIntent, PerceptionRequest,
 };
 use agentic_vision::storage::{AvisReader, AvisStoreV2, AvisWriter};
-use agentic_vision::{CaptureSource, ObservationMeta, VisualMemoryStore, VisualObservation};
+use agentic_vision::{CaptureSource, ObservationMeta, VisualObservation};
 
 // ═══════════════════════════════════════════════════════════
 // SECTION 1: GRAMMAR EDGE CASES
@@ -985,7 +984,6 @@ fn test_v2_with_cache_and_drift() {
 #[test]
 fn test_v2_backward_compat_reads_v1() {
     // Write a v1 file manually (old format: version=1, no grammar fields)
-    let store = VisualMemoryStore::new(512);
     let payload = serde_json::to_vec(&serde_json::json!({
         "observations": [],
         "embedding_dim": 512,

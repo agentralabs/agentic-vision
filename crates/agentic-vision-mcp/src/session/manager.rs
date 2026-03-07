@@ -921,18 +921,17 @@ mod tests {
 
     #[test]
     fn budget_projection_available_with_timeline() {
-        let dir = tempfile::tempdir().unwrap_or_else(|_| Default::default());
+        let dir = tempfile::tempdir().expect("create tempdir");
         let path = dir.path().join("vision-projection.avis");
-        let mut manager =
-            VisionSessionManager::open(path.to_str().unwrap_or_else(|_| Default::default()), None)
-                .unwrap_or_else(|_| Default::default());
+        let mut manager = VisionSessionManager::open(path.to_str().expect("path to str"), None)
+            .expect("open session manager");
 
         manager.store.add(make_obs(1, 1_700_000_000, false));
         manager
             .store
             .add(make_obs(1, 1_700_000_000 + 15 * 24 * 3600, false));
         manager.dirty = true;
-        manager.save().unwrap_or_else(|_| Default::default());
+        manager.save().expect("save session manager");
 
         let size = manager.current_file_size_bytes();
         let projected = manager.projected_file_size_bytes(size);
@@ -942,19 +941,16 @@ mod tests {
 
     #[test]
     fn budget_auto_rollup_prunes_completed_sessions() {
-        let dir = tempfile::tempdir().unwrap_or_else(|_| Default::default());
+        let dir = tempfile::tempdir().expect("create tempdir");
         let path = dir.path().join("vision-rollup.avis");
-        let mut manager =
-            VisionSessionManager::open(path.to_str().unwrap_or_else(|_| Default::default()), None)
-                .unwrap_or_else(|_| Default::default());
+        let mut manager = VisionSessionManager::open(path.to_str().expect("path to str"), None)
+            .expect("open session manager");
 
         manager.store.add(make_obs(1, 1_700_000_000, false));
         manager.store.add(make_obs(1, 1_700_000_001, false));
-        manager
-            .start_session(Some(2))
-            .unwrap_or_else(|_| Default::default());
+        manager.start_session(Some(2)).expect("start session");
         manager.dirty = true;
-        manager.save().unwrap_or_else(|_| Default::default());
+        manager.save().expect("save session manager");
 
         let before = manager.store.count();
         manager.storage_budget_mode = StorageBudgetMode::AutoRollup;
@@ -963,7 +959,7 @@ mod tests {
 
         manager
             .maybe_enforce_storage_budget()
-            .unwrap_or_else(|_| Default::default());
+            .expect("enforce storage budget");
 
         assert!(manager.store.count() < before);
         assert!(manager.storage_budget_rollup_count >= 1);
