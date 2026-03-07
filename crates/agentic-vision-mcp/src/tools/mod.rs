@@ -35,4 +35,8 @@ pub mod invention_temporal;
 pub mod invention_forensics;
 pub mod invention_synthesis;
 
+// V4: Perception Revolution (Adaptive Perception Stack + Site Grammar System)
+pub mod vision_grammar;
+pub mod vision_perception;
+
 pub use registry::ToolRegistry;

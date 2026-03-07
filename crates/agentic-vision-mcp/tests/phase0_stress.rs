@@ -533,7 +533,7 @@ async fn test_tool_count_is_72() {
     let tools = resp["result"]["tools"].as_array().unwrap();
     assert_eq!(
         tools.len(),
-        104,
-        "Should have 104 tools (current registry surface)"
+        112,
+        "Should have 112 tools (104 V3 + 8 V4 Perception Revolution)"
     );
 }

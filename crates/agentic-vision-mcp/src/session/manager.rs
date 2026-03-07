@@ -10,6 +10,10 @@ use agentic_vision::{
     generate_thumbnail, AvisReader, AvisWriter, CaptureSource, EmbeddingEngine, ObservationMeta,
     Rect, SimilarityMatch, VisualDiff, VisualMemoryStore, VisualObservation, EMBEDDING_DIM,
 };
+use agentic_vision::perception::cache::IntentCache;
+use agentic_vision::perception::drift::DriftHistory;
+use agentic_vision::perception::grammar::GrammarStore;
+use agentic_vision::storage::AvisStoreV2;
 
 use crate::types::{McpError, McpResult};
 
@@ -92,6 +96,12 @@ pub struct VisionSessionManager {
     next_note_id: u64,
     /// Multi-context workspace manager for cross-vision queries.
     workspace_manager: super::workspace::VisionWorkspaceManager,
+    /// Site grammar store (V2 Perception Revolution).
+    grammar_store: GrammarStore,
+    /// Intent cache for eliminating redundant perception (V2).
+    intent_cache: IntentCache,
+    /// Grammar drift history (V2).
+    drift_history: DriftHistory,
 }
 
 impl VisionSessionManager {
@@ -99,10 +109,16 @@ impl VisionSessionManager {
     pub fn open(path: &str, model_path: Option<&str>) -> McpResult<Self> {
         let file_path = PathBuf::from(path);
 
-        let store = if file_path.exists() {
+        let (store, grammar_store, intent_cache, drift_history) = if file_path.exists() {
             tracing::info!("Opening existing vision file: {}", file_path.display());
-            AvisReader::read_from_file(&file_path)
-                .map_err(|e| McpError::VisionError(format!("Failed to read vision file: {e}")))?
+            let v2 = AvisReader::read_v2_from_file(&file_path)
+                .map_err(|e| McpError::VisionError(format!("Failed to read vision file: {e}")))?;
+            tracing::info!(
+                "Loaded {} observations, {} grammars",
+                v2.store.count(),
+                v2.grammar_store.count()
+            );
+            (v2.store, v2.grammar_store, v2.intent_cache, v2.drift_history)
         } else {
             tracing::info!("Creating new vision file: {}", file_path.display());
             if let Some(parent) = file_path.parent() {
@@ -113,7 +129,12 @@ impl VisionSessionManager {
                     )))
                 })?;
             }
-            VisualMemoryStore::new(EMBEDDING_DIM)
+            (
+                VisualMemoryStore::new(EMBEDDING_DIM),
+                GrammarStore::new(),
+                IntentCache::new(),
+                DriftHistory::new(),
+            )
         };
 
         let current_session = store.session_count + 1;
@@ -177,6 +198,9 @@ impl VisionSessionManager {
             observation_notes: Vec::new(),
             next_note_id: 1,
             workspace_manager: super::workspace::VisionWorkspaceManager::new(),
+            grammar_store,
+            intent_cache,
+            drift_history,
         })
     }
 
@@ -193,6 +217,41 @@ impl VisionSessionManager {
     /// Get the workspace manager (mutable).
     pub fn workspace_manager_mut(&mut self) -> &mut super::workspace::VisionWorkspaceManager {
         &mut self.workspace_manager
+    }
+
+    /// Get the grammar store (immutable).
+    pub fn grammar_store(&self) -> &GrammarStore {
+        &self.grammar_store
+    }
+
+    /// Get the grammar store (mutable).
+    pub fn grammar_store_mut(&mut self) -> &mut GrammarStore {
+        &mut self.grammar_store
+    }
+
+    /// Get the intent cache (immutable).
+    pub fn intent_cache(&self) -> &IntentCache {
+        &self.intent_cache
+    }
+
+    /// Get the intent cache (mutable).
+    pub fn intent_cache_mut(&mut self) -> &mut IntentCache {
+        &mut self.intent_cache
+    }
+
+    /// Get the drift history.
+    pub fn drift_history(&self) -> &DriftHistory {
+        &self.drift_history
+    }
+
+    /// Get the drift history (mutable).
+    pub fn drift_history_mut(&mut self) -> &mut DriftHistory {
+        &mut self.drift_history
+    }
+
+    /// Mark the store as needing save.
+    pub fn mark_dirty(&mut self) {
+        self.dirty = true;
     }
 
     /// Current session ID.
@@ -506,18 +565,25 @@ impl VisionSessionManager {
         &self.temporal_chain
     }
 
-    /// Save to file.
+    /// Save to file (v2 format with grammars, cache, drift history).
     pub fn save(&mut self) -> McpResult<()> {
         if !self.dirty {
             return Ok(());
         }
 
-        AvisWriter::write_to_file(&self.store, &self.file_path)
+        let v2 = AvisStoreV2 {
+            store: self.store.clone(),
+            grammar_store: self.grammar_store.clone(),
+            intent_cache: self.intent_cache.clone(),
+            drift_history: self.drift_history.clone(),
+        };
+
+        AvisWriter::write_v2_to_file(&v2, &self.file_path)
             .map_err(|e| McpError::VisionError(format!("Failed to write vision file: {e}")))?;
 
         self.dirty = false;
         self.last_save = Instant::now();
-        tracing::debug!("Saved vision file: {}", self.file_path.display());
+        tracing::debug!("Saved vision file (v2): {}", self.file_path.display());
         Ok(())
     }
 

@@ -22,6 +22,9 @@ use super::{invention_cognition, invention_grounding, invention_prediction, inve
 // V3: 6 Synthesis & Forensics Inventions
 use super::{invention_forensics, invention_synthesis};
 
+// V4: Perception Revolution
+use super::{vision_grammar, vision_perception};
+
 pub struct ToolRegistry;
 
 impl ToolRegistry {
@@ -148,6 +151,18 @@ impl ToolRegistry {
             invention_forensics::definition_vision_regression_check(),
             invention_forensics::definition_vision_regression_report(),
         ];
+        // ── V4: Perception Revolution ──
+        // Perception tools (Adaptive Perception Stack)
+        tools.push(vision_perception::definition_dom_extract());
+        tools.push(vision_perception::definition_intent_extract());
+        tools.push(vision_perception::definition_perception_route());
+        // Grammar tools (Site Grammar System)
+        tools.push(vision_grammar::definition_grammar_learn());
+        tools.push(vision_grammar::definition_grammar_get());
+        tools.push(vision_grammar::definition_grammar_status());
+        tools.push(vision_grammar::definition_grammar_update());
+        tools.push(vision_grammar::definition_grammar_pin());
+
         // Consolidated compact facade tools.
         tools.extend(vision_compact::definitions());
         tools
@@ -417,6 +432,31 @@ impl ToolRegistry {
             }
             "vision_regression_report" => {
                 invention_forensics::execute_vision_regression_report(args, session).await
+            }
+            // ── V4: Perception Revolution ──
+            "vision_dom_extract" => {
+                vision_perception::execute_dom_extract(args, session).await
+            }
+            "vision_intent_extract" => {
+                vision_perception::execute_intent_extract(args, session).await
+            }
+            "vision_perception_route" => {
+                vision_perception::execute_perception_route(args, session).await
+            }
+            "vision_grammar_learn" => {
+                vision_grammar::execute_grammar_learn(args, session).await
+            }
+            "vision_grammar_get" => {
+                vision_grammar::execute_grammar_get(args, session).await
+            }
+            "vision_grammar_status" => {
+                vision_grammar::execute_grammar_status(args, session).await
+            }
+            "vision_grammar_update" => {
+                vision_grammar::execute_grammar_update(args, session).await
+            }
+            "vision_grammar_pin" => {
+                vision_grammar::execute_grammar_pin(args, session).await
             }
             _ => Err(McpError::ToolNotFound(name.to_string())),
         }
