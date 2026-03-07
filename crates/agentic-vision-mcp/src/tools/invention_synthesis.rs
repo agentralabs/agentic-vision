@@ -1138,10 +1138,10 @@ pub async fn execute_vision_dna_lineage(
             "complexity": dna_list[0].complexity_score,
         },
         "last_dna": {
-            "capture_id": dna_list.last().unwrap().capture_id,
-            "fingerprint": format!("{:016x}", dna_list.last().unwrap().fingerprint_hash),
-            "layout": &dna_list.last().unwrap().layout_pattern,
-            "complexity": dna_list.last().unwrap().complexity_score,
+            "capture_id": dna_list[dna_list.len() - 1].capture_id,
+            "fingerprint": format!("{:016x}", dna_list[dna_list.len() - 1].fingerprint_hash),
+            "layout": &dna_list[dna_list.len() - 1].layout_pattern,
+            "complexity": dna_list[dna_list.len() - 1].complexity_score,
         },
     })))
 }

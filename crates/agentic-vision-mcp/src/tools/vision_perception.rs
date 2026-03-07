@@ -292,7 +292,9 @@ pub async fn execute_perception_route(
         .is_some_and(|d| session.grammar_store().has(d));
 
     let grammar_info = if has_grammar {
-        let g = session.grammar_store().get(domain.as_deref().unwrap()).unwrap();
+        let g = session.grammar_store().get(domain.as_deref().unwrap_or_default()).ok_or_else(|| {
+            McpError::InternalError("grammar not found for domain".into())
+        })?;
         json!({
             "domain": g.domain,
             "status": g.status,

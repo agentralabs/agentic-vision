@@ -8,6 +8,29 @@ use serde_json::Value;
 use crate::session::VisionSessionManager;
 use crate::types::{McpError, McpResult, ToolCallResult, ToolDefinition};
 
+/// Token conservation parameters injected into every tool's input schema.
+fn inject_token_conservation_params(tools: &mut [ToolDefinition]) {
+    let conservation_props = serde_json::json!({
+        "include_content": { "type": "boolean", "default": false, "description": "Return full content (default: IDs only)" },
+        "intent": { "type": "string", "enum": ["exists", "ids", "summary", "fields", "full"], "description": "Extraction intent level" },
+        "since": { "type": "integer", "description": "Only return changes since this Unix timestamp" },
+        "token_budget": { "type": "integer", "description": "Maximum token budget for response" },
+        "max_results": { "type": "integer", "default": 10, "description": "Maximum number of results" },
+        "cursor": { "type": "string", "description": "Pagination cursor for next page" }
+    });
+    for tool in tools.iter_mut() {
+        if let Some(props) = tool.input_schema.get_mut("properties") {
+            if let Some(props_obj) = props.as_object_mut() {
+                if let Some(conservation_obj) = conservation_props.as_object() {
+                    for (k, v) in conservation_obj {
+                        props_obj.entry(k.clone()).or_insert_with(|| v.clone());
+                    }
+                }
+            }
+        }
+    }
+}
+
 use super::{
     observation_log, session_end, session_start, vision_capture, vision_compact, vision_compare,
     vision_diff, vision_evidence, vision_ground, vision_health, vision_link, vision_ocr,
@@ -165,6 +188,7 @@ impl ToolRegistry {
 
         // Consolidated compact facade tools.
         tools.extend(vision_compact::definitions());
+        inject_token_conservation_params(&mut tools);
         tools
     }
 

@@ -344,12 +344,12 @@ pub async fn execute_vision_reconstruct(
 
         if obs.timestamp <= p.target_time {
             let dist = p.target_time - obs.timestamp;
-            if before.is_none() || dist < before.unwrap().0 {
+            if before.is_none() || dist < before.map(|b| b.0).unwrap_or(u64::MAX) {
                 before = Some((dist, obs));
             }
         } else {
             let dist = obs.timestamp - p.target_time;
-            if after.is_none() || dist < after.unwrap().0 {
+            if after.is_none() || dist < after.map(|a| a.0).unwrap_or(u64::MAX) {
                 after = Some((dist, obs));
             }
         }
@@ -637,10 +637,10 @@ pub async fn execute_vision_archaeology_report(
 
         appearances += 1;
         sessions.insert(obs.session_id);
-        if first_seen.is_none() || obs.timestamp < first_seen.unwrap() {
+        if first_seen.is_none() || obs.timestamp < first_seen.unwrap_or(u64::MAX) {
             first_seen = Some(obs.timestamp);
         }
-        if last_seen.is_none() || obs.timestamp > last_seen.unwrap() {
+        if last_seen.is_none() || obs.timestamp > last_seen.unwrap_or(0) {
             last_seen = Some(obs.timestamp);
         }
     }
