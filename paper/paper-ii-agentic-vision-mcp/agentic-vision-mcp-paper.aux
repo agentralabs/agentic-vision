@@ -1,0 +1,120 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{lewis2020rag}
+\citation{mem0}
+\citation{packer2023memgpt}
+\citation{mcp2024spec}
+\citation{owolabi2025agenticmemory}
+\citation{radford2021clip}
+\citation{dosovitskiy2020vit}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\citation{mem0}
+\citation{packer2023memgpt}
+\citation{openai_memory}
+\citation{owolabi2025agenticmemory}
+\citation{pinecone2024}
+\citation{weaviate2024}
+\citation{johnson2019faiss}
+\citation{mcp2024spec}
+\citation{protobuf}
+\citation{flatbuffers}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Motivating comparison. (a)~Traditional LLMs perceive images within a context window but lose all visual data when the session ends. (b)~AgenticVision-MCP persists every observation with its CLIP embedding and thumbnail in a binary \texttt  {.avis} file, enabling similarity search, visual diff, and cross-session continuity. Observations can link to AgenticMemory cognitive graph nodes.}}{2}{figure.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:motivation}{{1}{2}{Motivating comparison. (a)~Traditional LLMs perceive images within a context window but lose all visual data when the session ends. (b)~AgenticVision-MCP persists every observation with its CLIP embedding and thumbnail in a binary \texttt {.avis} file, enabling similarity search, visual diff, and cross-session continuity. Observations can link to AgenticMemory cognitive graph nodes}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{2}{Background and Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Vision-Language Models.}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Agent Memory Systems.}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Vector Databases.}{2}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The Model Context Protocol.}{2}{section*.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparison of agent memory and vision storage approaches.}}{2}{table.caption.8}\protected@file@percent }
+\newlabel{tab:related}{{1}{2}{Comparison of agent memory and vision storage approaches}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Binary Formats.}{2}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Architecture}{2}{section.3}\protected@file@percent }
+\newlabel{sec:arch}{{3}{2}{Architecture}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Visual Observation: The Atom}{2}{subsection.3.1}\protected@file@percent }
+\citation{radford2021clip}
+\citation{onnxruntime}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Capture pipeline. Each image passes through decoding, thumbnail generation (JPEG, Lanczos3 resampling), CLIP embedding (512-d vector via ONNX Runtime), metadata assembly, and storage in the binary \texttt  {.avis} file.}}{3}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:pipeline}{{2}{3}{Capture pipeline. Each image passes through decoding, thumbnail generation (JPEG, Lanczos3 resampling), CLIP embedding (512-d vector via ONNX Runtime), metadata assembly, and storage in the binary \texttt {.avis} file}{figure.caption.9}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces VisualObservation structure (simplified from Rust).}}{3}{lstlisting.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}The \texttt  {.avis} Binary File Format}{3}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Design rationale.}{3}{section*.11}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The \texttt  {.avis} binary file format. A fixed 64-byte little-endian header provides O(1) access to metadata (observation count, embedding dimension, timestamps). The payload contains JSON-serialized observations including embeddings and base64-encoded JPEG thumbnails.}}{3}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:format}{{3}{3}{The \texttt {.avis} binary file format. A fixed 64-byte little-endian header provides O(1) access to metadata (observation count, embedding dimension, timestamps). The payload contains JSON-serialized observations including embeddings and base64-encoded JPEG thumbnails}{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}CLIP Embedding Engine}{3}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Similarity Search}{3}{subsection.3.4}\protected@file@percent }
+\newlabel{eq:cosine}{{1}{3}{Similarity Search}{equation.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Visual Diff Detection}{3}{subsection.3.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces MCP tools exposed by AgenticVision-MCP.}}{4}{table.caption.12}\protected@file@percent }
+\newlabel{tab:tools}{{2}{4}{MCP tools exposed by AgenticVision-MCP}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}MCP Interface Design}{4}{section.4}\protected@file@percent }
+\newlabel{sec:mcp}{{4}{4}{MCP Interface Design}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Tools (10)}{4}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Cross-system linking.}{4}{section*.13}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces MCP resources with URI patterns.}}{4}{table.caption.14}\protected@file@percent }
+\newlabel{tab:resources}{{3}{4}{MCP resources with URI patterns}{table.caption.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Resources (6)}{4}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Prompts (4)}{4}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Evaluation}{4}{section.5}\protected@file@percent }
+\newlabel{sec:eval}{{5}{4}{Evaluation}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Test Environment}{4}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Phase 1--2: Build and Unit Tests}{4}{subsection.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces System architecture. Any MCP-compliant client communicates with the server via JSON-RPC 2.0 over stdio. The server dispatches to tools, resources, or prompts, all backed by the vision engine. Visual data persists in \texttt  {.avis} files; cross-system links point to AgenticMemory \texttt  {.amem} nodes.}}{5}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:arch}{{4}{5}{System architecture. Any MCP-compliant client communicates with the server via JSON-RPC 2.0 over stdio. The server dispatches to tools, resources, or prompts, all backed by the vision engine. Visual data persists in \texttt {.avis} files; cross-system links point to AgenticMemory \texttt {.amem} nodes}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Phase 3: MCP Protocol Compliance}{5}{subsection.5.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces MCP initialize response (abridged).}}{5}{lstlisting.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Phase 4: Edge Cases (19/19)}{5}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Phase 5--6: Cross-Language and Multi-Agent}{5}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Python $\to $ Rust integration.}{5}{section*.17}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Edge case test results (19/19 passing).}}{5}{table.caption.16}\protected@file@percent }
+\newlabel{tab:edge}{{4}{5}{Edge case test results (19/19 passing)}{table.caption.16}{}}
+\@writefile{toc}{\contentsline {paragraph}{Multi-agent scenarios.}{5}{section*.18}\protected@file@percent }
+\citation{owolabi2025agenticmemory}
+\citation{owolabi2025queryexpansion}
+\citation{owolabi2025memorymcp}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Storage scaling. Per-capture overhead converges to $\sim $4.26\,KB. The 64-byte header is amortized across observations.}}{6}{table.caption.19}\protected@file@percent }
+\newlabel{tab:storage}{{5}{6}{Storage scaling. Per-capture overhead converges to $\sim $4.26\,KB. The 64-byte header is amortized across observations}{table.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces File size scales linearly with observation count, confirming constant per-capture overhead.}}{6}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:storage}{{5}{6}{File size scales linearly with observation count, confirming constant per-capture overhead}{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Storage Efficiency}{6}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}Query Performance}{6}{subsection.5.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}Overall Test Summary}{6}{subsection.5.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{6}{section.6}\protected@file@percent }
+\newlabel{sec:discussion}{{6}{6}{Discussion}{section.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{What this enables.}{6}{section*.25}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Query latency on 100-capture store (median of 3 runs). Includes process startup ($\sim $6.1\,ms) and file load.}}{6}{table.caption.21}\protected@file@percent }
+\newlabel{tab:query}{{6}{6}{Query latency on 100-capture store (median of 3 runs). Includes process startup ($\sim $6.1\,ms) and file load}{table.caption.21}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Complete validation summary: 88 tests, 0 failures.}}{6}{table.caption.22}\protected@file@percent }
+\newlabel{tab:summary}{{7}{6}{Complete validation summary: 88 tests, 0 failures}{table.caption.22}{}}
+\@writefile{toc}{\contentsline {paragraph}{Multi-agent visual sharing.}{6}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Comparison with AgenticMemory.}{6}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Limitations.}{6}{section*.28}\protected@file@percent }
+\bibstyle{plain}
+\bibdata{references}
+\bibcite{mcp2024spec}{1}
+\bibcite{dosovitskiy2020vit}{2}
+\bibcite{protobuf}{3}
+\bibcite{flatbuffers}{4}
+\bibcite{johnson2019faiss}{5}
+\bibcite{lewis2020rag}{6}
+\bibcite{mem0}{7}
+\bibcite{onnxruntime}{8}
+\bibcite{openai_memory}{9}
+\bibcite{owolabi2025agenticmemory}{10}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Test distribution across categories. All 88 tests pass.}}{7}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:tests}{{6}{7}{Test distribution across categories. All 88 tests pass}{figure.caption.23}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Real-world capacity projections based on measured 4.26\,KB per capture.}}{7}{table.caption.24}\protected@file@percent }
+\newlabel{tab:capacity}{{8}{7}{Real-world capacity projections based on measured 4.26\,KB per capture}{table.caption.24}{}}
+\@writefile{toc}{\contentsline {paragraph}{Future work.}{7}{section*.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{7}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Availability.}{7}{section*.30}\protected@file@percent }
+\bibcite{owolabi2025memorymcp}{11}
+\bibcite{owolabi2025queryexpansion}{12}
+\bibcite{packer2023memgpt}{13}
+\bibcite{pinecone2024}{14}
+\bibcite{radford2021clip}{15}
+\bibcite{weaviate2024}{16}
+\gdef \@abspage@last{8}

@@ -1,63 +1,30 @@
-# Rust build artifacts
-**/target/
-Cargo.lock
+# Rust
+target/
+*.swp
+*.swo
 
-# ONNX models (large binaries)
-models/*.onnx
-
-# Vision data files
-*.avis
-
-# Python build artifacts
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 *.egg-info/
-.venv/
+*.egg
 dist/
-node_modules/
-.pytest_cache/
+build/
+.eggs/
+*.whl
+.venv/
+venv/
+env/
 
 # IDE
-.idea/
 .vscode/
-*.swp
-
-# Runtime state
-.cortex/
-/tmp/cortex.sock
+.idea/
+*.iml
+.fleet/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Shared libraries
-*.so
-*.dylib
-*.dll
-
-# AI prompts, planning docs, test specs (internal only)
-.claude/
-planning-docs/
-scripts/claude-session.sh
-.agentra/
-docs/REPO_HYGIENE.md
-
-# Test reports (generated, not source)
-tests/reports/
-
-# Internal docs (not for public repo)
-docs/internal/
-ECOSYSTEM-CONVENTIONS.md
-
-# Local goals (internal only)
-goals/
-
-# LaTeX build artifacts
-*.aux
-*.bbl
-*.blg
-*.log
-*.out
-*.fls
-*.fdb_latexmk
-*.synctex.gz
+*.swp
+*~
