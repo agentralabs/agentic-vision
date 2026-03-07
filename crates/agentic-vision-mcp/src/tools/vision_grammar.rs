@@ -11,8 +11,7 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 
 use agentic_vision::perception::grammar::{
-    GrammarStatus, InteractionPattern, IntentRoute, NavigationGrammar,
-    SiteGrammar, StateIndicator,
+    GrammarStatus, IntentRoute, InteractionPattern, NavigationGrammar, SiteGrammar, StateIndicator,
 };
 
 use crate::session::VisionSessionManager;
@@ -211,9 +210,7 @@ pub async fn execute_grammar_learn(
 pub fn definition_grammar_get() -> ToolDefinition {
     ToolDefinition {
         name: "vision_grammar_get".to_string(),
-        description: Some(
-            "Get the stored grammar for a known site domain".to_string(),
-        ),
+        description: Some("Get the stored grammar for a known site domain".to_string()),
         input_schema: json!({
             "type": "object",
             "properties": {
@@ -326,9 +323,7 @@ pub async fn execute_grammar_status(
 pub fn definition_grammar_update() -> ToolDefinition {
     ToolDefinition {
         name: "vision_grammar_update".to_string(),
-        description: Some(
-            "Force partial or full re-learn of a site grammar".to_string(),
-        ),
+        description: Some("Force partial or full re-learn of a site grammar".to_string()),
         input_schema: json!({
             "type": "object",
             "properties": {
@@ -376,7 +371,11 @@ pub async fn execute_grammar_update(
     }
 
     // Mark as verified
-    if args.get("mark_verified").and_then(|v| v.as_bool()).unwrap_or(false) {
+    if args
+        .get("mark_verified")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false)
+    {
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()

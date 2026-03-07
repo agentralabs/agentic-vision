@@ -27,10 +27,10 @@ impl ContentVolatility {
     /// TTL in seconds for this volatility class.
     pub fn ttl_secs(self) -> u64 {
         match self {
-            Self::Dynamic => 3600,           // 1 hour
-            Self::SemiStatic => 86400,       // 24 hours
-            Self::Static => 604800,          // 7 days
-            Self::Pinned => u64::MAX,        // effectively permanent
+            Self::Dynamic => 3600,     // 1 hour
+            Self::SemiStatic => 86400, // 24 hours
+            Self::Static => 604800,    // 7 days
+            Self::Pinned => u64::MAX,  // effectively permanent
         }
     }
 }
@@ -165,11 +165,8 @@ impl<'de> Deserialize<'de> for IntentCache {
             10_000
         }
         let data = IntentCacheData::deserialize(deserializer)?;
-        let entries: HashMap<IntentCacheKey, IntentCacheEntry> = data
-            .records
-            .into_iter()
-            .map(|r| (r.key, r.entry))
-            .collect();
+        let entries: HashMap<IntentCacheKey, IntentCacheEntry> =
+            data.records.into_iter().map(|r| (r.key, r.entry)).collect();
         Ok(IntentCache {
             entries,
             max_entries: data.max_entries,
@@ -212,9 +209,10 @@ impl IntentCache {
         }
 
         // Check if we have an entry for the same URL+intent but different hashes
-        let partial_match = self.entries.keys().find(|k| {
-            k.url_normalized == key.url_normalized && k.intent_type == key.intent_type
-        });
+        let partial_match = self
+            .entries
+            .keys()
+            .find(|k| k.url_normalized == key.url_normalized && k.intent_type == key.intent_type);
 
         if let Some(existing_key) = partial_match.cloned() {
             if existing_key.structural_hash != key.structural_hash {
@@ -291,7 +289,11 @@ impl IntentCache {
 
     /// Evict the N oldest entries.
     fn evict_oldest(&mut self, n: usize) {
-        let mut entries: Vec<_> = self.entries.iter().map(|(k, v)| (k.clone(), v.created_at)).collect();
+        let mut entries: Vec<_> = self
+            .entries
+            .iter()
+            .map(|(k, v)| (k.clone(), v.created_at))
+            .collect();
         entries.sort_by_key(|(_, ts)| *ts);
         for (key, _) in entries.into_iter().take(n) {
             self.entries.remove(&key);
@@ -310,7 +312,10 @@ impl IntentCache {
 
     /// Total tokens saved by cache hits.
     pub fn total_tokens_saved(&self) -> u64 {
-        self.entries.values().map(|e| e.tokens_saved as u64 * e.hit_count).sum()
+        self.entries
+            .values()
+            .map(|e| e.tokens_saved as u64 * e.hit_count)
+            .sum()
     }
 
     /// Number of cached entries.
@@ -360,8 +365,15 @@ fn normalize_url(url: &str) -> String {
                 let key = p.split('=').next().unwrap_or("");
                 !matches!(
                     key,
-                    "utm_source" | "utm_medium" | "utm_campaign" | "utm_term"
-                        | "utm_content" | "fbclid" | "gclid" | "ref" | "ref_"
+                    "utm_source"
+                        | "utm_medium"
+                        | "utm_campaign"
+                        | "utm_term"
+                        | "utm_content"
+                        | "fbclid"
+                        | "gclid"
+                        | "ref"
+                        | "ref_"
                 )
             })
             .collect();

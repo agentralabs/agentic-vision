@@ -131,10 +131,7 @@ impl DriftHistory {
 
     /// Get the most recent drift event for a domain.
     pub fn latest(&self, domain: &str) -> Option<&DriftEvent> {
-        self.events
-            .iter()
-            .rev()
-            .find(|e| e.domain == domain)
+        self.events.iter().rev().find(|e| e.domain == domain)
     }
 
     /// Count drift events for a domain.
@@ -180,7 +177,12 @@ mod tests {
             "def",
             "v1",
             vec!["price".into()],
-            vec!["title".into(), "nav".into(), "footer".into(), "search".into()],
+            vec![
+                "title".into(),
+                "nav".into(),
+                "footer".into(),
+                "search".into(),
+            ],
         );
         let event = result.unwrap();
         assert_eq!(event.severity, DriftSeverity::Minor);
@@ -203,8 +205,14 @@ mod tests {
 
     #[test]
     fn test_relearn_cost() {
-        assert_eq!(DriftDetector::estimated_relearn_cost(DriftSeverity::Minor), 200);
-        assert_eq!(DriftDetector::estimated_relearn_cost(DriftSeverity::Major), 1500);
+        assert_eq!(
+            DriftDetector::estimated_relearn_cost(DriftSeverity::Minor),
+            200
+        );
+        assert_eq!(
+            DriftDetector::estimated_relearn_cost(DriftSeverity::Major),
+            1500
+        );
     }
 
     #[test]

@@ -23,9 +23,9 @@ pub use cache::{IntentCache, IntentCacheEntry, IntentCacheKey};
 pub use dom::{AccessibilityNode, AccessibilityRole, DomSnapshot};
 pub use drift::{DriftDetector, DriftEvent, DriftSeverity};
 pub use grammar::{
-    ContentMapEntry, GrammarStatus, GrammarStore, InteractionPattern, IntentRoute, NavigationGrammar,
-    NavigationType, SelectorType, SiteGrammar, StateIndicator,
+    ContentMapEntry, GrammarStatus, GrammarStore, IntentRoute, InteractionPattern,
+    NavigationGrammar, NavigationType, SelectorType, SiteGrammar, StateIndicator,
 };
-pub use router::{PerceptionLayer, PerceptionRouter, PerceptionResult};
+pub use router::{PerceptionLayer, PerceptionResult, PerceptionRouter};
 pub use significance::{SignificanceScore, SignificanceScorer};
 pub use types::{FallbackStrategy, PerceptionIntent, PerceptionRequest};

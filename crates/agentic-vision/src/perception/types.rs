@@ -191,9 +191,18 @@ mod tests {
 
     #[test]
     fn test_extract_domain() {
-        assert_eq!(extract_domain("https://www.amazon.com/dp/B09G9HD6PD"), Some("www.amazon.com".into()));
-        assert_eq!(extract_domain("http://localhost:8080/test"), Some("localhost".into()));
-        assert_eq!(extract_domain("github.com/org/repo"), Some("github.com".into()));
+        assert_eq!(
+            extract_domain("https://www.amazon.com/dp/B09G9HD6PD"),
+            Some("www.amazon.com".into())
+        );
+        assert_eq!(
+            extract_domain("http://localhost:8080/test"),
+            Some("localhost".into())
+        );
+        assert_eq!(
+            extract_domain("github.com/org/repo"),
+            Some("github.com".into())
+        );
         assert_eq!(extract_domain(""), None);
     }
 
@@ -201,7 +210,10 @@ mod tests {
     fn test_perception_request_extract_data() {
         let req = PerceptionRequest::extract_data(
             "https://amazon.com/dp/X",
-            vec![DataField { name: "price".into(), field_type: FieldType::Currency }],
+            vec![DataField {
+                name: "price".into(),
+                field_type: FieldType::Currency,
+            }],
         );
         assert_eq!(req.domain, Some("amazon.com".into()));
         assert!(matches!(req.intent, PerceptionIntent::ExtractData { .. }));

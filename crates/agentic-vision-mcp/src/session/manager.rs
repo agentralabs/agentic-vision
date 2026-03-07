@@ -5,15 +5,15 @@ use std::time::{Duration, Instant};
 
 use image::GenericImageView;
 
+use agentic_vision::perception::cache::IntentCache;
+use agentic_vision::perception::drift::DriftHistory;
+use agentic_vision::perception::grammar::GrammarStore;
+use agentic_vision::storage::AvisStoreV2;
 use agentic_vision::{
     capture_from_base64, capture_from_file, compute_diff, cosine_similarity, find_similar,
     generate_thumbnail, AvisReader, AvisWriter, CaptureSource, EmbeddingEngine, ObservationMeta,
     Rect, SimilarityMatch, VisualDiff, VisualMemoryStore, VisualObservation, EMBEDDING_DIM,
 };
-use agentic_vision::perception::cache::IntentCache;
-use agentic_vision::perception::drift::DriftHistory;
-use agentic_vision::perception::grammar::GrammarStore;
-use agentic_vision::storage::AvisStoreV2;
 
 use crate::types::{McpError, McpResult};
 
@@ -118,7 +118,12 @@ impl VisionSessionManager {
                 v2.store.count(),
                 v2.grammar_store.count()
             );
-            (v2.store, v2.grammar_store, v2.intent_cache, v2.drift_history)
+            (
+                v2.store,
+                v2.grammar_store,
+                v2.intent_cache,
+                v2.drift_history,
+            )
         } else {
             tracing::info!("Creating new vision file: {}", file_path.display());
             if let Some(parent) = file_path.parent() {
@@ -919,7 +924,8 @@ mod tests {
         let dir = tempfile::tempdir().unwrap_or_else(|_| Default::default());
         let path = dir.path().join("vision-projection.avis");
         let mut manager =
-            VisionSessionManager::open(path.to_str().unwrap_or_else(|_| Default::default()), None).unwrap_or_else(|_| Default::default());
+            VisionSessionManager::open(path.to_str().unwrap_or_else(|_| Default::default()), None)
+                .unwrap_or_else(|_| Default::default());
 
         manager.store.add(make_obs(1, 1_700_000_000, false));
         manager
@@ -939,11 +945,14 @@ mod tests {
         let dir = tempfile::tempdir().unwrap_or_else(|_| Default::default());
         let path = dir.path().join("vision-rollup.avis");
         let mut manager =
-            VisionSessionManager::open(path.to_str().unwrap_or_else(|_| Default::default()), None).unwrap_or_else(|_| Default::default());
+            VisionSessionManager::open(path.to_str().unwrap_or_else(|_| Default::default()), None)
+                .unwrap_or_else(|_| Default::default());
 
         manager.store.add(make_obs(1, 1_700_000_000, false));
         manager.store.add(make_obs(1, 1_700_000_001, false));
-        manager.start_session(Some(2)).unwrap_or_else(|_| Default::default());
+        manager
+            .start_session(Some(2))
+            .unwrap_or_else(|_| Default::default());
         manager.dirty = true;
         manager.save().unwrap_or_else(|_| Default::default());
 

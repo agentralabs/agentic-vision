@@ -9,22 +9,24 @@ use agentic_vision::perception::budget::{TokenBudget, TokenBudgetTier};
 use agentic_vision::perception::cache::{
     CacheLookup, ContentVolatility, IntentCache, IntentCacheKey,
 };
-use agentic_vision::perception::dom::{AccessibilityNode, AccessibilityRole, DomSnapshot, NodeBounds};
+use agentic_vision::perception::dom::{
+    AccessibilityNode, AccessibilityRole, DomSnapshot, NodeBounds,
+};
 use agentic_vision::perception::drift::{DriftDetector, DriftHistory, DriftSeverity};
 use agentic_vision::perception::grammar::{
     ContentMapEntry, GrammarStatus, GrammarStore, InteractionPattern, NavigationGrammar,
     NavigationType, SelectorType, SiteGrammar, StateIndicator,
 };
 use agentic_vision::perception::router::{PerceptionLayer, PerceptionRouter};
-use agentic_vision::perception::significance::{RetentionTier, SignificanceScore, SignificanceScorer};
+use agentic_vision::perception::significance::{
+    RetentionTier, SignificanceScore, SignificanceScorer,
+};
 use agentic_vision::perception::types::{
     ActionType, ContentScope, DataField, FallbackStrategy, FieldType, PerceptionIntent,
     PerceptionRequest,
 };
 use agentic_vision::storage::{AvisReader, AvisStoreV2, AvisWriter};
-use agentic_vision::{
-    CaptureSource, ObservationMeta, VisualMemoryStore, VisualObservation,
-};
+use agentic_vision::{CaptureSource, ObservationMeta, VisualMemoryStore, VisualObservation};
 
 // ═══════════════════════════════════════════════════════════
 // SECTION 1: GRAMMAR EDGE CASES
@@ -58,7 +60,10 @@ fn test_grammar_duplicate_content_keys() {
     g.add_content("price", ".new-selector");
     // Second insert should overwrite
     assert_eq!(g.content_map.len(), 1);
-    assert_eq!(g.content_map.get("price").unwrap().selector, ".new-selector");
+    assert_eq!(
+        g.content_map.get("price").unwrap().selector,
+        ".new-selector"
+    );
 }
 
 #[test]
@@ -200,7 +205,9 @@ fn test_grammar_serialization_roundtrip() {
     g.add_intent_route("find_price", vec!["price".into()], None);
     g.interaction_patterns.push(InteractionPattern {
         name: "search".into(),
-        steps: [("input".into(), "#search-box".into())].into_iter().collect(),
+        steps: [("input".into(), "#search-box".into())]
+            .into_iter()
+            .collect(),
         success_indicator: Some(".results-loaded".into()),
     });
     g.state_indicators.push(StateIndicator {
@@ -384,10 +391,20 @@ fn test_cache_domain_invalidation() {
 fn test_cache_replaces_same_url_intent() {
     let mut cache = IntentCache::new();
     let key1 = IntentCacheKey::new("https://x.com/p", "price", "s1", "c1");
-    cache.insert(key1, serde_json::json!({"v": 1}), ContentVolatility::Dynamic, 100);
+    cache.insert(
+        key1,
+        serde_json::json!({"v": 1}),
+        ContentVolatility::Dynamic,
+        100,
+    );
 
     let key2 = IntentCacheKey::new("https://x.com/p", "price", "s1", "c2");
-    cache.insert(key2, serde_json::json!({"v": 2}), ContentVolatility::Dynamic, 100);
+    cache.insert(
+        key2,
+        serde_json::json!({"v": 2}),
+        ContentVolatility::Dynamic,
+        100,
+    );
 
     // Old entry should be replaced (same url+intent, different content hash)
     assert_eq!(cache.len(), 1);
@@ -473,7 +490,15 @@ fn test_drift_severity_boundaries() {
         "b",
         "v1",
         vec!["b1".into(), "b2".into()],
-        vec!["w1".into(), "w2".into(), "w3".into(), "w4".into(), "w5".into(), "w6".into(), "w7".into()],
+        vec![
+            "w1".into(),
+            "w2".into(),
+            "w3".into(),
+            "w4".into(),
+            "w5".into(),
+            "w6".into(),
+            "w7".into(),
+        ],
     )
     .unwrap();
     // 2/9 ≈ 22% → Moderate
@@ -482,8 +507,14 @@ fn test_drift_severity_boundaries() {
 
 #[test]
 fn test_drift_relearn_cost() {
-    assert!(DriftDetector::estimated_relearn_cost(DriftSeverity::Minor) < DriftDetector::estimated_relearn_cost(DriftSeverity::Moderate));
-    assert!(DriftDetector::estimated_relearn_cost(DriftSeverity::Moderate) < DriftDetector::estimated_relearn_cost(DriftSeverity::Major));
+    assert!(
+        DriftDetector::estimated_relearn_cost(DriftSeverity::Minor)
+            < DriftDetector::estimated_relearn_cost(DriftSeverity::Moderate)
+    );
+    assert!(
+        DriftDetector::estimated_relearn_cost(DriftSeverity::Moderate)
+            < DriftDetector::estimated_relearn_cost(DriftSeverity::Major)
+    );
 }
 
 #[test]
@@ -501,7 +532,10 @@ fn test_drift_history_frequency_same_timestamp() {
     assert_eq!(h.drift_frequency("x.com"), 0.0); // 0 span
 }
 
-fn make_drift_event(domain: &str, detected_at: u64) -> agentic_vision::perception::drift::DriftEvent {
+fn make_drift_event(
+    domain: &str,
+    detected_at: u64,
+) -> agentic_vision::perception::drift::DriftEvent {
     agentic_vision::perception::drift::DriftEvent {
         domain: domain.into(),
         old_hash: "a".into(),
@@ -589,8 +623,16 @@ fn test_dom_snapshot_find_by_role() {
 #[test]
 fn test_dom_snapshot_selector_pattern() {
     let mut snap = DomSnapshot::new("https://x.com", "x.com");
-    snap.add_node(make_a11y_node(1, AccessibilityRole::Button, "button.primary"));
-    snap.add_node(make_a11y_node(2, AccessibilityRole::Button, "button.secondary"));
+    snap.add_node(make_a11y_node(
+        1,
+        AccessibilityRole::Button,
+        "button.primary",
+    ));
+    snap.add_node(make_a11y_node(
+        2,
+        AccessibilityRole::Button,
+        "button.secondary",
+    ));
     snap.add_node(make_a11y_node(3, AccessibilityRole::Link, "a.nav-link"));
 
     assert_eq!(snap.find_by_selector_pattern("button").len(), 2);
@@ -691,14 +733,35 @@ fn test_budget_all_tiers() {
 
 #[test]
 fn test_significance_tier_boundaries() {
-    assert_eq!(SignificanceScore::tier_from_score(0.0), RetentionTier::Archive);
-    assert_eq!(SignificanceScore::tier_from_score(0.2), RetentionTier::Archive);
-    assert_eq!(SignificanceScore::tier_from_score(0.201), RetentionTier::Cold);
+    assert_eq!(
+        SignificanceScore::tier_from_score(0.0),
+        RetentionTier::Archive
+    );
+    assert_eq!(
+        SignificanceScore::tier_from_score(0.2),
+        RetentionTier::Archive
+    );
+    assert_eq!(
+        SignificanceScore::tier_from_score(0.201),
+        RetentionTier::Cold
+    );
     assert_eq!(SignificanceScore::tier_from_score(0.4), RetentionTier::Cold);
-    assert_eq!(SignificanceScore::tier_from_score(0.401), RetentionTier::Standard);
-    assert_eq!(SignificanceScore::tier_from_score(0.7), RetentionTier::Standard);
-    assert_eq!(SignificanceScore::tier_from_score(0.701), RetentionTier::Active);
-    assert_eq!(SignificanceScore::tier_from_score(1.0), RetentionTier::Active);
+    assert_eq!(
+        SignificanceScore::tier_from_score(0.401),
+        RetentionTier::Standard
+    );
+    assert_eq!(
+        SignificanceScore::tier_from_score(0.7),
+        RetentionTier::Standard
+    );
+    assert_eq!(
+        SignificanceScore::tier_from_score(0.701),
+        RetentionTier::Active
+    );
+    assert_eq!(
+        SignificanceScore::tier_from_score(1.0),
+        RetentionTier::Active
+    );
 }
 
 #[test]
@@ -721,7 +784,11 @@ fn test_significance_high_usage_high_importance() {
 
     let scorer = SignificanceScorer::new(1000);
     let score = scorer.score(&g, 0.95);
-    assert!(score.score > 0.7, "High-value grammar should be Active tier, got {}", score.score);
+    assert!(
+        score.score > 0.7,
+        "High-value grammar should be Active tier, got {}",
+        score.score
+    );
     assert_eq!(score.tier, RetentionTier::Active);
 }
 
@@ -739,7 +806,10 @@ fn test_router_extract_data_with_grammar() {
     let mut cache = IntentCache::new();
     let req = PerceptionRequest::extract_data(
         "https://amazon.com/dp/X",
-        vec![DataField { name: "price".into(), field_type: FieldType::Currency }],
+        vec![DataField {
+            name: "price".into(),
+            field_type: FieldType::Currency,
+        }],
     );
 
     let decision = PerceptionRouter::route(&req, &store, &mut cache);
@@ -753,7 +823,10 @@ fn test_router_extract_data_without_grammar() {
     let mut cache = IntentCache::new();
     let req = PerceptionRequest::extract_data(
         "https://unknown.com",
-        vec![DataField { name: "title".into(), field_type: FieldType::Text }],
+        vec![DataField {
+            name: "title".into(),
+            field_type: FieldType::Text,
+        }],
     );
 
     let decision = PerceptionRouter::route(&req, &store, &mut cache);
@@ -798,7 +871,10 @@ fn test_router_no_url() {
     let mut cache = IntentCache::new();
     let req = PerceptionRequest {
         intent: PerceptionIntent::ExtractData {
-            fields: vec![DataField { name: "x".into(), field_type: FieldType::Text }],
+            fields: vec![DataField {
+                name: "x".into(),
+                field_type: FieldType::Text,
+            }],
         },
         url: None,
         domain: None,
@@ -818,7 +894,10 @@ fn test_perception_layer_properties() {
     // Grammar lookup should be cheapest
     assert_eq!(PerceptionLayer::GrammarLookup.typical_tokens(), 0);
     // Scoped screenshot should be most expensive of the non-full layers
-    assert!(PerceptionLayer::ScopedScreenshot.typical_tokens() > PerceptionLayer::DomExtraction.typical_tokens());
+    assert!(
+        PerceptionLayer::ScopedScreenshot.typical_tokens()
+            > PerceptionLayer::DomExtraction.typical_tokens()
+    );
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -830,7 +909,9 @@ fn make_test_obs(id: u64) -> VisualObservation {
         id,
         timestamp: 1708345678,
         session_id: 1,
-        source: CaptureSource::File { path: "/test.png".into() },
+        source: CaptureSource::File {
+            path: "/test.png".into(),
+        },
         embedding: vec![0.1, 0.2, 0.3],
         thumbnail: vec![0xFF, 0xD8, 0xFF],
         metadata: ObservationMeta {
@@ -912,7 +993,8 @@ fn test_v2_backward_compat_reads_v1() {
         "session_count": 0,
         "created_at": 1000,
         "updated_at": 1000,
-    })).unwrap();
+    }))
+    .unwrap();
 
     let mut buf = Vec::new();
     let mut header = [0u8; 64];
@@ -1051,14 +1133,27 @@ fn test_stress_dom_snapshot_1000_nodes() {
     for i in 0..1000 {
         snap.add_node(AccessibilityNode {
             node_id: i,
-            role: if i % 5 == 0 { AccessibilityRole::Button } else { AccessibilityRole::Region },
+            role: if i % 5 == 0 {
+                AccessibilityRole::Button
+            } else {
+                AccessibilityRole::Region
+            },
             name: Some(format!("Node {i}")),
             description: None,
-            value: if i % 10 == 0 { Some(format!("val-{i}")) } else { None },
+            value: if i % 10 == 0 {
+                Some(format!("val-{i}"))
+            } else {
+                None
+            },
             selector: Some(format!("div.node-{i}")),
             interactive: i % 5 == 0,
             visible: true,
-            bounds: Some(NodeBounds { x: i as f32, y: 0.0, width: 100.0, height: 50.0 }),
+            bounds: Some(NodeBounds {
+                x: i as f32,
+                y: 0.0,
+                width: 100.0,
+                height: 50.0,
+            }),
             attributes: HashMap::new(),
             children: vec![],
         });
@@ -1123,7 +1218,8 @@ fn test_stress_v2_roundtrip_large() {
 
     // 30 drift events
     for i in 0..30 {
-        v2.drift_history.record(make_drift_event(&format!("site-{i}.com"), i * 1000));
+        v2.drift_history
+            .record(make_drift_event(&format!("site-{i}.com"), i * 1000));
     }
 
     let mut buf = Vec::new();
@@ -1159,7 +1255,10 @@ fn test_stress_router_1000_routing_decisions() {
         let domain = format!("site-{}.com", i % 200); // 50% have grammars
         let req = PerceptionRequest::extract_data(
             &format!("https://{domain}/page"),
-            vec![DataField { name: "price".into(), field_type: FieldType::Currency }],
+            vec![DataField {
+                name: "price".into(),
+                field_type: FieldType::Currency,
+            }],
         );
         let decision = PerceptionRouter::route(&req, &store, &mut cache);
         match decision.primary_layer {

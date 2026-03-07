@@ -138,10 +138,19 @@ mod tests {
 
     #[test]
     fn test_tier_from_score() {
-        assert_eq!(SignificanceScore::tier_from_score(0.8), RetentionTier::Active);
-        assert_eq!(SignificanceScore::tier_from_score(0.5), RetentionTier::Standard);
+        assert_eq!(
+            SignificanceScore::tier_from_score(0.8),
+            RetentionTier::Active
+        );
+        assert_eq!(
+            SignificanceScore::tier_from_score(0.5),
+            RetentionTier::Standard
+        );
         assert_eq!(SignificanceScore::tier_from_score(0.3), RetentionTier::Cold);
-        assert_eq!(SignificanceScore::tier_from_score(0.1), RetentionTier::Archive);
+        assert_eq!(
+            SignificanceScore::tier_from_score(0.1),
+            RetentionTier::Archive
+        );
     }
 
     #[test]

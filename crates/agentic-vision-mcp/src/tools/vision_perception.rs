@@ -100,7 +100,9 @@ pub async fn execute_dom_extract(
         results.insert("tokens_used".into(), json!(0));
         results.insert(
             "instruction".into(),
-            json!("Use the resolved selectors to query the page DOM directly. No screenshot needed."),
+            json!(
+                "Use the resolved selectors to query the page DOM directly. No screenshot needed."
+            ),
         );
 
         Ok(ToolCallResult::json(&Value::Object(results)))
@@ -292,9 +294,10 @@ pub async fn execute_perception_route(
         .is_some_and(|d| session.grammar_store().has(d));
 
     let grammar_info = if has_grammar {
-        let g = session.grammar_store().get(domain.as_deref().unwrap_or_default()).ok_or_else(|| {
-            McpError::InternalError("grammar not found for domain".into())
-        })?;
+        let g = session
+            .grammar_store()
+            .get(domain.as_deref().unwrap_or_default())
+            .ok_or_else(|| McpError::InternalError("grammar not found for domain".into()))?;
         json!({
             "domain": g.domain,
             "status": g.status,

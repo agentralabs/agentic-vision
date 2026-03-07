@@ -208,30 +208,25 @@ pub struct SiteGrammar {
     pub updated_at: u64,
 
     // ── Content Map: what lives where ──
-
     /// Named selectors for content extraction (e.g., "product_price" -> selector).
     #[serde(default)]
     pub content_map: HashMap<String, ContentMapEntry>,
 
     // ── Behavioral Grammar: how to interact ──
-
     /// Named interaction patterns (e.g., "search", "pagination").
     #[serde(default)]
     pub interaction_patterns: Vec<InteractionPattern>,
 
     // ── State Grammar: what indicates system state ──
-
     /// Named state indicators (e.g., "loading", "error", "captcha").
     #[serde(default)]
     pub state_indicators: Vec<StateIndicator>,
 
     // ── Navigation Grammar ──
-
     #[serde(default)]
     pub navigation: NavigationGrammar,
 
     // ── Intent Routes ──
-
     /// Maps user intents to grammar entries.
     #[serde(default)]
     pub intent_routes: Vec<IntentRoute>,
@@ -447,7 +442,6 @@ fn now_secs() -> u64 {
         .unwrap_or_default()
         .as_secs()
 }
-
 
 #[cfg(test)]
 mod tests {

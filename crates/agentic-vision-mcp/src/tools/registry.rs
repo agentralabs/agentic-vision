@@ -458,30 +458,18 @@ impl ToolRegistry {
                 invention_forensics::execute_vision_regression_report(args, session).await
             }
             // ── V4: Perception Revolution ──
-            "vision_dom_extract" => {
-                vision_perception::execute_dom_extract(args, session).await
-            }
+            "vision_dom_extract" => vision_perception::execute_dom_extract(args, session).await,
             "vision_intent_extract" => {
                 vision_perception::execute_intent_extract(args, session).await
             }
             "vision_perception_route" => {
                 vision_perception::execute_perception_route(args, session).await
             }
-            "vision_grammar_learn" => {
-                vision_grammar::execute_grammar_learn(args, session).await
-            }
-            "vision_grammar_get" => {
-                vision_grammar::execute_grammar_get(args, session).await
-            }
-            "vision_grammar_status" => {
-                vision_grammar::execute_grammar_status(args, session).await
-            }
-            "vision_grammar_update" => {
-                vision_grammar::execute_grammar_update(args, session).await
-            }
-            "vision_grammar_pin" => {
-                vision_grammar::execute_grammar_pin(args, session).await
-            }
+            "vision_grammar_learn" => vision_grammar::execute_grammar_learn(args, session).await,
+            "vision_grammar_get" => vision_grammar::execute_grammar_get(args, session).await,
+            "vision_grammar_status" => vision_grammar::execute_grammar_status(args, session).await,
+            "vision_grammar_update" => vision_grammar::execute_grammar_update(args, session).await,
+            "vision_grammar_pin" => vision_grammar::execute_grammar_pin(args, session).await,
             _ => Err(McpError::ToolNotFound(name.to_string())),
         }
     }

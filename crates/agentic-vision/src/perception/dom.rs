@@ -169,11 +169,7 @@ impl DomSnapshot {
     pub fn find_by_selector_pattern(&self, pattern: &str) -> Vec<&AccessibilityNode> {
         self.nodes
             .values()
-            .filter(|n| {
-                n.selector
-                    .as_ref()
-                    .is_some_and(|s| s.contains(pattern))
-            })
+            .filter(|n| n.selector.as_ref().is_some_and(|s| s.contains(pattern)))
             .collect()
     }
 
